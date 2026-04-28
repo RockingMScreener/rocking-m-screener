@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocking M Crypto Screener</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Barlow+Condensed:wght@300;400;600;700;800&display=swap');
+  :root {
+    --bg:#e8eaed;--bg2:#f2f4f6;--bg3:#ffffff;--bg-header:#1a2330;
+    --border:#c4cad2;--border2:#a8b2bc;
+    --green:#007a3d;--green-lt:#00a651;--green-bg:#e6f4ec;--green-hi:#00cc66;
+    --blue:#0055a5;--blue-lt:#0077cc;
+    --red:#cc2200;--amber:#c47a00;
+    --text:#1a1f26;--text-mid:#3d4a57;--text-dim:#6b7a8a;
+    --mono:'IBM Plex Mono',monospace;--sans:'Barlow Condensed',sans-serif;--serif:'Georgia','Times New Roman',serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;}
+
+  /* ── Header ── */
+  .top-bar{background:var(--bg-header);border-bottom:3px solid var(--green-lt);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+  .logo-badge{display:flex;align-items:center;gap:16px;}
+  .badge-mark{width:72px;height:82px;background:#111a24;border:1.5px solid var(--green-lt);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:7px;flex-shrink:0;position:relative;}
+  .badge-rocking{font-family:var(--sans);font-size:9px;font-weight:800;letter-spacing:4px;color:var(--green-hi);text-transform:uppercase;line-height:1;}
+  .badge-m{font-family:var(--serif);font-size:54px;font-weight:700;color:#fff;line-height:1;margin-top:-2px;}
+  .badge-sub{font-family:var(--sans);font-size:7px;font-weight:600;letter-spacing:3px;color:#3d5570;text-transform:uppercase;position:absolute;bottom:6px;}
+  .brand-text{display:flex;flex-direction:column;gap:2px;}
+  .brand-title{font-family:var(--sans);font-size:28px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#fff;line-height:1;}
+  .brand-title span{color:var(--green-hi);}
+  .brand-tagline{font-family:var(--mono);font-size:9px;color:#4a6070;letter-spacing:1px;margin-top:4px;line-height:1.6;}
+  .status-cluster{display:flex;gap:16px;align-items:center;flex-wrap:wrap;}
+  .s-item{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+  .s-label{font-family:var(--mono);font-size:9px;color:#4a6070;letter-spacing:2px;text-transform:uppercase;}
+  .s-val{font-family:var(--mono);font-size:13px;color:var(--green-hi);font-weight:600;}
+
+  .shell{max-width:1500px;margin:0 auto;padding:20px 24px 40px;}
+  .sec-label{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+
+  /* ── Chain selector ── */
+  .chain-section{margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--green);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .chain-tier-label{font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px;margin-top:10px;}
+  .chain-tier-label:first-of-type{margin-top:0;}
+  .chain-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px;}
+
+  .chip{font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:6px 14px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text-dim);cursor:pointer;transition:all .15s;text-transform:uppercase;white-space:nowrap;user-select:none;box-shadow:0 1px 2px rgba(0,0,0,.06);}
+  .chip:hover:not(.disabled){border-color:var(--green);color:var(--green);background:#f0f8f4;}
+
+  /* Active states per chain */
+  .chip.active[data-chain="solana"]  {border-color:#9945ff;background:#2d1a4a;color:#c49fff;}
+  .chip.active[data-chain="eth"]     {border-color:#6699ff;background:#1a2040;color:#aabfff;}
+  .chip.active[data-chain="base"]    {border-color:#4488ff;background:#001a3a;color:#88aaff;}
+  .chip.active[data-chain="bsc"]     {border-color:#f0b800;background:#2a2000;color:#f0d060;}
+  .chip.active[data-chain="arbitrum"]{border-color:#12aaff;background:#001a2a;color:#70ccff;}
+  .chip.active[data-chain="optimism"]{border-color:#ff4444;background:#2a0000;color:#ff9090;}
+  .chip.active[data-chain="polygon"] {border-color:#8247e5;background:#1a0a30;color:#b080ff;}
+  .chip.active[data-chain="avax"]    {border-color:#e84142;background:#2a0505;color:#ff8080;}
+  .chip.active[data-chain="sui-network"]{border-color:#4da2ff;background:#001830;color:#90c8ff;}
+  .chip.active[data-chain="ton"]     {border-color:#0088cc;background:#001a26;color:#60b8e8;}
+  .chip.active[data-chain="aptos"]   {border-color:#00c2a8;background:#002020;color:#60e8d8;}
+  .chip.active[data-chain="fantom"]  {border-color:#1969ff;background:#000a2a;color:#6090ff;}
+  .chip.active[data-chain="cosmos"]  {border-color:#6f4e8a;background:#120a1e;color:#b090d0;}
+
+  .chip.disabled{opacity:.35;cursor:not-allowed;pointer-events:none;}
+
+  /* Chain counter */
+  .chain-counter{font-family:var(--mono);font-size:11px;font-weight:600;padding:4px 12px;border:1px solid var(--border);background:var(--bg2);color:var(--text-mid);margin-left:auto;}
+  .chain-counter.at-limit{border-color:var(--amber);color:var(--amber);background:#fff8e6;}
+  .chain-hint{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-top:8px;}
+
+  /* ── Filter panel ── */
+  .filter-panel{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-top:3px solid var(--green);}
+  .fgroup{display:flex;flex-direction:column;gap:4px;}
+  .flabel{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;}
+  .finput{font-family:var(--mono);font-size:12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 10px;outline:none;transition:border-color .15s;width:100%;}
+  .finput:focus{border-color:var(--green);background:#fff;}
+
+  /* ── Controls ── */
+  .ctrl-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+  .btn-run{font-family:var(--sans);font-size:16px;font-weight:800;letter-spacing:3px;text-transform:uppercase;padding:10px 32px;border:2px solid var(--green);background:var(--green);color:#fff;cursor:pointer;transition:all .15s;box-shadow:0 2px 6px rgba(0,122,61,.25);}
+  .btn-run:hover{background:var(--green-lt);border-color:var(--green-lt);}
+  .btn-run:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;}
+  .btn-run.scanning{background:var(--amber);border-color:var(--amber);animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+  .auto-group{display:flex;align-items:center;gap:8px;}
+  .toggle{position:relative;width:38px;height:20px;cursor:pointer;}
+  .toggle input{display:none;}
+  .toggle-track{position:absolute;inset:0;background:var(--border);border:1px solid var(--border2);transition:all .2s;border-radius:2px;}
+  .toggle input:checked+.toggle-track{background:var(--green-bg);border-color:var(--green);}
+  .toggle-thumb{position:absolute;top:3px;left:3px;width:12px;height:12px;background:var(--text-dim);transition:all .2s;}
+  .toggle input:checked~.toggle-thumb{left:21px;background:var(--green);}
+  .mono-sm{font-family:var(--mono);font-size:11px;color:var(--text-mid);letter-spacing:1px;}
+  select.mono-sm{background:var(--bg3);border:1px solid var(--border);color:var(--text-mid);padding:4px 8px;outline:none;cursor:pointer;}
+  .status-pill{font-family:var(--mono);font-size:11px;letter-spacing:1px;padding:4px 12px;border:1px solid var(--border);background:var(--bg3);color:var(--text-dim);display:flex;align-items:center;gap:6px;}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--border2);flex-shrink:0;display:inline-block;}
+  .live-dot.on{background:var(--green-lt);box-shadow:0 0 5px var(--green-lt);animation:blink 2s infinite;}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+  /* ── Stats ── */
+  .stats-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .scard{background:var(--bg3);border:1px solid var(--border);border-left:4px solid var(--green);padding:10px 16px;flex:1;min-width:110px;box-shadow:0 1px 3px rgba(0,0,0,.07);}
+  .scard.hot-card{border-left-color:var(--green-lt);}
+  .scard.blue-card{border-left-color:var(--blue);}
+  .scard.red-card{border-left-color:var(--red);}
+  .scard.amber-card{border-left-color:var(--amber);}
+  .scard-label{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}
+  .scard-val{font-family:var(--mono);font-size:22px;color:var(--text);font-weight:600;}
+
+  /* ── Table ── */
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--border);background:var(--bg3);box-shadow:0 2px 8px rgba(0,0,0,.08);}
+  table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;}
+  thead tr{background:var(--bg-header);}
+  th{padding:10px 11px;text-align:left;font-size:9px;letter-spacing:2px;color:#a0b4c4;text-transform:uppercase;white-space:nowrap;cursor:pointer;user-select:none;transition:color .15s;border-right:1px solid rgba(255,255,255,.06);}
+  th:last-child{border-right:none;}
+  th:hover{color:var(--green-hi);}
+  th.sorted{color:var(--green-hi);}
+  th.sorted::after{content:' \2193';}
+  th.sorted.asc::after{content:' \2191';}
+  tbody tr{border-bottom:1px solid var(--border);transition:background .1s;animation:row-in .22s ease forwards;opacity:0;}
+  @keyframes row-in{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:translateX(0)}}
+  tbody tr:nth-child(even){background:#f7f9fb;}
+  tbody tr:hover{background:#edf5f0!important;}
+  td{padding:8px 11px;white-space:nowrap;color:var(--text);border-right:1px solid rgba(196,202,210,.4);}
+  td:last-child{border-right:none;}
+  td.name-col{font-family:var(--sans);font-weight:700;font-size:13px;max-width:140px;overflow:hidden;text-overflow:ellipsis;}
+  td.sym-col{color:var(--blue);font-weight:600;letter-spacing:1px;}
+  td.age-col{color:var(--text-dim);}
+  td.price-col{font-weight:600;}
+  td.liq-col{color:var(--green);font-weight:600;}
+  td.pool-col{color:var(--blue-lt);}
+  td.vol-col{color:var(--text-mid);}
+  td.mcap-col{color:var(--text-mid);}
+  td.addr-col{color:var(--blue-lt);font-size:10px;cursor:pointer;transition:color .15s;}
+  td.addr-col:hover{color:var(--blue);text-decoration:underline;}
+  td.link-col a{color:var(--green);text-decoration:none;font-size:10px;font-weight:600;letter-spacing:1px;}
+  td.link-col a:hover{text-decoration:underline;}
+
+  /* ── Chain color pills in table — each chain distinct ── */
+  .chain-tag{font-size:9px;letter-spacing:1px;padding:2px 8px;text-transform:uppercase;font-weight:600;border-radius:2px;display:inline-block;}
+  span.chain-tag.ct-solana  {background:#2d1a4a!important;color:#c49fff!important;border:1px solid #9945ff;}
+  span.chain-tag.ct-eth     {background:#1a2040!important;color:#aabfff!important;border:1px solid #6699ff;}
+  span.chain-tag.ct-base    {background:#001a3a!important;color:#88aaff!important;border:1px solid #4488ff;}
+  span.chain-tag.ct-bsc     {background:#2a2000!important;color:#f0d060!important;border:1px solid #f0b800;}
+  span.chain-tag.ct-arbitrum{background:#001a2a!important;color:#70ccff!important;border:1px solid #12aaff;}
+  span.chain-tag.ct-optimism{background:#2a0000!important;color:#ff9090!important;border:1px solid #ff4444;}
+  span.chain-tag.ct-polygon {background:#1a0a30!important;color:#b080ff!important;border:1px solid #8247e5;}
+  span.chain-tag.ct-avax    {background:#2a0505!important;color:#ff8080!important;border:1px solid #e84142;}
+  span.chain-tag.ct-sui     {background:#001830!important;color:#90c8ff!important;border:1px solid #4da2ff;}
+  span.chain-tag.ct-ton     {background:#001a26!important;color:#60b8e8!important;border:1px solid #0088cc;}
+  span.chain-tag.ct-aptos   {background:#002020!important;color:#60e8d8!important;border:1px solid #00c2a8;}
+  span.chain-tag.ct-fantom  {background:#000a2a!important;color:#6090ff!important;border:1px solid #1969ff;}
+  span.chain-tag.ct-cosmos  {background:#120a1e!important;color:#b090d0!important;border:1px solid #6f4e8a;}
+  span.chain-tag.ct-other   {background:#1a2330!important;color:#8fa0b0!important;border:1px solid #3d5570;}
+
+  .chg-high{color:#fff;background:var(--green);padding:2px 7px;font-weight:600;}
+  .chg-med{color:#fff;background:var(--green-lt);padding:2px 7px;}
+  .chg-low{color:var(--green);background:var(--green-bg);padding:2px 7px;}
+  .chg-neg{color:#fff;background:var(--red);padding:2px 7px;font-weight:600;}
+  .chg-zero{color:var(--text-dim);padding:2px 7px;}
+  .badge{font-size:9px;letter-spacing:1px;padding:2px 7px;border:1px solid var(--border2);color:var(--text-dim);text-transform:uppercase;background:var(--bg2);}
+  .empty-msg{text-align:center;padding:50px 20px;font-family:var(--mono);font-size:12px;color:var(--text-dim);letter-spacing:2px;}
+  .spinner{display:inline-block;width:10px;height:10px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ── Trade Journal ── */
+  .section-hdr{font-family:var(--sans);font-size:14px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--text);border-bottom:2px solid var(--green);padding-bottom:6px;margin:24px 0 12px;}
+  .tradelog-form{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 2fr auto;gap:8px;margin-bottom:10px;align-items:flex-end;}
+  .tl-tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;}
+  .tl-tbl th{padding:8px 11px;background:var(--bg-header);font-size:8px;letter-spacing:2px;color:#a0b4c4;text-transform:uppercase;text-align:left;border-right:1px solid rgba(255,255,255,.06);}
+  .tl-tbl td{padding:8px 11px;border-bottom:1px solid var(--border);border-right:1px solid rgba(196,202,210,.4);}
+  .tl-tbl tr:nth-child(even) td{background:#f7f9fb;}
+  .tl-tbl tr:hover td{background:#edf5f0;}
+  .outcome-win{color:var(--green);font-weight:600;}
+  .outcome-loss{color:var(--red);font-weight:600;}
+  .outcome-open{color:var(--amber);font-weight:600;}
+  .btn-del{background:transparent;border:none;color:var(--text-dim);cursor:pointer;font-family:var(--mono);font-size:11px;padding:2px 6px;}
+  .btn-del:hover{color:var(--red);}
+  .export-row{display:flex;gap:8px;margin-top:10px;}
+  .btn-sm{font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:6px 14px;border:1px solid var(--border2);background:var(--bg3);color:var(--text-mid);cursor:pointer;transition:all .15s;box-shadow:0 1px 2px rgba(0,0,0,.07);}
+  .btn-sm:hover{border-color:var(--green);color:var(--green);background:var(--green-bg);}
+
+  /* ── Footer ── */
+  footer{margin-top:20px;padding-top:14px;border-top:2px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+  footer span{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;}
+  .toast{position:fixed;bottom:20px;right:20px;background:var(--bg-header);border:1px solid var(--green-lt);padding:10px 18px;font-family:var(--mono);font-size:11px;color:var(--green-hi);letter-spacing:1px;z-index:10000;opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.2);}
+  .toast.show{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<div class="top-bar">
+  <div class="logo-badge">
+    <div class="badge-mark">
+      <span class="badge-rocking">Rocking</span>
+      <svg width="58" height="14" viewBox="0 0 58 14" fill="none" style="display:block;margin:2px 0 -4px">
+        <path d="M 2 12 Q 29 2 56 12" stroke="#00cc66" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </svg>
+      <span class="badge-m">M</span>
+      <span class="badge-sub">Crypto</span>
+    </div>
+    <div class="brand-text">
+      <div class="brand-title">ROCKING <span>M</span> CRYPTO</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:3px;color:#3d5570;text-transform:uppercase;margin-top:2px;">Token Screener &middot; v1.4</div>
+      <div class="brand-tagline">You don't have to be a master trader.<br>You just need to know how to use the tools.</div>
+    </div>
+  </div>
+  <div class="status-cluster">
+    <div class="s-item"><span class="s-label">Last Scan</span><span class="s-val" id="last-scan">&#8212;</span></div>
+    <div class="s-item"><span class="s-label">Next Scan</span><span class="s-val" id="next-scan">&#8212;</span></div>
+    <div class="s-item"><span class="s-label">Tokens Found</span><span class="s-val" id="tok-count">0</span></div>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- ── Chain Selector ── -->
+  <div class="chain-section">
+    <div class="sec-label">
+      SELECT CHAINS
+      <span class="chain-counter" id="chain-counter">1 / 5 selected</span>
+    </div>
+
+    <div class="chain-tier-label">Tier 1 &mdash; High Volume</div>
+    <div class="chain-chips" id="tier1-chips">
+      <button class="chip active" data-chain="solana"   onclick="toggleChain(this)">&#9672; Solana</button>
+      <button class="chip"        data-chain="eth"      onclick="toggleChain(this)">&#9672; Ethereum</button>
+      <button class="chip"        data-chain="base"     onclick="toggleChain(this)">&#9672; Base</button>
+      <button class="chip"        data-chain="bsc"      onclick="toggleChain(this)">&#9672; BSC</button>
+      <button class="chip"        data-chain="arbitrum" onclick="toggleChain(this)">&#9672; Arbitrum</button>
+      <button class="chip"        data-chain="optimism" onclick="toggleChain(this)">&#9672; Optimism</button>
+    </div>
+
+    <div class="chain-tier-label">Tier 2 &mdash; Active Communities</div>
+    <div class="chain-chips" id="tier2-chips">
+      <button class="chip" data-chain="polygon_pos" onclick="toggleChain(this)">&#9672; Polygon</button>
+      <button class="chip" data-chain="avax"        onclick="toggleChain(this)">&#9672; Avalanche</button>
+      <button class="chip" data-chain="sui-network" onclick="toggleChain(this)">&#9672; Sui</button>
+      <button class="chip" data-chain="ton"         onclick="toggleChain(this)">&#9672; TON</button>
+      <button class="chip" data-chain="aptos"       onclick="toggleChain(this)">&#9672; Aptos</button>
+      <button class="chip" data-chain="fantom"      onclick="toggleChain(this)">&#9672; Fantom</button>
+      <button class="chip" data-chain="cosmos"      onclick="toggleChain(this)">&#9672; Cosmos</button>
+    </div>
+
+    <div class="chain-hint">Select up to 5 chains per scan &mdash; results combined into one table. Deselect a chain to enable others.</div>
+  </div>
+
+  <!-- ── Filters ── -->
+  <div class="filter-panel">
+    <div class="fgroup"><span class="flabel">Min Liquidity ($)</span><input class="finput" type="number" id="min-liq" value="8000" step="1000"></div>
+    <div class="fgroup"><span class="flabel">Max Pool Age (h)</span><input class="finput" type="number" id="max-age" value="24" step="1"></div>
+    <div class="fgroup"><span class="flabel">Min 1H Change (%)</span><input class="finput" type="number" id="min-chg" value="0" step="1"></div>
+    <div class="fgroup"><span class="flabel">Min Volume 24H ($)</span><input class="finput" type="number" id="min-vol" value="0" step="1000"></div>
+  </div>
+
+  <!-- ── Controls ── -->
+  <div class="ctrl-row">
+    <button class="btn-run" id="run-btn" onclick="runScreener()">&#9654; RUN SCAN</button>
+    <div class="auto-group">
+      <label class="toggle">
+        <input type="checkbox" id="auto-toggle" onchange="toggleAuto()">
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+      <span class="mono-sm">AUTO</span>
+      <select class="mono-sm" id="interval-sel">
+        <option value="1">1 min</option>
+        <option value="5" selected>5 min</option>
+        <option value="15">15 min</option>
+        <option value="30">30 min</option>
+      </select>
+    </div>
+    <div class="status-pill"><span class="live-dot" id="live-dot"></span><span id="status-txt">IDLE</span></div>
+  </div>
+
+  <!-- ── Stats ── -->
+  <div class="stats-row">
+    <div class="scard"><div class="scard-label">Total Passing</div><div class="scard-val" id="st-total">0</div></div>
+    <div class="scard hot-card"><div class="scard-label">Hot (25%+)</div><div class="scard-val" id="st-hot" style="color:var(--green-lt)">0</div></div>
+    <div class="scard blue-card"><div class="scard-label">Avg Liquidity</div><div class="scard-val" id="st-liq" style="font-size:15px;color:var(--blue)">&#8212;</div></div>
+    <div class="scard red-card"><div class="scard-label">Negative 1H</div><div class="scard-val" id="st-neg" style="color:var(--red)">0</div></div>
+    <div class="scard"><div class="scard-label">Avg 1H %</div><div class="scard-val" id="st-avg1h" style="font-size:15px">&#8212;</div></div>
+    <div class="scard amber-card"><div class="scard-label">Chains Scanned</div><div class="scard-val" id="st-chains" style="font-size:15px;color:var(--amber)">&#8212;</div></div>
+  </div>
+
+  <!-- ── Table ── -->
+  <div class="tbl-wrap">
+    <table id="main-table">
+      <thead>
+        <tr>
+          <th onclick="sortBy('chain')">Chain</th>
+          <th onclick="sortBy('name')">Name</th>
+          <th onclick="sortBy('symbol')">Symbol</th>
+          <th onclick="sortBy('age')">Age</th>
+          <th onclick="sortBy('price')">Price</th>
+          <th onclick="sortBy('liquidity')">Liquidity</th>
+          <th onclick="sortBy('poolPct')">Pool %</th>
+          <th onclick="sortBy('chg1h')" class="sorted">1H %</th>
+          <th onclick="sortBy('chg6h')">6H %</th>
+          <th onclick="sortBy('chg24h')">24H %</th>
+          <th onclick="sortBy('vol24h')">Vol 24H</th>
+          <th onclick="sortBy('mcap')">Mkt Cap</th>
+          <th>DEX</th>
+          <th>Address</th>
+          <th>Link</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-body">
+        <tr><td colspan="15" class="empty-msg">Select chains above and press RUN SCAN</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── Trade Journal ── -->
+  <div class="section-hdr">Trade Journal &middot; ElizaOS Training Data</div>
+
+  <div class="tradelog-form">
+    <div class="fgroup"><span class="flabel">Token Symbol</span><input class="finput" type="text" id="tl-sym" placeholder="TOKEN"></div>
+    <div class="fgroup"><span class="flabel">Contract Address</span><input class="finput" type="text" id="tl-addr" placeholder="0x... or base58"></div>
+    <div class="fgroup"><span class="flabel">Entry Price</span><input class="finput" type="number" id="tl-entry" placeholder="0.000000" step="any"></div>
+    <div class="fgroup"><span class="flabel">Exit Price</span><input class="finput" type="number" id="tl-exit" placeholder="blank if open" step="any"></div>
+    <div class="fgroup"><span class="flabel">Reason for Trade</span><input class="finput" type="text" id="tl-reason" placeholder="e.g. liq>10k, 1h>20%, age<2h"></div>
+    <div class="fgroup" style="justify-content:flex-end"><span class="flabel">&nbsp;</span><button class="btn-run" style="padding:7px 20px;font-size:13px" onclick="addTrade()">+ LOG</button></div>
+  </div>
+
+  <table class="tl-tbl">
+    <thead>
+      <tr>
+        <th>Date</th><th>Chain</th><th>Symbol</th><th>Address</th>
+        <th>Entry</th><th>Exit</th><th>P&amp;L %</th><th>Reason</th><th>Outcome</th><th></th>
+      </tr>
+    </thead>
+    <tbody id="tl-body">
+      <tr><td colspan="10" class="empty-msg" style="padding:20px">No trades logged yet</td></tr>
+    </tbody>
+  </table>
+
+  <div class="export-row">
+    <button class="btn-sm" onclick="exportCSV()">&#8595; Export CSV</button>
+    <button class="btn-sm" onclick="exportJSON()">&#8595; Export JSON (ElizaOS)</button>
+  </div>
+
+  <footer>
+    <span><span class="live-dot" id="footer-dot" style="margin-right:6px;vertical-align:middle"></span><span id="footer-txt">IDLE</span></span>
+    <span>GeckoTerminal Free API &middot; 13 Chains &middot; Max 5 per scan &middot; No key required</span>
+    <span>Rocking M Crypto Screener v1.4 &middot; ElizaOS Ready</span>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Chain metadata — id maps to GeckoTerminal network id ───────
+const CHAIN_META = {
+  'solana':      { label:'Solana',    cssClass:'ct-solana'   },
+  'eth':         { label:'Ethereum',  cssClass:'ct-eth'      },
+  'base':        { label:'Base',      cssClass:'ct-base'     },
+  'bsc':         { label:'BSC',       cssClass:'ct-bsc'      },
+  'arbitrum':    { label:'Arbitrum',  cssClass:'ct-arbitrum' },
+  'optimism':    { label:'Optimism',  cssClass:'ct-optimism' },
+  'polygon_pos': { label:'Polygon',   cssClass:'ct-polygon'  },
+  'avax':        { label:'Avalanche', cssClass:'ct-avax'     },
+  'sui-network': { label:'Sui',       cssClass:'ct-sui'      },
+  'ton':         { label:'TON',       cssClass:'ct-ton'      },
+  'aptos':       { label:'Aptos',     cssClass:'ct-aptos'    },
+  'fantom':      { label:'Fantom',    cssClass:'ct-fantom'   },
+  'cosmos':      { label:'Cosmos',    cssClass:'ct-cosmos'   },
+};
+
+const MAX_CHAINS = 5;
+
+// ── State ──────────────────────────────────────────────────────
+let tokens    = [];
+let trades    = JSON.parse(localStorage.getItem('rm_trades_v4') || '[]');
+let sortKey   = 'chg1h';
+let sortAsc   = false;
+let autoTimer = null;
+let nextTick  = null;
+let nextTime  = null;
+
+// ── Chain toggle logic ─────────────────────────────────────────
+function toggleChain(btn) {
+  const isActive = btn.classList.contains('active');
+  const selected = getSelectedChains();
+
+  if (!isActive && selected.length >= MAX_CHAINS) {
+    toast('Max 5 chains per scan — deselect one first');
+    return;
+  }
+
+  btn.classList.toggle('active');
+  updateChipStates();
+}
+
+function updateChipStates() {
+  const selected = getSelectedChains();
+  const atLimit  = selected.length >= MAX_CHAINS;
+  const counter  = document.getElementById('chain-counter');
+  counter.textContent = `${selected.length} / ${MAX_CHAINS} selected`;
+  counter.className   = 'chain-counter' + (atLimit ? ' at-limit' : '');
+
+  document.querySelectorAll('.chip').forEach(chip => {
+    const isActive = chip.classList.contains('active');
+    if (atLimit && !isActive) {
+      chip.classList.add('disabled');
+    } else {
+      chip.classList.remove('disabled');
+    }
+  });
+}
+
+function getSelectedChains() {
+  return [...document.querySelectorAll('.chip.active')].map(c => c.dataset.chain);
+}
+
+// ── Config ─────────────────────────────────────────────────────
+function cfg() {
+  return {
+    minLiq: parseFloat(document.getElementById('min-liq').value) || 0,
+    maxAge: parseFloat(document.getElementById('max-age').value) || 24,
+    minChg: parseFloat(document.getElementById('min-chg').value) || 0,
+    minVol: parseFloat(document.getElementById('min-vol').value) || 0,
+  };
+}
+
+// ── Toast ──────────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── Status ─────────────────────────────────────────────────────
+function setStatus(s, msg) {
+  const btn  = document.getElementById('run-btn');
+  const dot  = document.getElementById('live-dot');
+  const txt  = document.getElementById('status-txt');
+  const fdot = document.getElementById('footer-dot');
+  const ftxt = document.getElementById('footer-txt');
+  if (s === 'running') {
+    btn.classList.add('scanning'); btn.textContent = 'SCANNING...'; btn.disabled = true;
+    dot.className = 'live-dot on'; txt.textContent = msg || 'SCANNING...';
+    fdot.className = 'live-dot on'; ftxt.textContent = 'SCANNING';
+  } else {
+    btn.classList.remove('scanning'); btn.textContent = 'RUN SCAN'; btn.disabled = false;
+    dot.className = 'live-dot on'; txt.textContent = 'LIVE';
+    fdot.className = 'live-dot on'; ftxt.textContent = 'LIVE';
+  }
+}
+
+// ── GeckoTerminal fetch ────────────────────────────────────────
+async function fetchGecko(network) {
+  const url = `https://api.geckoterminal.com/api/v2/networks/${network}/new_pools?include=base_token,quote_token&page=1`;
+  const r = await fetch(url, { headers: { Accept: 'application/json;version=20230302' }});
+  if (r.status === 429) {
+    setStatus('running', 'Rate limited — waiting...');
+    await sleep(15000);
+    return fetchGecko(network);
+  }
+  if (!r.ok) return [];
+  const json = await r.json();
+  const pools = json.data || [], included = json.included || [];
+  const tmap = {};
+  included.forEach(i => { if (i.type === 'token') tmap[i.id] = i.attributes; });
+  const c = cfg(), out = [];
+  pools.forEach(pool => {
+    const a = pool.attributes;
+    const createdAt = a.pool_created_at ? new Date(a.pool_created_at).getTime() : null;
+    const ageH = createdAt ? (Date.now() - createdAt) / 3600000 : 999;
+    if (ageH > c.maxAge) return;
+    const liq = parseFloat(a.reserve_in_usd || 0);
+    if (liq < c.minLiq) return;
+    const chg1h = parseFloat(a.price_change_percentage?.h1 || 0);
+    if (chg1h <= c.minChg) return;
+    const vol24h = parseFloat(a.volume_usd?.h24 || 0);
+    if (vol24h < c.minVol) return;
+    const baseRel = pool.relationships?.base_token?.data;
+    const tattr   = baseRel ? tmap[baseRel.id] : null;
+    const symbol  = (a.name || '/').split('/')[0].trim();
+    const fdv     = parseFloat(a.fdv_usd || 0);
+    const poolPct = (fdv > 0 && liq > 0) ? Math.min(9999, (liq / fdv) * 100) : 0;
+    out.push({
+      chain: network, name: tattr?.name || symbol, symbol,
+      age: Math.round(ageH * 10) / 10,
+      price: parseFloat(a.base_token_price_usd || 0),
+      liquidity: liq, poolPct, chg1h,
+      chg6h:  parseFloat(a.price_change_percentage?.h6  || 0),
+      chg24h: parseFloat(a.price_change_percentage?.h24 || 0),
+      vol24h, mcap: fdv, dex: a.dex_id || '',
+      address:  tattr?.address || a.address,
+      poolAddr: a.address,
+      link: `https://www.geckoterminal.com/${network}/pools/${a.address}`
+    });
+  });
+  return out;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── Main run ───────────────────────────────────────────────────
+async function runScreener() {
+  const chains = getSelectedChains();
+  if (!chains.length) { toast('Select at least one chain'); return; }
+  setStatus('running', `Scanning ${chains.length} chain${chains.length > 1 ? 's' : ''}...`);
+  tokens = [];
+  try {
+    for (let i = 0; i < chains.length; i++) {
+      const chain = chains[i];
+      const meta  = CHAIN_META[chain] || { label: chain };
+      setStatus('running', `Scanning ${meta.label} (${i+1}/${chains.length})...`);
+      const results = await fetchGecko(chain);
+      tokens = [...tokens, ...results];
+      if (i < chains.length - 1) await sleep(2500);
+    }
+    tokens.sort((a, b) => b.chg1h - a.chg1h);
+    renderTable();
+    updateStats(chains);
+    document.getElementById('last-scan').textContent = new Date().toLocaleTimeString();
+    document.getElementById('tok-count').textContent = tokens.length;
+    toast(`${tokens.length} tokens across ${chains.length} chain${chains.length > 1 ? 's' : ''}`);
+  } catch(e) {
+    toast('Scan error — check connection');
+  }
+  setStatus('idle');
+}
+
+// ── Render table ───────────────────────────────────────────────
+function getChainTag(chainId) {
+  const meta = CHAIN_META[chainId];
+  if (meta) return `<span class="chain-tag ${meta.cssClass}">${meta.label}</span>`;
+  return `<span class="chain-tag ct-other">${chainId}</span>`;
+}
+
+function renderTable() {
+  const body = document.getElementById('tbl-body');
+  let data = [...tokens];
+  data.sort((a, b) => {
+    const av = a[sortKey], bv = b[sortKey];
+    if (av == null && bv == null) return 0;
+    if (av == null) return 1; if (bv == null) return -1;
+    if (typeof av === 'string') return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+    return sortAsc ? av - bv : bv - av;
+  });
+  if (!data.length) {
+    body.innerHTML = '<tr><td colspan="15" class="empty-msg">No tokens passed filters — try loosening thresholds</td></tr>';
+    return;
+  }
+  body.innerHTML = data.map((t, i) => `
+    <tr style="animation-delay:${i*18}ms">
+      <td>${getChainTag(t.chain)}</td>
+      <td class="name-col" title="${t.name}">${t.name}</td>
+      <td class="sym-col">${t.symbol}</td>
+      <td class="age-col">${t.age}h</td>
+      <td class="price-col">${fPrice(t.price)}</td>
+      <td class="liq-col">${fUsd(t.liquidity)}</td>
+      <td class="pool-col">${t.poolPct > 0 ? t.poolPct.toFixed(1) + '%' : '&#8212;'}</td>
+      <td><span class="${chgCls(t.chg1h)}">${fPct(t.chg1h)}</span></td>
+      <td><span class="${chgCls(t.chg6h)}">${fPct(t.chg6h)}</span></td>
+      <td><span class="${chgCls(t.chg24h)}">${fPct(t.chg24h)}</span></td>
+      <td class="vol-col">${fUsd(t.vol24h)}</td>
+      <td class="mcap-col">${t.mcap ? fUsd(t.mcap) : '&#8212;'}</td>
+      <td><span class="badge">${t.dex}</span></td>
+      <td class="addr-col" onclick="copyAddr('${t.address}')" title="Click to copy">${(t.address||'').substring(0,8)}&#8230;</td>
+      <td class="link-col"><a href="${t.link}" target="_blank">VIEW &#8599;</a></td>
+    </tr>`).join('');
+}
+
+function updateStats(chains) {
+  const n = tokens.length;
+  document.getElementById('st-total').textContent = n;
+  document.getElementById('st-hot').textContent   = tokens.filter(t => t.chg1h >= 25).length;
+  document.getElementById('st-neg').textContent   = tokens.filter(t => t.chg1h < 0).length;
+  const avgLiq = n ? tokens.reduce((s,t) => s + t.liquidity, 0) / n : 0;
+  document.getElementById('st-liq').textContent   = avgLiq ? fUsd(avgLiq) : '&#8212;';
+  const avg1h = n ? tokens.reduce((s,t) => s + t.chg1h, 0) / n : null;
+  const el = document.getElementById('st-avg1h');
+  el.textContent = avg1h != null ? fPct(avg1h) : '&#8212;';
+  el.style.color = avg1h > 0 ? 'var(--green)' : avg1h < 0 ? 'var(--red)' : 'var(--text)';
+  document.getElementById('st-chains').textContent = (chains || getSelectedChains()).length;
+}
+
+// ── Sort ───────────────────────────────────────────────────────
+function sortBy(key) {
+  sortAsc = sortKey === key ? !sortAsc : false;
+  sortKey = key;
+  document.querySelectorAll('th').forEach(th => th.classList.remove('sorted','asc'));
+  const keys = ['chain','name','symbol','age','price','liquidity','poolPct','chg1h','chg6h','chg24h','vol24h','mcap','','',''];
+  const idx = keys.indexOf(key);
+  if (idx >= 0) {
+    const ths = document.querySelectorAll('th');
+    ths[idx].classList.add('sorted');
+    if (sortAsc) ths[idx].classList.add('asc');
+  }
+  renderTable();
+}
+
+// ── Auto refresh ───────────────────────────────────────────────
+function toggleAuto() {
+  if (document.getElementById('auto-toggle').checked) startAuto();
+  else stopAuto();
+}
+
+function startAuto() {
+  stopAuto();
+  const ms = parseInt(document.getElementById('interval-sel').value) * 60000;
+  nextTime  = Date.now() + ms;
+  autoTimer = setTimeout(() => {
+    runScreener().then(() => {
+      if (document.getElementById('auto-toggle').checked) startAuto();
+    });
+  }, ms);
+  clearInterval(nextTick);
+  nextTick = setInterval(() => {
+    const rem = Math.max(0, nextTime - Date.now());
+    const m = Math.floor(rem/60000), s = Math.floor((rem%60000)/1000);
+    document.getElementById('next-scan').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if (rem === 0) clearInterval(nextTick);
+  }, 1000);
+}
+
+function stopAuto() {
+  clearTimeout(autoTimer); clearInterval(nextTick);
+  document.getElementById('next-scan').textContent = '&#8212;';
+}
+
+// ── Trade Journal ──────────────────────────────────────────────
+function addTrade() {
+  const sym    = document.getElementById('tl-sym').value.trim().toUpperCase();
+  const addr   = document.getElementById('tl-addr').value.trim();
+  const entry  = parseFloat(document.getElementById('tl-entry').value);
+  const exit   = parseFloat(document.getElementById('tl-exit').value) || null;
+  const reason = document.getElementById('tl-reason').value.trim();
+  const chains = getSelectedChains();
+  const chain  = chains.length === 1 ? chains[0] : (chains[0] || 'unknown');
+  if (!sym || !entry) { toast('Symbol and entry price required'); return; }
+  const pnlPct = exit ? ((exit - entry) / entry) * 100 : null;
+  trades.unshift({
+    id: Date.now(), date: new Date().toLocaleDateString(),
+    chain, symbol: sym, address: addr, entry, exit, pnlPct, reason
+  });
+  saveTrades(); renderTrades();
+  ['tl-sym','tl-addr','tl-entry','tl-exit','tl-reason'].forEach(id => document.getElementById(id).value = '');
+  toast('Trade logged: ' + sym);
+}
+
+function deleteTrade(id) { trades = trades.filter(t => t.id !== id); saveTrades(); renderTrades(); }
+function saveTrades()    { localStorage.setItem('rm_trades_v4', JSON.stringify(trades)); }
+
+function renderTrades() {
+  const body = document.getElementById('tl-body');
+  if (!trades.length) {
+    body.innerHTML = '<tr><td colspan="10" class="empty-msg" style="padding:20px">No trades logged yet</td></tr>';
+    return;
+  }
+  body.innerHTML = trades.map(t => {
+    const cls     = t.pnlPct == null ? 'outcome-open' : t.pnlPct >= 0 ? 'outcome-win' : 'outcome-loss';
+    const pctLbl  = t.pnlPct == null ? 'OPEN' : (t.pnlPct >= 0 ? '+' : '') + t.pnlPct.toFixed(2) + '%';
+    const outcome = t.pnlPct == null ? 'open' : t.pnlPct >= 0 ? 'win' : 'loss';
+    return `<tr>
+      <td>${t.date}</td>
+      <td>${getChainTag(t.chain)}</td>
+      <td style="color:var(--blue);font-weight:600">${t.symbol}</td>
+      <td class="addr-col" onclick="copyAddr('${t.address||''}')" title="Click to copy">${t.address ? t.address.substring(0,10)+'&#8230;' : '&#8212;'}</td>
+      <td>${fPrice(t.entry)}</td>
+      <td>${t.exit ? fPrice(t.exit) : '<span style="color:var(--amber);font-weight:600">OPEN</span>'}</td>
+      <td class="${cls}">${pctLbl}</td>
+      <td style="font-size:10px;color:var(--text-dim);max-width:220px;overflow:hidden;text-overflow:ellipsis">${t.reason || '&#8212;'}</td>
+      <td class="${cls}" style="text-transform:uppercase;font-size:10px;letter-spacing:1px">${outcome}</td>
+      <td><button class="btn-del" onclick="deleteTrade(${t.id})">&#10005;</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function exportCSV() {
+  const hdr  = 'date,chain,symbol,address,entry_price,exit_price,pnl_pct,reason,outcome\n';
+  const rows = trades.map(t => {
+    const outcome = t.pnlPct == null ? 'open' : t.pnlPct >= 0 ? 'win' : 'loss';
+    return `${t.date},${t.chain},${t.symbol},${t.address||''},${t.entry},${t.exit||''},${t.pnlPct!=null?t.pnlPct.toFixed(2):''},${(t.reason||'').replace(/,/g,'/')},${outcome}`;
+  }).join('\n');
+  dl('rocking_m_trades.csv', hdr + rows, 'text/csv');
+}
+
+function exportJSON() {
+  const data = trades.map(t => ({
+    timestamp:    t.date,
+    chain:        t.chain,
+    symbol:       t.symbol,
+    address:      t.address || null,
+    entry_price:  t.entry,
+    exit_price:   t.exit || null,
+    pnl_pct:      t.pnlPct || null,
+    entry_reason: t.reason,
+    filters_hit:  t.reason,
+    outcome:      t.pnlPct == null ? 'open' : t.pnlPct >= 0 ? 'win' : 'loss'
+  }));
+  dl('rocking_m_elizaos_training.json', JSON.stringify(data, null, 2), 'application/json');
+}
+
+function dl(name, content, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], {type}));
+  a.download = name; a.click();
+}
+
+// ── Helpers ────────────────────────────────────────────────────
+function fUsd(n) {
+  if (!n) return '$0';
+  if (n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return '$' + (n/1e3).toFixed(1) + 'K';
+  return '$' + n.toFixed(2);
+}
+function fPrice(n) {
+  if (!n) return '$0';
+  if (n < 0.000001) return '$' + n.toExponential(2);
+  if (n < 0.01)     return '$' + n.toFixed(6);
+  if (n < 1)        return '$' + n.toFixed(4);
+  return '$' + n.toFixed(2);
+}
+function fPct(n)   { return (n > 0 ? '+' : '') + (n||0).toFixed(2) + '%'; }
+function chgCls(n) {
+  if (n >= 25) return 'chg-high';
+  if (n >= 10) return 'chg-med';
+  if (n >  0)  return 'chg-low';
+  if (n <  0)  return 'chg-neg';
+  return 'chg-zero';
+}
+function copyAddr(a) { if (a) navigator.clipboard.writeText(a).then(() => toast('Address copied')); }
+
+// ── Init ───────────────────────────────────────────────────────
+renderTrades();
+updateChipStates();
+</script>
+</body>
+</html>
