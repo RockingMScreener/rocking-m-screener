@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Remi — Rocking M Crypto Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:         #ede8e0;
+    --bg2:        #f5f1ea;
+    --bg3:        #faf7f2;
+    --parchment:  #e8dfc8;
+    --leather:    #8b5e3c;
+    --leather-lt: #c4956a;
+    --leather-dk: #5c3d20;
+    --forest:     #2d4a2d;
+    --forest-lt:  #3d6b3d;
+    --forest-hi:  #5a9a5a;
+    --forest-pale:#c8dbc8;
+    --tan:        #d4a96a;
+    --tan-lt:     #e8c99a;
+    --tan-pale:   #f2e8d8;
+    --text:       #2a1f14;
+    --text-mid:   #5c4a38;
+    --text-dim:   #8c7a68;
+    --text-pale:  #b8a898;
+    --border:     #c8b89a;
+    --border2:    #a89278;
+    --serif:      'Playfair Display', Georgia, serif;
+    --body:       'Crimson Pro', Georgia, serif;
+    --mono:       'IBM Plex Mono', monospace;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.7;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Leather texture overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── Header ── */
+  .site-header {
+    background: var(--forest);
+    border-bottom: 3px solid var(--tan);
+    padding: 0 32px;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  }
+
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 0;
+  }
+
+  /* Remi badge */
+  .remi-badge {
+    width: 64px; height: 70px;
+    background: var(--leather-dk);
+    border: 1.5px solid var(--tan);
+    border-radius: 4px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-start;
+    padding-top: 6px; flex-shrink: 0; position: relative;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.4);
+  }
+
+  .badge-rocking {
+    font-family: var(--mono); font-size: 7px; font-weight: 400;
+    letter-spacing: 3px; color: var(--tan); text-transform: uppercase; line-height: 1;
+  }
+
+  .badge-m {
+    font-family: var(--serif); font-size: 44px; font-weight: 700;
+    color: #f5f1ea; line-height: 1; margin-top: -2px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  }
+
+  .badge-name {
+    font-family: var(--mono); font-size: 7px; letter-spacing: 3px;
+    color: var(--tan-lt); text-transform: uppercase;
+    position: absolute; bottom: 5px;
+  }
+
+  .brand-info { display: flex; flex-direction: column; gap: 2px; }
+
+  .brand-name {
+    font-family: var(--serif); font-size: 26px; font-weight: 700;
+    color: #f5f1ea; line-height: 1; letter-spacing: 1px;
+  }
+
+  .brand-name em { color: var(--tan); font-style: italic; }
+
+  .brand-sub {
+    font-family: var(--mono); font-size: 9px; color: #6a8a6a;
+    letter-spacing: 2px; text-transform: uppercase; margin-top: 2px;
+  }
+
+  .back-link {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+    color: #6a8a6a; text-decoration: none; text-transform: uppercase;
+    display: flex; align-items: center; gap: 6px;
+    transition: color 0.15s; padding: 14px 0;
+  }
+
+  .back-link:hover { color: var(--tan-lt); }
+
+  /* ── Main layout ── */
+  .main-wrap {
+    flex: 1; display: flex; flex-direction: column;
+    max-width: 860px; width: 100%; margin: 0 auto;
+    padding: 28px 24px 0; position: relative; z-index: 1;
+  }
+
+  /* ── Remi intro card ── */
+  .remi-intro {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--leather);
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    display: flex; gap: 20px; align-items: flex-start;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  .remi-avatar {
+    width: 64px; height: 64px; flex-shrink: 0;
+    background: var(--forest);
+    border: 2px solid var(--tan);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  .remi-avatar-m {
+    font-family: var(--serif); font-size: 30px; font-weight: 700; color: var(--tan);
+  }
+
+  .remi-intro-text { flex: 1; }
+
+  .remi-intro-name {
+    font-family: var(--serif); font-size: 22px; font-weight: 700;
+    color: var(--forest); margin-bottom: 4px;
+  }
+
+  .remi-intro-name em { color: var(--leather); font-style: italic; }
+
+  .remi-intro-desc {
+    font-family: var(--body); font-size: 15px; color: var(--text-mid);
+    line-height: 1.6; font-style: italic;
+  }
+
+  /* ── Quick questions ── */
+  .quick-label {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 3px;
+    color: var(--text-dim); text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .quick-chips {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;
+  }
+
+  .qchip {
+    font-family: var(--body); font-size: 13px; font-style: italic;
+    padding: 6px 14px; border: 1px solid var(--border2);
+    background: var(--tan-pale); color: var(--leather-dk);
+    cursor: pointer; transition: all 0.15s;
+    border-radius: 2px;
+  }
+
+  .qchip:hover {
+    background: var(--leather); color: var(--bg3);
+    border-color: var(--leather-dk);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(139,94,60,0.3);
+  }
+
+  /* ── Chat window ── */
+  .chat-window {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    padding: 20px;
+    overflow-y: auto;
+    min-height: 320px;
+    max-height: 420px;
+    display: flex; flex-direction: column; gap: 16px;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  /* ── Messages ── */
+  .msg { display: flex; gap: 12px; animation: msg-in 0.25s ease forwards; opacity: 0; }
+  @keyframes msg-in { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+  .msg.user { flex-direction: row-reverse; }
+
+  .msg-avatar {
+    width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-weight: 700; font-size: 14px;
+  }
+
+  .msg.remi .msg-avatar { background: var(--forest); color: var(--tan); border: 1.5px solid var(--tan); }
+  .msg.user .msg-avatar { background: var(--leather-dk); color: var(--tan-lt); border: 1.5px solid var(--leather); }
+
+  .msg-bubble {
+    max-width: 75%; padding: 12px 16px;
+    border-radius: 2px; line-height: 1.65;
+  }
+
+  .msg.remi .msg-bubble {
+    background: var(--parchment);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--forest);
+    font-family: var(--body); font-size: 16px; color: var(--text);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  .msg.user .msg-bubble {
+    background: var(--forest);
+    border: 1px solid var(--forest-lt);
+    font-family: var(--body); font-size: 16px; color: #f0f5f0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  }
+
+  .msg-name {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+
+  .msg.remi .msg-name { color: var(--forest); }
+  .msg.user .msg-name { color: var(--tan-lt); text-align: right; }
+
+  /* Thinking indicator */
+  .thinking .msg-bubble {
+    display: flex; align-items: center; gap: 4px;
+    padding: 14px 16px;
+  }
+
+  .dot-pulse { display: flex; gap: 4px; }
+  .dot-pulse span {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--leather-lt);
+    animation: dp 1.2s infinite;
+  }
+  .dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
+  .dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes dp { 0%,80%,100%{opacity:0.3;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
+
+  /* ── Input area ── */
+  .input-area {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--leather);
+    padding: 14px 16px;
+    display: flex; gap: 10px; align-items: flex-end;
+    margin-bottom: 28px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  .chat-input {
+    flex: 1; font-family: var(--body); font-size: 16px;
+    background: var(--bg3); border: 1px solid var(--border);
+    color: var(--text); padding: 10px 14px; outline: none;
+    resize: none; min-height: 44px; max-height: 120px;
+    transition: border-color 0.15s; line-height: 1.5;
+    border-radius: 2px;
+  }
+
+  .chat-input:focus { border-color: var(--leather); background: #fff; }
+  .chat-input::placeholder { color: var(--text-pale); font-style: italic; }
+
+  .send-btn {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 2px;
+    text-transform: uppercase; padding: 10px 20px;
+    background: var(--forest); color: var(--tan-lt);
+    border: 1px solid var(--forest-lt); cursor: pointer;
+    transition: all 0.15s; white-space: nowrap; align-self: stretch;
+    border-radius: 2px;
+  }
+
+  .send-btn:hover { background: var(--forest-lt); color: #fff; }
+  .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── API key notice ── */
+  .key-notice {
+    background: var(--tan-pale);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--leather);
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    font-family: var(--mono); font-size: 10px;
+    color: var(--leather-dk); letter-spacing: 1px; line-height: 1.8;
+  }
+
+  .key-notice strong { color: var(--leather-dk); }
+
+  .key-row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+
+  .key-input {
+    flex: 1; font-family: var(--mono); font-size: 11px;
+    background: var(--bg3); border: 1px solid var(--border2);
+    color: var(--text); padding: 6px 10px; outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .key-input:focus { border-color: var(--leather); }
+
+  .key-btn {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+    padding: 6px 14px; background: var(--leather);
+    color: var(--bg3); border: none; cursor: pointer;
+    transition: all 0.15s; text-transform: uppercase;
+  }
+
+  .key-btn:hover { background: var(--leather-dk); }
+
+  /* ── Footer ── */
+  footer {
+    background: var(--forest);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 14px 32px;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 8px;
+    position: relative; z-index: 1;
+  }
+
+  footer span {
+    font-family: var(--mono); font-size: 9px;
+    color: #4a6a4a; letter-spacing: 1px;
+  }
+
+  footer a { color: var(--tan); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .site-header { padding: 0 16px; }
+    .main-wrap { padding: 16px 16px 0; }
+    .remi-intro { flex-direction: column; gap: 12px; }
+    .msg-bubble { max-width: 88%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="header-brand">
+    <div class="remi-badge">
+      <span class="badge-rocking">Rocking</span>
+      <svg width="50" height="12" viewBox="0 0 50 12" fill="none" style="display:block;margin:1px 0 -3px">
+        <path d="M 2 10 Q 25 2 48 10" stroke="#d4a96a" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+      <span class="badge-m">M</span>
+      <span class="badge-name">Remi</span>
+    </div>
+    <div class="brand-info">
+      <div class="brand-name">Meet <em>Remi</em></div>
+      <div class="brand-sub">Rocking M · AI Trail Guide · Free to use</div>
+    </div>
+  </div>
+  <a href="index.html" class="back-link">&#8592; Back to Screener</a>
+</header>
+
+<div class="main-wrap">
+
+  <!-- API Key Notice -->
+  <div class="key-notice" id="key-notice">
+    <strong>GROQ API KEY REQUIRED</strong> — Remi runs on Groq's free AI infrastructure.
+    Get your free key at <strong>console.groq.com</strong> → API Keys → Create Key.<br>
+    Your key is stored only in your browser and never sent anywhere except Groq.
+    <div class="key-row">
+      <input class="key-input" type="password" id="groq-key-input" placeholder="Paste your Groq API key here...">
+      <button class="key-btn" onclick="saveKey()">SAVE KEY</button>
+    </div>
+  </div>
+
+  <!-- Remi Intro -->
+  <div class="remi-intro">
+    <div class="remi-avatar"><span class="remi-avatar-m">M</span></div>
+    <div class="remi-intro-text">
+      <div class="remi-intro-name">Remi — <em>Your Rocking M Trail Guide</em></div>
+      <div class="remi-intro-desc">
+        Named for the Rocking M brand. Plain spoken, no nonsense, and patient with beginners.
+        Ask me about the screener filters, how to spot a rug pull, what the numbers mean,
+        or anything else about researching new tokens. I won't tell you what to buy —
+        but I'll help you learn how to read the trail.
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Questions -->
+  <div class="quick-label">Quick questions — tap to ask</div>
+  <div class="quick-chips">
+    <button class="qchip" onclick="askQuick('How do I avoid rug pulls?')">How do I avoid rug pulls?</button>
+    <button class="qchip" onclick="askQuick('What filters should I start with as a beginner?')">What filters should I start with?</button>
+    <button class="qchip" onclick="askQuick('What is pool percentage and why does it matter?')">What is pool percentage?</button>
+    <button class="qchip" onclick="askQuick('How do I read the results table?')">How do I read the results table?</button>
+    <button class="qchip" onclick="askQuick('What is the trade journal for?')">What is the trade journal for?</button>
+    <button class="qchip" onclick="askQuick('What is a factory wallet?')">What is a factory wallet?</button>
+    <button class="qchip" onclick="askQuick('What is the Rocking M Screener?')">What is Rocking M Screener?</button>
+    <button class="qchip" onclick="askQuick('What chains does the screener support?')">What chains are supported?</button>
+  </div>
+
+  <!-- Chat Window -->
+  <div class="chat-window" id="chat-window">
+    <div class="msg remi">
+      <div class="msg-avatar">M</div>
+      <div>
+        <div class="msg-name">Remi</div>
+        <div class="msg-bubble">
+          Morning. I'm Remi — the Rocking M trail guide. Ask me anything about the screener,
+          reading token data, or how to avoid the common traps new traders fall into.
+          I won't sugarcoat things and I won't tell you what to buy.
+          But if you want to learn how to read the numbers, you're in the right place.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="input-area">
+    <textarea
+      class="chat-input"
+      id="chat-input"
+      placeholder="Ask Remi anything about the screener or token research..."
+      rows="1"
+      onkeydown="handleKey(event)"
+      oninput="autoResize(this)"
+    ></textarea>
+    <button class="send-btn" id="send-btn" onclick="sendMessage()">Send &#8594;</button>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<footer>
+  <span>Remi &middot; Rocking M Crypto Screener &middot; Powered by Groq (free tier)</span>
+  <span>
+    <a href="index.html">Landing Page</a> &middot;
+    <a href="screener.html">Launch Screener</a> &middot;
+    <a href="https://github.com/RockingMScreener/rocking-m-screener">GitHub</a>
+  </span>
+</footer>
+
+<script>
+// ── Config ──────────────────────────────────────────────────────
+const GROQ_ENDPOINT = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_MODEL    = 'llama3-8b-8192';
+
+const REMI_SYSTEM = `You are Remi, the AI trail guide for the Rocking M Crypto Screener at rockingmscreener.com.
+
+You were built by Edward, a small-town Montana handyman and leather craftsman who got frustrated with crypto tools built for whales and decided to build something better for regular traders.
+
+Your personality:
+- Speak plainly and directly like a western ranch woman who has seen enough nonsense to know signal from noise
+- Patient with beginners, never condescending
+- Honest about risk without being alarmist
+- Use craft and tool analogies naturally — hammers, leather work, patterns, measuring twice
+- Never use hype language or make price predictions
+- Never tell anyone what to buy or sell — you teach people how to read the trail, not which trail to take
+- Keep responses focused and practical
+- Short paragraphs, plain language
+
+Your knowledge:
+- The Rocking M Screener scans new liquidity pools across 13 blockchains using GeckoTerminal's free API
+- Supported chains: Solana, Ethereum, Base, BSC, Arbitrum, Optimism, Polygon, Avalanche, Sui, TON, Aptos, Fantom, Cosmos
+- Users can scan up to 5 chains simultaneously
+- Filters: minimum liquidity, maximum pool age, minimum 1-hour price change, minimum 24-hour volume
+- The results table shows: chain, name, symbol, age, price, liquidity, pool%, 1H%, 6H%, 24H%, volume, market cap, DEX, address, GeckoTerminal link
+- Pool percentage = liquidity as % of market cap — high pool% with low holders can be a red flag
+- The trade journal logs token, address, entry price, exit price, and reason — no dollar amounts ever collected
+- Trade journal data can be exported as JSON for ElizaOS agent training
+
+Rug pull warning signs:
+- Liquidity under $5,000 — very high risk
+- Factory wallet behavior — deployer has launched 50+ tokens
+- Duplicate token names launching within seconds — bot spam
+- Very high pool percentage combined with low holder count
+- None of these alone are guarantees but they stack risk fast
+
+The Rocking M brand:
+- Built by Edward, a Montana handyman and leather craftsman
+- The inverted rocker arc in the logo represents old-school craft skills applied to modern technology
+- The project is free, open source, and community driven
+- GitHub Discussions open for filter presets and trade journal contributions`;
+
+// ── State ────────────────────────────────────────────────────────
+let groqKey     = localStorage.getItem('remi_groq_key') || '';
+let messages    = [];
+let isThinking  = false;
+
+// ── Init ─────────────────────────────────────────────────────────
+function init() {
+  if (groqKey) {
+    document.getElementById('key-notice').style.display = 'none';
+  } else {
+    document.getElementById('key-notice').style.display = 'block';
+  }
+}
+
+function saveKey() {
+  const val = document.getElementById('groq-key-input').value.trim();
+  if (!val) { alert('Please paste your Groq API key first.'); return; }
+  groqKey = val;
+  localStorage.setItem('remi_groq_key', val);
+  document.getElementById('key-notice').style.display = 'none';
+  addMessage('remi', "Key saved. I'm ready when you are.");
+}
+
+// ── Chat ─────────────────────────────────────────────────────────
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function askQuick(q) {
+  document.getElementById('chat-input').value = q;
+  sendMessage();
+}
+
+async function sendMessage() {
+  if (isThinking) return;
+  const input = document.getElementById('chat-input');
+  const text  = input.value.trim();
+  if (!text) return;
+
+  if (!groqKey) {
+    addMessage('remi', "You'll need to save a Groq API key first — see the notice above.");
+    return;
+  }
+
+  input.value = '';
+  input.style.height = 'auto';
+  addMessage('user', text);
+  messages.push({ role: 'user', content: text });
+
+  isThinking = true;
+  document.getElementById('send-btn').disabled = true;
+  const thinkId = addThinking();
+
+  try {
+    const resp = await fetch(GROQ_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${groqKey}`
+      },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        messages: [
+          { role: 'system', content: REMI_SYSTEM },
+          ...messages.slice(-12)
+        ],
+        max_tokens: 512,
+        temperature: 0.7,
+      })
+    });
+
+    removeThinking(thinkId);
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      if (resp.status === 401) {
+        addMessage('remi', "That API key didn't work. Double-check it at console.groq.com and try saving it again.");
+      } else if (resp.status === 429) {
+        addMessage('remi', "Hit the rate limit — Groq's free tier has request limits. Wait a minute and try again.");
+      } else {
+        addMessage('remi', "Something went wrong on my end. Try again in a moment.");
+      }
+      return;
+    }
+
+    const data = await resp.json();
+    const reply = data.choices?.[0]?.message?.content || "Didn't catch that. Try asking again.";
+    messages.push({ role: 'assistant', content: reply });
+    addMessage('remi', reply);
+
+  } catch(e) {
+    removeThinking(thinkId);
+    addMessage('remi', "Connection trouble. Check your internet and try again.");
+  } finally {
+    isThinking = false;
+    document.getElementById('send-btn').disabled = false;
+  }
+}
+
+// ── DOM helpers ──────────────────────────────────────────────────
+function addMessage(role, text) {
+  const window = document.getElementById('chat-window');
+  const div    = document.createElement('div');
+  div.className = `msg ${role}`;
+
+  const isRemi = role === 'remi';
+  div.innerHTML = `
+    <div class="msg-avatar">${isRemi ? 'M' : 'U'}</div>
+    <div>
+      <div class="msg-name">${isRemi ? 'Remi' : 'You'}</div>
+      <div class="msg-bubble">${escHtml(text)}</div>
+    </div>`;
+
+  window.appendChild(div);
+  window.scrollTop = window.scrollHeight;
+  return div;
+}
+
+function addThinking() {
+  const window = document.getElementById('chat-window');
+  const div    = document.createElement('div');
+  const id     = 'think-' + Date.now();
+  div.id        = id;
+  div.className = 'msg remi thinking';
+  div.innerHTML = `
+    <div class="msg-avatar">M</div>
+    <div>
+      <div class="msg-name">Remi</div>
+      <div class="msg-bubble">
+        <div class="dot-pulse"><span></span><span></span><span></span></div>
+      </div>
+    </div>`;
+  window.appendChild(div);
+  window.scrollTop = window.scrollHeight;
+  return id;
+}
+
+function removeThinking(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+function escHtml(t) {
+  return t
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\n/g,'<br>');
+}
+
+// ── Boot ─────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
