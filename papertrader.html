@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocking M Paper Trader</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Barlow+Condensed:wght@300;400;600;700;800&display=swap');
+  :root {
+    --bg:#e8eaed;--bg2:#f2f4f6;--bg3:#ffffff;--bg-header:#1a2330;
+    --border:#c4cad2;--border2:#a8b2bc;
+    --green:#007a3d;--green-lt:#00a651;--green-bg:#e6f4ec;--green-hi:#00cc66;
+    --blue:#0055a5;--blue-lt:#0077cc;
+    --red:#cc2200;--red-bg:#fdecea;
+    --amber:#c47a00;--amber-bg:#fff8e6;
+    --text:#1a1f26;--text-mid:#3d4a57;--text-dim:#6b7a8a;
+    --mono:'IBM Plex Mono',monospace;--sans:'Barlow Condensed',sans-serif;
+    --serif:'Georgia','Times New Roman',serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;}
+
+  /* ── Header ── */
+  .top-bar{background:var(--bg-header);border-bottom:3px solid var(--green-lt);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+  .logo-badge{display:flex;align-items:center;gap:16px;}
+  .badge-mark{width:68px;height:76px;background:#111a24;border:1.5px solid var(--green-lt);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:6px;flex-shrink:0;position:relative;}
+  .badge-rocking{font-family:var(--sans);font-size:8px;font-weight:800;letter-spacing:4px;color:var(--green-hi);text-transform:uppercase;line-height:1;}
+  .badge-m{font-family:var(--serif);font-size:50px;font-weight:700;color:#fff;line-height:1;margin-top:-2px;}
+  .badge-sub{font-family:var(--sans);font-size:7px;font-weight:600;letter-spacing:3px;color:#3d5570;text-transform:uppercase;position:absolute;bottom:5px;}
+  .brand-text{display:flex;flex-direction:column;gap:2px;}
+  .brand-title{font-family:var(--sans);font-size:26px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#fff;line-height:1;}
+  .brand-title span{color:var(--green-hi);}
+  .brand-sub-text{font-family:var(--mono);font-size:9px;color:#4a6070;letter-spacing:2px;margin-top:3px;text-transform:uppercase;}
+  .nav-links{display:flex;gap:16px;align-items:center;}
+  .nav-link{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:#4a6070;text-decoration:none;text-transform:uppercase;transition:color .15s;}
+  .nav-link:hover{color:var(--green-hi);}
+
+  .shell{max-width:1400px;margin:0 auto;padding:20px 24px 40px;}
+
+  /* ── Setup panel ── */
+  .setup-panel{background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--green);padding:18px 20px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .setup-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:12px;}
+  .setup-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;}
+  .fgroup{display:flex;flex-direction:column;gap:4px;}
+  .flabel{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;}
+  .finput{font-family:var(--mono);font-size:12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 10px;outline:none;transition:border-color .15s;width:100%;}
+  .finput:focus{border-color:var(--green);background:#fff;}
+  select.finput{cursor:pointer;}
+
+  /* ── Portfolio stats ── */
+  .portfolio-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .pcard{background:var(--bg3);border:1px solid var(--border);border-left:4px solid var(--green);padding:10px 14px;flex:1;min-width:120px;box-shadow:0 1px 3px rgba(0,0,0,.07);}
+  .pcard.red-card{border-left-color:var(--red);}
+  .pcard.amber-card{border-left-color:var(--amber);}
+  .pcard.blue-card{border-left-color:var(--blue);}
+  .pcard.hot-card{border-left-color:var(--green-lt);}
+  .pcard-label{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+  .pcard-val{font-family:var(--mono);font-size:18px;color:var(--text);font-weight:600;}
+
+  /* ── Entry panel ── */
+  .entry-panel{background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--blue);padding:18px 20px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .sec-hdr{font-family:var(--sans);font-size:14px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--text);border-bottom:2px solid var(--green);padding-bottom:6px;margin-bottom:14px;}
+  .entry-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px;}
+
+  /* ── Stop/TP config ── */
+  .risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px;}
+  .risk-box{background:var(--bg2);border:1px solid var(--border);padding:14px 16px;}
+  .risk-box-title{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .risk-box-title.stop{color:var(--red);}
+  .risk-box-title.tp{color:var(--green);}
+  .risk-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;align-items:flex-end;}
+  .tp-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:flex-end;}
+
+  /* ── Buttons ── */
+  .btn{font-family:var(--sans);font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 20px;border:2px solid var(--green);background:var(--green);color:#fff;cursor:pointer;transition:all .15s;box-shadow:0 1px 4px rgba(0,122,61,.2);}
+  .btn:hover{background:var(--green-lt);border-color:var(--green-lt);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-red{border-color:var(--red);background:var(--red);}
+  .btn-red:hover{background:#e03300;border-color:#e03300;}
+  .btn-amber{border-color:var(--amber);background:var(--amber);}
+  .btn-amber:hover{background:#d48800;}
+  .btn-sm{font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:5px 12px;border:1px solid var(--border2);background:var(--bg3);color:var(--text-mid);cursor:pointer;transition:all .15s;}
+  .btn-sm:hover{border-color:var(--green);color:var(--green);background:var(--green-bg);}
+  .btn-icon{background:transparent;border:none;cursor:pointer;font-size:12px;color:var(--text-dim);padding:2px 6px;transition:color .15s;}
+  .btn-icon:hover{color:var(--red);}
+
+  /* ── Positions table ── */
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--border);background:var(--bg3);box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:16px;}
+  table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;}
+  thead tr{background:var(--bg-header);}
+  th{padding:9px 10px;text-align:left;font-size:8px;letter-spacing:2px;color:#a0b4c4;text-transform:uppercase;white-space:nowrap;border-right:1px solid rgba(255,255,255,.06);}
+  th:last-child{border-right:none;}
+  tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
+  tbody tr:nth-child(even){background:#f7f9fb;}
+  tbody tr:hover{background:#edf5f0!important;}
+  td{padding:8px 10px;white-space:nowrap;color:var(--text);border-right:1px solid rgba(196,202,210,.4);}
+  td:last-child{border-right:none;}
+  .pos-up{color:var(--green);font-weight:600;}
+  .pos-dn{color:var(--red);font-weight:600;}
+  .pos-neu{color:var(--text-dim);}
+  .chain-tag{font-size:9px;letter-spacing:1px;padding:2px 7px;text-transform:uppercase;font-weight:600;border-radius:2px;display:inline-block;}
+  .ct-solana{background:#2d1a4a;color:#c49fff;border:1px solid #9945ff;}
+  .ct-eth{background:#1a2040;color:#aabfff;border:1px solid #6699ff;}
+  .ct-base{background:#001a3a;color:#88aaff;border:1px solid #4488ff;}
+  .ct-bsc{background:#2a2000;color:#f0d060;border:1px solid #f0b800;}
+  .ct-arbitrum{background:#001a2a;color:#70ccff;border:1px solid #12aaff;}
+  .ct-optimism{background:#2a0000;color:#ff9090;border:1px solid #ff4444;}
+  .ct-other{background:#1a2330;color:#8fa0b0;border:1px solid #3d5570;}
+  .badge{font-size:9px;letter-spacing:1px;padding:2px 6px;border:1px solid var(--border2);color:var(--text-dim);text-transform:uppercase;background:var(--bg2);}
+  .empty-msg{text-align:center;padding:40px 20px;font-family:var(--mono);font-size:12px;color:var(--text-dim);letter-spacing:2px;}
+
+  /* ── Remi log ── */
+  .remi-log{background:var(--bg-header);border:1px solid #2a3a4a;padding:12px 16px;max-height:180px;overflow-y:auto;margin-bottom:16px;}
+  .remi-log-hdr{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--green-hi);text-transform:uppercase;margin-bottom:8px;}
+  .log-entry{display:flex;gap:10px;margin-bottom:6px;font-family:var(--mono);font-size:10px;line-height:1.6;}
+  .log-time{color:#3d5570;min-width:60px;flex-shrink:0;}
+  .log-ok{color:var(--green-hi);}
+  .log-warn{color:#f0a030;}
+  .log-err{color:#ff5540;}
+  .log-info{color:#8fa0b0;}
+
+  /* ── Closed trades ── */
+  .closed-tbl td.win{color:var(--green);font-weight:600;}
+  .closed-tbl td.loss{color:var(--red);font-weight:600;}
+  .closed-tbl td.scratch{color:var(--amber);}
+
+  /* ── Override modal ── */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;display:none;align-items:center;justify-content:center;}
+  .modal-overlay.show{display:flex;}
+  .modal{background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--amber);padding:24px;width:480px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,.3);}
+  .modal-title{font-family:var(--sans);font-size:16px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text);margin-bottom:16px;}
+  .modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+  .modal-btns{display:flex;gap:8px;justify-content:flex-end;}
+
+  /* ── Export row ── */
+  .export-row{display:flex;gap:8px;margin-top:8px;}
+
+  /* ── Footer ── */
+  footer{margin-top:20px;padding-top:14px;border-top:2px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+  footer span{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;}
+  footer a{color:var(--green-hi);text-decoration:none;}
+  footer a:hover{text-decoration:underline;}
+
+  .toast{position:fixed;bottom:20px;right:20px;background:var(--bg-header);border:1px solid var(--green-lt);padding:10px 18px;font-family:var(--mono);font-size:11px;color:var(--green-hi);letter-spacing:1px;z-index:10000;opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.2);}
+  .toast.show{opacity:1;transform:translateY(0);}
+
+  .spinner{display:inline-block;width:10px;height:10px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  @media(max-width:700px){
+    .risk-grid{grid-template-columns:1fr;}
+    .shell{padding:16px 12px 40px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="top-bar">
+  <div class="logo-badge">
+    <div class="badge-mark">
+      <span class="badge-rocking">Rocking</span>
+      <svg width="54" height="13" viewBox="0 0 54 13" fill="none" style="display:block;margin:2px 0 -4px">
+        <path d="M 2 11 Q 27 2 52 11" stroke="#00cc66" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </svg>
+      <span class="badge-m">M</span>
+      <span class="badge-sub">Crypto</span>
+    </div>
+    <div class="brand-text">
+      <div class="brand-title">ROCKING <span>M</span> PAPER TRADER</div>
+      <div class="brand-sub-text">Simulated trading &middot; AI training data &middot; No real money</div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="screener.html" class="nav-link">&#9672; Screener</a>
+    <a href="remi.html" class="nav-link">&#9672; Ask Remi</a>
+    <a href="index.html" class="nav-link">&#9672; Home</a>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- Disclaimer -->
+  <div style="margin-bottom:16px;padding:12px 18px;background:var(--amber-bg);border:1px solid var(--border);border-left:4px solid var(--amber);font-family:var(--mono);font-size:10px;color:var(--text-mid);letter-spacing:1px;line-height:1.8;">
+    <strong style="color:var(--amber)">PAPER TRADING ONLY</strong> &mdash;
+    This simulator uses real market data but virtual money. No real funds are used or at risk.
+    Simulated results do not guarantee real trading performance. For research and AI training purposes only.
+  </div>
+
+  <!-- Account Setup -->
+  <div class="setup-panel">
+    <div class="sec-hdr" style="border-color:var(--green)">Account Setup</div>
+    <div class="setup-grid">
+      <div class="fgroup">
+        <span class="flabel">Starting Balance ($)</span>
+        <input class="finput" type="number" id="start-balance" value="1000" min="100" step="100">
+      </div>
+      <div class="fgroup">
+        <span class="flabel">Max Positions (2-10)</span>
+        <input class="finput" type="number" id="max-positions" value="5" min="2" max="10">
+      </div>
+      <div class="fgroup">
+        <span class="flabel">Capital Reserve (%)</span>
+        <input class="finput" type="number" id="reserve-pct" value="20" min="0" max="50" step="5">
+      </div>
+      <div class="fgroup">
+        <span class="flabel">Max Hold Time</span>
+        <select class="finput" id="max-hold">
+          <option value="0">No limit</option>
+          <option value="24">24 hours</option>
+          <option value="48">48 hours</option>
+          <option value="72">72 hours</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn" onclick="initAccount()">&#9654; Initialize Account</button>
+      <button class="btn-sm" onclick="resetAccount()" style="border-color:var(--red);color:var(--red)">&#9998; Reset Account</button>
+    </div>
+  </div>
+
+  <!-- Portfolio Stats -->
+  <div class="portfolio-row">
+    <div class="pcard"><div class="pcard-label">Total Balance</div><div class="pcard-val" id="stat-balance">$0.00</div></div>
+    <div class="pcard hot-card"><div class="pcard-label">Available</div><div class="pcard-val" id="stat-available" style="color:var(--green-lt)">$0.00</div></div>
+    <div class="pcard blue-card"><div class="pcard-label">In Positions</div><div class="pcard-val" id="stat-invested" style="color:var(--blue)">$0.00</div></div>
+    <div class="pcard amber-card"><div class="pcard-label">Reserved</div><div class="pcard-val" id="stat-reserved" style="color:var(--amber)">$0.00</div></div>
+    <div class="pcard"><div class="pcard-label">Open P&amp;L</div><div class="pcard-val" id="stat-pnl">$0.00</div></div>
+    <div class="pcard"><div class="pcard-label">Total Trades</div><div class="pcard-val" id="stat-trades">0</div></div>
+    <div class="pcard hot-card"><div class="pcard-label">Win Rate</div><div class="pcard-val" id="stat-winrate" style="font-size:14px">—</div></div>
+  </div>
+
+  <!-- New Position Entry -->
+  <div class="entry-panel">
+    <div class="sec-hdr" style="border-color:var(--blue)">Open New Position</div>
+
+    <div class="entry-grid">
+      <div class="fgroup">
+        <span class="flabel">Chain</span>
+        <select class="finput" id="entry-chain">
+          <option value="solana">Solana</option>
+          <option value="eth">Ethereum</option>
+          <option value="base">Base</option>
+          <option value="bsc">BSC</option>
+          <option value="arbitrum">Arbitrum</option>
+          <option value="optimism">Optimism</option>
+        </select>
+      </div>
+      <div class="fgroup" style="grid-column:span 2">
+        <span class="flabel">Pool Address (from screener)</span>
+        <input class="finput" type="text" id="entry-address" placeholder="Paste pool address from screener...">
+      </div>
+      <div class="fgroup">
+        <span class="flabel">Token Symbol</span>
+        <input class="finput" type="text" id="entry-symbol" placeholder="TOKEN">
+      </div>
+      <div class="fgroup">
+        <span class="flabel">Position Size ($)</span>
+        <input class="finput" type="number" id="entry-size" placeholder="100" min="1" step="10">
+      </div>
+      <div class="fgroup">
+        <span class="flabel">Slippage Tolerance (%)</span>
+        <select class="finput" id="entry-slippage">
+          <option value="1">1%</option>
+          <option value="3" selected>3%</option>
+          <option value="5">5%</option>
+          <option value="10">10%</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Stop Loss Config -->
+    <div class="risk-grid">
+      <div class="risk-box">
+        <div class="risk-box-title stop">&#9660; Stop Loss Levels</div>
+        <div class="risk-row">
+          <div class="fgroup"><span class="flabel">Level 1 Loss %</span><input class="finput" type="number" id="sl1-pct" value="15" min="1" max="50"></div>
+          <div class="fgroup"><span class="flabel">Sell %</span><input class="finput" type="number" id="sl1-sell" value="50" min="1" max="99"></div>
+          <div class="fgroup"><span class="flabel">Enabled</span><select class="finput" id="sl1-on"><option value="1">Yes</option><option value="0">No</option></select></div>
+        </div>
+        <div class="risk-row">
+          <div class="fgroup"><span class="flabel">Level 2 Loss %</span><input class="finput" type="number" id="sl2-pct" value="30" min="1" max="90"></div>
+          <div class="fgroup"><span class="flabel">Sell %</span><input class="finput" style="background:#fdecea" type="number" value="100" disabled></div>
+          <div class="fgroup"><span class="flabel">Enabled</span><select class="finput" id="sl2-on"><option value="1">Yes</option><option value="0">No</option></select></div>
+        </div>
+      </div>
+
+      <div class="risk-box">
+        <div class="risk-box-title tp">&#9650; Take Profit Levels</div>
+        <div class="tp-row">
+          <div class="fgroup"><span class="flabel">TP1 Gain %</span><input class="finput" type="number" id="tp1-pct" value="25" min="1"></div>
+          <div class="fgroup"><span class="flabel">Sell %</span><input class="finput" type="number" id="tp1-sell" value="25" min="1" max="100"></div>
+          <div class="fgroup"><span class="flabel">Enabled</span><select class="finput" id="tp1-on"><option value="1">Yes</option><option value="0">No</option></select></div>
+          <div></div>
+        </div>
+        <div class="tp-row">
+          <div class="fgroup"><span class="flabel">TP2 Gain %</span><input class="finput" type="number" id="tp2-pct" value="50" min="1"></div>
+          <div class="fgroup"><span class="flabel">Sell %</span><input class="finput" type="number" id="tp2-sell" value="25" min="1" max="100"></div>
+          <div class="fgroup"><span class="flabel">Enabled</span><select class="finput" id="tp2-on"><option value="1">Yes</option><option value="0">No</option></select></div>
+          <div></div>
+        </div>
+        <div class="tp-row">
+          <div class="fgroup"><span class="flabel">TP3 Gain %</span><input class="finput" type="number" id="tp3-pct" value="100" min="1"></div>
+          <div class="fgroup"><span class="flabel">Sell %</span><input class="finput" type="number" id="tp3-sell" value="25" min="1" max="100"></div>
+          <div class="fgroup"><span class="flabel">Enabled</span><select class="finput" id="tp3-on"><option value="1">Yes</option><option value="0">No</option></select></div>
+          <div></div>
+        </div>
+        <div class="tp-row">
+          <div class="fgroup"><span class="flabel">Trailing Stop %</span><input class="finput" type="number" id="trail-pct" value="15" min="1" max="50"></div>
+          <div class="fgroup"><span class="flabel">Sell remainder</span><input class="finput" style="background:#e6f4ec" type="text" value="100%" disabled></div>
+          <div class="fgroup"><span class="flabel">Enabled</span><select class="finput" id="trail-on"><option value="1">Yes</option><option value="0">No</option></select></div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <button class="btn" id="fetch-btn" onclick="fetchAndEnter()">&#9654; FETCH PRICE &amp; ENTER</button>
+      <button class="btn-sm" onclick="fetchPrice()"><span class="spinner" id="fetch-spin" style="display:none"></span>FETCH PRICE ONLY</button>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--text-dim)" id="fetched-price"></span>
+    </div>
+  </div>
+
+  <!-- Open Positions -->
+  <div class="sec-hdr">Open Positions <span id="pos-refresh-countdown" style="font-size:10px;color:var(--text-dim);font-weight:400;letter-spacing:1px;margin-left:12px"></span></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Chain</th><th>Symbol</th><th>Entry $</th><th>Current $</th>
+          <th>Size</th><th>Remaining%</th><th>P&amp;L $</th><th>P&amp;L %</th>
+          <th>Peak $</th><th>Age</th><th>SL1</th><th>SL2</th>
+          <th>TP1</th><th>TP2</th><th>TP3</th><th>Trail</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="positions-body">
+        <tr><td colspan="17" class="empty-msg">No open positions — enter a trade above</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Remi Event Log -->
+  <div class="remi-log">
+    <div class="remi-log-hdr">&#9672; Remi Event Log</div>
+    <div id="remi-log-body"></div>
+  </div>
+
+  <!-- Closed Trades -->
+  <div class="sec-hdr">Closed Trades</div>
+  <div class="tbl-wrap">
+    <table class="closed-tbl">
+      <thead>
+        <tr>
+          <th>Date</th><th>Chain</th><th>Symbol</th><th>Entry $</th><th>Exit $</th>
+          <th>Size</th><th>Gas</th><th>P&amp;L $</th><th>P&amp;L %</th>
+          <th>Exit Reason</th><th>Duration</th>
+        </tr>
+      </thead>
+      <tbody id="closed-body">
+        <tr><td colspan="11" class="empty-msg">No closed trades yet</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="export-row">
+    <button class="btn-sm" onclick="exportCSV()">&#8595; Export CSV</button>
+    <button class="btn-sm" onclick="exportJSON()">&#8595; Export JSON (ElizaOS)</button>
+    <button class="btn-sm" onclick="exportRemiLog()">&#8595; Export Remi Log</button>
+  </div>
+
+  <footer>
+    <span>Rocking M Paper Trader &middot; Simulated only &middot; No real funds</span>
+    <span>
+      <a href="screener.html">Screener</a> &middot;
+      <a href="remi.html">Ask Remi</a> &middot;
+      <a href="https://github.com/RockingMScreener/rocking-m-screener">GitHub</a>
+    </span>
+    <span>Prices via GeckoTerminal &middot; Refreshes every 60s</span>
+  </footer>
+</div>
+
+<!-- Override Modal -->
+<div class="modal-overlay" id="override-modal">
+  <div class="modal">
+    <div class="modal-title">&#9998; Override Position Levels</div>
+    <input type="hidden" id="override-pos-id">
+    <div class="modal-grid">
+      <div class="fgroup"><span class="flabel">SL1 Loss %</span><input class="finput" type="number" id="ov-sl1-pct"></div>
+      <div class="fgroup"><span class="flabel">SL1 Sell %</span><input class="finput" type="number" id="ov-sl1-sell"></div>
+      <div class="fgroup"><span class="flabel">SL2 Loss %</span><input class="finput" type="number" id="ov-sl2-pct"></div>
+      <div class="fgroup"><span class="flabel">SL2 Enabled</span><select class="finput" id="ov-sl2-on"><option value="1">Yes</option><option value="0">No</option></select></div>
+      <div class="fgroup"><span class="flabel">TP1 Gain %</span><input class="finput" type="number" id="ov-tp1-pct"></div>
+      <div class="fgroup"><span class="flabel">TP1 Sell %</span><input class="finput" type="number" id="ov-tp1-sell"></div>
+      <div class="fgroup"><span class="flabel">TP2 Gain %</span><input class="finput" type="number" id="ov-tp2-pct"></div>
+      <div class="fgroup"><span class="flabel">TP2 Sell %</span><input class="finput" type="number" id="ov-tp2-sell"></div>
+      <div class="fgroup"><span class="flabel">TP3 Gain %</span><input class="finput" type="number" id="ov-tp3-pct"></div>
+      <div class="fgroup"><span class="flabel">TP3 Sell %</span><input class="finput" type="number" id="ov-tp3-sell"></div>
+      <div class="fgroup"><span class="flabel">Trailing Stop %</span><input class="finput" type="number" id="ov-trail-pct"></div>
+      <div class="fgroup"><span class="flabel">Trail Enabled</span><select class="finput" id="ov-trail-on"><option value="1">Yes</option><option value="0">No</option></select></div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-sm" onclick="closeOverride()">Cancel</button>
+      <button class="btn btn-amber" onclick="saveOverride()">Save Override</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Chain config ───────────────────────────────────────────────
+const CHAINS = {
+  solana:   { label:'Solana',   tag:'ct-solana',   gas:0.50, failRate:0.02, gecko:'solana'   },
+  eth:      { label:'Ethereum', tag:'ct-eth',      gas:8.00, failRate:0.04, gecko:'eth'       },
+  base:     { label:'Base',     tag:'ct-base',     gas:0.50, failRate:0.02, gecko:'base'      },
+  bsc:      { label:'BSC',      tag:'ct-bsc',      gas:1.00, failRate:0.03, gecko:'bsc'       },
+  arbitrum: { label:'Arbitrum', tag:'ct-arbitrum', gas:1.50, failRate:0.02, gecko:'arbitrum'  },
+  optimism: { label:'Optimism', tag:'ct-optimism', gas:1.50, failRate:0.02, gecko:'optimism'  },
+};
+
+// ── State ──────────────────────────────────────────────────────
+let account    = null;
+let positions  = [];
+let closed     = [];
+let remiLog    = [];
+let refreshTimer = null;
+let refreshCountdown = 60;
+
+const STORAGE_KEY = 'rm_papertrader_v1';
+
+// ── Persistence ────────────────────────────────────────────────
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ account, positions, closed, remiLog }));
+}
+
+function load() {
+  const d = localStorage.getItem(STORAGE_KEY);
+  if (d) {
+    try {
+      const p = JSON.parse(d);
+      account   = p.account   || null;
+      positions = p.positions || [];
+      closed    = p.closed    || [];
+      remiLog   = p.remiLog   || [];
+    } catch(e) {}
+  }
+}
+
+// ── Account ────────────────────────────────────────────────────
+function initAccount() {
+  const bal  = parseFloat(document.getElementById('start-balance').value) || 1000;
+  const maxP = Math.min(10, Math.max(2, parseInt(document.getElementById('max-positions').value) || 5));
+  const res  = Math.min(50, Math.max(0, parseFloat(document.getElementById('reserve-pct').value) || 20));
+  const hold = parseInt(document.getElementById('max-hold').value) || 0;
+
+  if (account && positions.length > 0) {
+    if (!confirm('You have open positions. Reinitializing will close them. Continue?')) return;
+  }
+
+  account = { balance: bal, startBalance: bal, maxPositions: maxP, reservePct: res, maxHoldHours: hold, createdAt: Date.now() };
+  positions = [];
+  save();
+  remiLog_add('Account initialized. Balance: ' + fUsd(bal) + ' | Max positions: ' + maxP + ' | Reserve: ' + res + '% | Hold limit: ' + (hold ? hold + 'h' : 'none'), 'ok');
+  renderAll();
+  startRefresh();
+  toast('Account initialized — ready to trade');
+}
+
+function resetAccount() {
+  if (!confirm('Reset everything? All positions, trades, and logs will be cleared.')) return;
+  account = null; positions = []; closed = []; remiLog = [];
+  save();
+  stopRefresh();
+  renderAll();
+  toast('Account reset');
+}
+
+// ── Price fetch ────────────────────────────────────────────────
+async function getPrice(chain, poolAddress) {
+  const gecko = CHAINS[chain]?.gecko || chain;
+  const url = `https://api.geckoterminal.com/api/v2/networks/${gecko}/pools/${poolAddress}`;
+  const r = await fetch(url, { headers: { Accept: 'application/json;version=20230302' }});
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const json = await r.json();
+  const price = parseFloat(json.data?.attributes?.base_token_price_usd || 0);
+  if (!price) throw new Error('Price not found');
+  return price;
+}
+
+async function fetchPrice() {
+  const addr  = document.getElementById('entry-address').value.trim();
+  const chain = document.getElementById('entry-chain').value;
+  if (!addr) { toast('Enter a pool address first'); return; }
+  const spin = document.getElementById('fetch-spin');
+  const priceEl = document.getElementById('fetched-price');
+  spin.style.display = 'inline-block';
+  priceEl.textContent = 'Fetching...';
+  try {
+    const price = await getPrice(chain, addr);
+    priceEl.textContent = 'Current price: ' + fPrice(price);
+    priceEl.style.color = 'var(--green)';
+    toast('Price fetched: ' + fPrice(price));
+  } catch(e) {
+    priceEl.textContent = 'Price fetch failed — check address';
+    priceEl.style.color = 'var(--red)';
+  }
+  spin.style.display = 'none';
+}
+
+// ── Slippage simulation ────────────────────────────────────────
+function simulateSlippage(chain, slippageTol, action) {
+  const failRate = CHAINS[chain]?.failRate || 0.03;
+  // Type 1 — full failure
+  if (Math.random() < failRate) {
+    return { success: false, type: 'fail', msg: action + ' failed — transaction rejected due to slippage on ' + (CHAINS[chain]?.label || chain) + '. Retry with higher tolerance?' };
+  }
+  // Type 2 — price impact
+  if (Math.random() < 0.30) {
+    const impact = Math.random() * (slippageTol / 100);
+    return { success: true, type: 'impact', impact, msg: action + ' executed with ' + (impact * 100).toFixed(1) + '% slippage impact on ' + (CHAINS[chain]?.label || chain) };
+  }
+  return { success: true, type: 'clean', impact: 0, msg: action + ' executed cleanly on ' + (CHAINS[chain]?.label || chain) };
+}
+
+// ── Enter position ─────────────────────────────────────────────
+async function fetchAndEnter() {
+  if (!account) { toast('Initialize account first'); return; }
+
+  const addr    = document.getElementById('entry-address').value.trim();
+  const chain   = document.getElementById('entry-chain').value;
+  const symbol  = document.getElementById('entry-symbol').value.trim().toUpperCase() || 'TOKEN';
+  const size    = parseFloat(document.getElementById('entry-size').value) || 0;
+  const slip    = parseInt(document.getElementById('entry-slippage').value) || 3;
+
+  if (!addr)  { toast('Enter a pool address'); return; }
+  if (!size)  { toast('Enter a position size'); return; }
+
+  // Check position limit
+  if (positions.length >= account.maxPositions) {
+    toast('Max positions reached (' + account.maxPositions + ')'); return;
+  }
+
+  // Check available balance
+  const reserved   = account.balance * (account.reservePct / 100);
+  const inPositions = positions.reduce((s,p) => s + p.remainingValue, 0);
+  const available  = account.balance - reserved - inPositions;
+
+  if (size > available) {
+    toast('Insufficient available balance. Available: ' + fUsd(available)); return;
+  }
+
+  const gas = CHAINS[chain]?.gas || 1;
+
+  // Fetch price
+  let price;
+  try {
+    document.getElementById('fetch-btn').disabled = true;
+    document.getElementById('fetch-btn').textContent = 'FETCHING...';
+    price = await getPrice(chain, addr);
+  } catch(e) {
+    remiLog_add('Price fetch failed for ' + symbol + ' on ' + (CHAINS[chain]?.label||chain) + ' — ' + e.message, 'err');
+    toast('Price fetch failed — check address');
+    document.getElementById('fetch-btn').disabled = false;
+    document.getElementById('fetch-btn').textContent = '▶ FETCH PRICE & ENTER';
+    return;
+  }
+
+  // Slippage simulation with retry
+  let entryPrice = price;
+  let slip_result;
+  let attempts = 0;
+  const maxAttempts = 3;
+  const slipTolerances = [slip, slip * 2, slip * 3];
+
+  while (attempts < maxAttempts) {
+    slip_result = simulateSlippage(chain, slipTolerances[attempts], 'Entry');
+    if (slip_result.success) {
+      entryPrice = price * (1 + slip_result.impact);
+      break;
+    }
+    attempts++;
+    const extraGas = gas * 0.5;
+    account.balance -= extraGas;
+    remiLog_add('Entry attempt ' + attempts + ' failed for ' + symbol + ' — retry ' + attempts + '/' + maxAttempts + '. Extra gas cost: ' + fUsd(extraGas), 'warn');
+    if (attempts >= maxAttempts) {
+      remiLog_add('Entry abandoned for ' + symbol + ' after ' + maxAttempts + ' failed attempts. Total gas wasted: ' + fUsd(gas * 0.5 * maxAttempts), 'err');
+      toast('Entry failed after ' + maxAttempts + ' attempts — slippage too high');
+      save();
+      document.getElementById('fetch-btn').disabled = false;
+      document.getElementById('fetch-btn').textContent = '▶ FETCH PRICE & ENTER';
+      return;
+    }
+  }
+
+  // Deduct gas
+  account.balance -= gas;
+
+  // Build position
+  const pos = {
+    id:           Date.now(),
+    chain,
+    symbol,
+    poolAddress:  addr,
+    entryPrice:   entryPrice,
+    currentPrice: entryPrice,
+    peakPrice:    entryPrice,
+    size,
+    remainingPct: 100,
+    remainingValue: size,
+    gas,
+    enteredAt:    Date.now(),
+    sl1: { pct: parseFloat(document.getElementById('sl1-pct').value)||15, sell: parseFloat(document.getElementById('sl1-sell').value)||50, on: document.getElementById('sl1-on').value==='1', triggered: false },
+    sl2: { pct: parseFloat(document.getElementById('sl2-pct').value)||30, sell: 100, on: document.getElementById('sl2-on').value==='1', triggered: false },
+    tp1: { pct: parseFloat(document.getElementById('tp1-pct').value)||25, sell: parseFloat(document.getElementById('tp1-sell').value)||25, on: document.getElementById('tp1-on').value==='1', triggered: false },
+    tp2: { pct: parseFloat(document.getElementById('tp2-pct').value)||50, sell: parseFloat(document.getElementById('tp2-sell').value)||25, on: document.getElementById('tp2-on').value==='1', triggered: false },
+    tp3: { pct: parseFloat(document.getElementById('tp3-pct').value)||100, sell: parseFloat(document.getElementById('tp3-sell').value)||25, on: document.getElementById('tp3-on').value==='1', triggered: false },
+    trail: { pct: parseFloat(document.getElementById('trail-pct').value)||15, on: document.getElementById('trail-on').value==='1', triggered: false },
+    maxHoldHours: account.maxHoldHours,
+  };
+
+  positions.push(pos);
+  save();
+
+  remiLog_add(slip_result.msg, slip_result.type === 'clean' ? 'ok' : 'warn');
+  remiLog_add('Opened ' + symbol + ' on ' + (CHAINS[chain]?.label||chain) + ' | Entry: ' + fPrice(entryPrice) + ' | Size: ' + fUsd(size) + ' | Gas: ' + fUsd(gas), 'ok');
+
+  renderAll();
+  toast('Position opened: ' + symbol);
+
+  document.getElementById('fetch-btn').disabled = false;
+  document.getElementById('fetch-btn').textContent = '▶ FETCH PRICE & ENTER';
+  document.getElementById('entry-address').value = '';
+  document.getElementById('entry-symbol').value  = '';
+  document.getElementById('fetched-price').textContent = '';
+}
+
+// ── Price refresh loop ─────────────────────────────────────────
+function startRefresh() {
+  stopRefresh();
+  refreshCountdown = 60;
+  updateCountdown();
+  refreshTimer = setInterval(async () => {
+    refreshCountdown--;
+    updateCountdown();
+    if (refreshCountdown <= 0) {
+      refreshCountdown = 60;
+      await refreshPrices();
+    }
+  }, 1000);
+}
+
+function stopRefresh() {
+  if (refreshTimer) clearInterval(refreshTimer);
+  document.getElementById('pos-refresh-countdown').textContent = '';
+}
+
+function updateCountdown() {
+  const el = document.getElementById('pos-refresh-countdown');
+  if (positions.length > 0) {
+    el.textContent = 'Price refresh in ' + refreshCountdown + 's';
+  } else {
+    el.textContent = '';
+  }
+}
+
+async function refreshPrices() {
+  if (!positions.length) return;
+  for (let pos of positions) {
+    try {
+      const price = await getPrice(pos.chain, pos.poolAddress);
+      pos.currentPrice = price;
+      if (price > pos.peakPrice) pos.peakPrice = price;
+      checkLevels(pos);
+    } catch(e) {
+      remiLog_add('Price refresh failed for ' + pos.symbol + ' — ' + e.message, 'warn');
+    }
+  }
+  checkHoldTimers();
+  save();
+  renderAll();
+}
+
+// ── Level checks ───────────────────────────────────────────────
+function checkLevels(pos) {
+  if (pos.remainingPct <= 0) return;
+  const pct = ((pos.currentPrice - pos.entryPrice) / pos.entryPrice) * 100;
+  const gas = CHAINS[pos.chain]?.gas || 1;
+
+  // Stop Loss Level 2 — full exit
+  if (pos.sl2.on && !pos.sl2.triggered && pct <= -pos.sl2.pct) {
+    const slip = simulateSlippage(pos.chain, 5, 'Stop Loss L2');
+    const exitPct = slip.success ? pos.currentPrice * (1 - slip.impact) : pos.currentPrice * 0.97;
+    const exitVal = pos.remainingValue * (exitPct / pos.currentPrice);
+    closePartial(pos, 100, exitPct, 'Stop Loss Level 2 — ' + pos.sl2.pct + '% loss threshold reached. Full position closed. ' + (slip.type !== 'clean' ? slip.msg : ''), gas);
+    pos.sl2.triggered = true;
+    return;
+  }
+
+  // Stop Loss Level 1 — partial
+  if (pos.sl1.on && !pos.sl1.triggered && pct <= -pos.sl1.pct) {
+    const slip = simulateSlippage(pos.chain, 3, 'Stop Loss L1');
+    const exitPrice = slip.success ? pos.currentPrice * (1 - slip.impact) : pos.currentPrice * 0.98;
+    closePartial(pos, pos.sl1.sell, exitPrice, 'Stop Loss Level 1 — ' + pos.sl1.pct + '% loss threshold reached. Sold ' + pos.sl1.sell + '% of position. ' + (slip.type !== 'clean' ? slip.msg : ''), gas * 0.5);
+    pos.sl1.triggered = true;
+  }
+
+  // Take Profit levels
+  [
+    { cfg: pos.tp1, label: 'Take Profit 1' },
+    { cfg: pos.tp2, label: 'Take Profit 2' },
+    { cfg: pos.tp3, label: 'Take Profit 3' },
+  ].forEach(({ cfg, label }) => {
+    if (cfg.on && !cfg.triggered && pct >= cfg.pct) {
+      const slip = simulateSlippage(pos.chain, 2, label);
+      const exitPrice = slip.success ? pos.currentPrice * (1 - slip.impact) : pos.currentPrice * 0.99;
+      closePartial(pos, cfg.sell, exitPrice, label + ' — ' + cfg.pct + '% gain target hit. Sold ' + cfg.sell + '% of remaining position. ' + (slip.type !== 'clean' ? slip.msg : ''), gas * 0.5);
+      cfg.triggered = true;
+    }
+  });
+
+  // Trailing stop — trails from peak
+  if (pos.trail.on && !pos.trail.triggered && pos.remainingPct > 0) {
+    const dropFromPeak = ((pos.peakPrice - pos.currentPrice) / pos.peakPrice) * 100;
+    if (dropFromPeak >= pos.trail.pct) {
+      const slip = simulateSlippage(pos.chain, 3, 'Trailing Stop');
+      const exitPrice = slip.success ? pos.currentPrice * (1 - slip.impact) : pos.currentPrice * 0.98;
+      closePartial(pos, 100, exitPrice, 'Trailing stop triggered — price dropped ' + dropFromPeak.toFixed(1) + '% from peak of ' + fPrice(pos.peakPrice) + '. Remaining position closed. ' + (slip.type !== 'clean' ? slip.msg : ''), gas * 0.5);
+      pos.trail.triggered = true;
+    }
+  }
+}
+
+function checkHoldTimers() {
+  positions.forEach(pos => {
+    if (!pos.maxHoldHours || pos.maxHoldHours === 0) return;
+    const ageHours = (Date.now() - pos.enteredAt) / 3600000;
+    if (ageHours >= pos.maxHoldHours && pos.remainingPct > 0) {
+      const gas = CHAINS[pos.chain]?.gas || 1;
+      closePartial(pos, 100, pos.currentPrice, 'Maximum hold time of ' + pos.maxHoldHours + ' hours reached. Position closed at market price. Held for ' + ageHours.toFixed(1) + ' hours.', gas * 0.5);
+    }
+  });
+}
+
+function closePartial(pos, sellPct, exitPrice, reason, gasCost) {
+  const sellFraction  = sellPct / 100;
+  const sellValue     = pos.remainingValue * sellFraction;
+  const exitValue     = sellValue * (exitPrice / pos.currentPrice);
+  const pnl           = exitValue - sellValue - gasCost;
+
+  account.balance += exitValue - gasCost;
+  pos.remainingPct    -= sellPct * (pos.remainingPct / 100);
+  pos.remainingValue  -= sellValue;
+
+  // Log closed portion
+  closed.unshift({
+    id:         Date.now(),
+    date:       new Date().toLocaleDateString(),
+    chain:      pos.chain,
+    symbol:     pos.symbol,
+    entryPrice: pos.entryPrice,
+    exitPrice,
+    size:       sellValue,
+    gas:        gasCost,
+    pnl,
+    pnlPct:     (pnl / sellValue) * 100,
+    reason,
+    durationMs: Date.now() - pos.enteredAt,
+    outcome:    pnl >= 0 ? 'win' : 'loss'
+  });
+
+  account.balance -= gasCost;
+  remiLog_add(reason, pnl >= 0 ? 'ok' : 'err');
+
+  // Remove position if fully closed
+  if (pos.remainingPct <= 0.5) {
+    positions = positions.filter(p => p.id !== pos.id);
+  }
+}
+
+// ── Manual close ───────────────────────────────────────────────
+function manualClose(posId) {
+  const pos = positions.find(p => p.id === posId);
+  if (!pos) return;
+  if (!confirm('Close entire position in ' + pos.symbol + '?')) return;
+  const gas = CHAINS[pos.chain]?.gas || 1;
+  closePartial(pos, 100, pos.currentPrice, 'Manually closed by trader at ' + fPrice(pos.currentPrice), gas);
+  save();
+  renderAll();
+  toast('Position closed: ' + pos.symbol);
+}
+
+// ── Override modal ─────────────────────────────────────────────
+function openOverride(posId) {
+  const pos = positions.find(p => p.id === posId);
+  if (!pos) return;
+  document.getElementById('override-pos-id').value = posId;
+  document.getElementById('ov-sl1-pct').value   = pos.sl1.pct;
+  document.getElementById('ov-sl1-sell').value  = pos.sl1.sell;
+  document.getElementById('ov-sl2-pct').value   = pos.sl2.pct;
+  document.getElementById('ov-sl2-on').value    = pos.sl2.on ? '1' : '0';
+  document.getElementById('ov-tp1-pct').value   = pos.tp1.pct;
+  document.getElementById('ov-tp1-sell').value  = pos.tp1.sell;
+  document.getElementById('ov-tp2-pct').value   = pos.tp2.pct;
+  document.getElementById('ov-tp2-sell').value  = pos.tp2.sell;
+  document.getElementById('ov-tp3-pct').value   = pos.tp3.pct;
+  document.getElementById('ov-tp3-sell').value  = pos.tp3.sell;
+  document.getElementById('ov-trail-pct').value = pos.trail.pct;
+  document.getElementById('ov-trail-on').value  = pos.trail.on ? '1' : '0';
+  document.getElementById('override-modal').classList.add('show');
+}
+
+function closeOverride() { document.getElementById('override-modal').classList.remove('show'); }
+
+function saveOverride() {
+  const posId = parseInt(document.getElementById('override-pos-id').value);
+  const pos   = positions.find(p => p.id === posId);
+  if (!pos) return;
+  pos.sl1.pct    = parseFloat(document.getElementById('ov-sl1-pct').value)  || pos.sl1.pct;
+  pos.sl1.sell   = parseFloat(document.getElementById('ov-sl1-sell').value) || pos.sl1.sell;
+  pos.sl2.pct    = parseFloat(document.getElementById('ov-sl2-pct').value)  || pos.sl2.pct;
+  pos.sl2.on     = document.getElementById('ov-sl2-on').value === '1';
+  pos.tp1.pct    = parseFloat(document.getElementById('ov-tp1-pct').value)  || pos.tp1.pct;
+  pos.tp1.sell   = parseFloat(document.getElementById('ov-tp1-sell').value) || pos.tp1.sell;
+  pos.tp2.pct    = parseFloat(document.getElementById('ov-tp2-pct').value)  || pos.tp2.pct;
+  pos.tp2.sell   = parseFloat(document.getElementById('ov-tp2-sell').value) || pos.tp2.sell;
+  pos.tp3.pct    = parseFloat(document.getElementById('ov-tp3-pct').value)  || pos.tp3.pct;
+  pos.tp3.sell   = parseFloat(document.getElementById('ov-tp3-sell').value) || pos.tp3.sell;
+  pos.trail.pct  = parseFloat(document.getElementById('ov-trail-pct').value)|| pos.trail.pct;
+  pos.trail.on   = document.getElementById('ov-trail-on').value === '1';
+  save();
+  closeOverride();
+  remiLog_add('Position levels overridden for ' + pos.symbol + ' by trader', 'info');
+  renderAll();
+  toast('Levels updated for ' + pos.symbol);
+}
+
+// ── Remi log ───────────────────────────────────────────────────
+function remiLog_add(msg, type='info') {
+  const entry = { time: new Date().toLocaleTimeString(), msg, type };
+  remiLog.unshift(entry);
+  if (remiLog.length > 100) remiLog.pop();
+  renderRemiLog();
+}
+
+function renderRemiLog() {
+  const body = document.getElementById('remi-log-body');
+  if (!remiLog.length) { body.innerHTML = '<div class="log-entry"><span class="log-info">Remi is watching the market...</span></div>'; return; }
+  body.innerHTML = remiLog.slice(0,20).map(e =>
+    `<div class="log-entry"><span class="log-time">${e.time}</span><span class="log-${e.type}">${e.msg}</span></div>`
+  ).join('');
+}
+
+// ── Render ─────────────────────────────────────────────────────
+function renderAll() {
+  renderPortfolio();
+  renderPositions();
+  renderClosed();
+  renderRemiLog();
+}
+
+function renderPortfolio() {
+  if (!account) {
+    ['stat-balance','stat-available','stat-invested','stat-reserved','stat-pnl','stat-trades','stat-winrate']
+      .forEach(id => document.getElementById(id).textContent = '—');
+    return;
+  }
+  const reserved    = account.balance * (account.reservePct / 100);
+  const inPositions = positions.reduce((s,p) => s + p.remainingValue, 0);
+  const available   = Math.max(0, account.balance - reserved - inPositions);
+  const openPnl     = positions.reduce((s,p) => {
+    const pct = (p.currentPrice - p.entryPrice) / p.entryPrice;
+    return s + (p.remainingValue * pct);
+  }, 0);
+  const wins   = closed.filter(t => t.outcome === 'win').length;
+  const losses = closed.filter(t => t.outcome === 'loss').length;
+  const total  = wins + losses;
+  const wr     = total ? ((wins / total) * 100).toFixed(1) + '%' : '—';
+
+  document.getElementById('stat-balance').textContent   = fUsd(account.balance);
+  document.getElementById('stat-available').textContent = fUsd(available);
+  document.getElementById('stat-invested').textContent  = fUsd(inPositions);
+  document.getElementById('stat-reserved').textContent  = fUsd(reserved);
+
+  const pnlEl = document.getElementById('stat-pnl');
+  pnlEl.textContent   = (openPnl >= 0 ? '+' : '') + fUsd(openPnl);
+  pnlEl.style.color   = openPnl > 0 ? 'var(--green)' : openPnl < 0 ? 'var(--red)' : 'var(--text)';
+
+  document.getElementById('stat-trades').textContent  = closed.length;
+  document.getElementById('stat-winrate').textContent = wr;
+}
+
+function renderPositions() {
+  const body = document.getElementById('positions-body');
+  if (!positions.length) {
+    body.innerHTML = '<tr><td colspan="17" class="empty-msg">No open positions</td></tr>';
+    return;
+  }
+  body.innerHTML = positions.map(pos => {
+    const pct     = ((pos.currentPrice - pos.entryPrice) / pos.entryPrice) * 100;
+    const pnlVal  = pos.remainingValue * (pct / 100);
+    const pnlCls  = pct > 0 ? 'pos-up' : pct < 0 ? 'pos-dn' : 'pos-neu';
+    const ageH    = ((Date.now() - pos.enteredAt) / 3600000).toFixed(1);
+    const meta    = CHAINS[pos.chain] || { label: pos.chain, tag: 'ct-other' };
+    const fmtLvl  = (cfg, triggered) => cfg.on ? (triggered ? '<span style="color:var(--green-hi)">✓</span>' : cfg.pct + '%') : '<span style="color:var(--text-dim)">off</span>';
+
+    return `<tr>
+      <td><span class="chain-tag ${meta.tag}">${meta.label}</span></td>
+      <td style="font-weight:700;color:var(--blue)">${pos.symbol}</td>
+      <td>${fPrice(pos.entryPrice)}</td>
+      <td>${fPrice(pos.currentPrice)}</td>
+      <td>${fUsd(pos.size)}</td>
+      <td>${pos.remainingPct.toFixed(0)}%</td>
+      <td class="${pnlCls}">${pnlVal >= 0 ? '+' : ''}${fUsd(pnlVal)}</td>
+      <td class="${pnlCls}">${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%</td>
+      <td>${fPrice(pos.peakPrice)}</td>
+      <td>${ageH}h</td>
+      <td>${fmtLvl(pos.sl1, pos.sl1.triggered)}</td>
+      <td>${fmtLvl(pos.sl2, pos.sl2.triggered)}</td>
+      <td>${fmtLvl(pos.tp1, pos.tp1.triggered)}</td>
+      <td>${fmtLvl(pos.tp2, pos.tp2.triggered)}</td>
+      <td>${fmtLvl(pos.tp3, pos.tp3.triggered)}</td>
+      <td>${pos.trail.on ? (pos.trail.triggered ? '<span style="color:var(--green-hi)">✓</span>' : pos.trail.pct + '%') : '<span style="color:var(--text-dim)">off</span>'}</td>
+      <td style="display:flex;gap:4px">
+        <button class="btn-sm" onclick="openOverride(${pos.id})" title="Override levels">&#9998;</button>
+        <button class="btn-sm" style="border-color:var(--red);color:var(--red)" onclick="manualClose(${pos.id})" title="Close position">&#10005;</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderClosed() {
+  const body = document.getElementById('closed-body');
+  if (!closed.length) {
+    body.innerHTML = '<tr><td colspan="11" class="empty-msg">No closed trades yet</td></tr>';
+    return;
+  }
+  body.innerHTML = closed.slice(0, 50).map(t => {
+    const cls  = t.outcome === 'win' ? 'win' : t.outcome === 'loss' ? 'loss' : 'scratch';
+    const dur  = t.durationMs ? ((t.durationMs / 3600000).toFixed(1) + 'h') : '—';
+    const meta = CHAINS[t.chain] || { label: t.chain, tag: 'ct-other' };
+    return `<tr>
+      <td>${t.date}</td>
+      <td><span class="chain-tag ${meta.tag}">${meta.label}</span></td>
+      <td style="font-weight:700;color:var(--blue)">${t.symbol}</td>
+      <td>${fPrice(t.entryPrice)}</td>
+      <td>${fPrice(t.exitPrice)}</td>
+      <td>${fUsd(t.size)}</td>
+      <td style="color:var(--amber)">${fUsd(t.gas)}</td>
+      <td class="${cls}">${t.pnl >= 0 ? '+' : ''}${fUsd(t.pnl)}</td>
+      <td class="${cls}">${t.pnlPct >= 0 ? '+' : ''}${t.pnlPct.toFixed(2)}%</td>
+      <td style="font-size:10px;color:var(--text-dim);max-width:200px;overflow:hidden;text-overflow:ellipsis" title="${t.reason}">${t.reason.substring(0,60)}${t.reason.length > 60 ? '…' : ''}</td>
+      <td>${dur}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Exports ────────────────────────────────────────────────────
+function exportCSV() {
+  const hdr  = 'date,chain,symbol,entry,exit,size,gas,pnl,pnl_pct,reason,duration_hours,outcome\n';
+  const rows = closed.map(t => `${t.date},${t.chain},${t.symbol},${t.entryPrice},${t.exitPrice},${t.size},${t.gas},${t.pnl.toFixed(2)},${t.pnlPct.toFixed(2)},"${t.reason.replace(/"/g,"'")}",${t.durationMs?(t.durationMs/3600000).toFixed(2):''},${t.outcome}`).join('\n');
+  dl('rocking_m_paper_trades.csv', hdr + rows, 'text/csv');
+}
+
+function exportJSON() {
+  const data = {
+    account: {
+      startBalance:   account?.startBalance || 0,
+      currentBalance: account?.balance || 0,
+      totalTrades:    closed.length,
+      winRate:        closed.length ? ((closed.filter(t=>t.outcome==='win').length/closed.length)*100).toFixed(1)+'%' : '0%',
+    },
+    trades: closed.map(t => ({
+      timestamp:     t.date,
+      chain:         t.chain,
+      symbol:        t.symbol,
+      entry_price:   t.entryPrice,
+      exit_price:    t.exitPrice,
+      position_size: t.size,
+      gas_cost:      t.gas,
+      pnl_usd:       t.pnl,
+      pnl_pct:       t.pnlPct,
+      exit_reason:   t.reason,
+      duration_hours: t.durationMs ? (t.durationMs/3600000).toFixed(2) : null,
+      outcome:       t.outcome,
+    }))
+  };
+  dl('rocking_m_paper_elizaos.json', JSON.stringify(data, null, 2), 'application/json');
+}
+
+function exportRemiLog() {
+  const data = remiLog.map(e => `[${e.time}] [${e.type.toUpperCase()}] ${e.msg}`).join('\n');
+  dl('rocking_m_remi_log.txt', data, 'text/plain');
+}
+
+function dl(name, content, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], {type}));
+  a.download = name; a.click();
+}
+
+// ── Helpers ────────────────────────────────────────────────────
+function fUsd(n) {
+  if (n === null || n === undefined) return '$0';
+  const abs = Math.abs(n);
+  const fmt = abs >= 1e6 ? '$'+(abs/1e6).toFixed(2)+'M' : abs >= 1e3 ? '$'+(abs/1e3).toFixed(1)+'K' : '$'+abs.toFixed(2);
+  return n < 0 ? '-' + fmt : fmt;
+}
+function fPrice(n) {
+  if (!n) return '$0';
+  if (n < 0.000001) return '$'+n.toExponential(2);
+  if (n < 0.01)     return '$'+n.toFixed(6);
+  if (n < 1)        return '$'+n.toFixed(4);
+  return '$'+n.toFixed(2);
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── Init ───────────────────────────────────────────────────────
+load();
+renderAll();
+if (account) {
+  // Restore setup values
+  document.getElementById('start-balance').value  = account.startBalance;
+  document.getElementById('max-positions').value  = account.maxPositions;
+  document.getElementById('reserve-pct').value    = account.reservePct;
+  document.getElementById('max-hold').value       = account.maxHoldHours || 0;
+  startRefresh();
+  remiLog_add('Session restored — ' + positions.length + ' open position(s) | Balance: ' + fUsd(account.balance), 'ok');
+}
+</script>
+</body>
+</html>
