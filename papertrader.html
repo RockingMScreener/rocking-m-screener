@@ -273,6 +273,11 @@
         <input class="finput" type="number" id="entry-liq-floor" value="5000" min="0" step="500" title="Emergency exit if liquidity drops below this amount">
         <span style="font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-top:3px;display:block">Emergency exit if liq drops below this</span>
       </div>
+      <div class="fgroup" style="grid-column:span 2">
+        <span class="flabel">Entry Reason (filters &amp; signals)</span>
+        <input class="finput" type="text" id="entry-reason" placeholder="e.g. liq>20k, 1h>15%, age<1h, low pool%, clean chart">
+        <span style="font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-top:3px;display:block">Used for ElizaOS training data — be specific about what caught your eye</span>
+      </div>
     </div>
 
     <!-- Stop Loss Config -->
@@ -342,7 +347,7 @@
           <th>Size</th><th>Remaining%</th><th>P&amp;L $</th><th>P&amp;L %</th>
           <th>Peak $</th><th>Age</th><th>SL1</th><th>SL2</th>
           <th>TP1</th><th>TP2</th><th>TP3</th><th>Trail</th>
-          <th>Actions</th>
+          <th>Entry Reason</th><th>Actions</th>
         </tr>
       </thead>
       <tbody id="positions-body">
@@ -365,7 +370,7 @@
         <tr>
           <th>Date</th><th>Chain</th><th>Symbol</th><th>Entry $</th><th>Exit $</th>
           <th>Size</th><th>Gas</th><th>P&amp;L $</th><th>P&amp;L %</th>
-          <th>Exit Reason</th><th>Duration</th>
+          <th>Entry Reason</th><th>Exit Reason</th><th>Duration</th>
         </tr>
       </thead>
       <tbody id="closed-body">
@@ -681,6 +686,7 @@ async function fetchAndEnter() {
     tp3: { pct: parseFloat(document.getElementById('tp3-pct').value)||100, sell: parseFloat(document.getElementById('tp3-sell').value)||25, on: document.getElementById('tp3-on').value==='1', triggered: false },
     trail: { pct: parseFloat(document.getElementById('trail-pct').value)||15, on: document.getElementById('trail-on').value==='1', triggered: false, activatePct: parseFloat(document.getElementById('trail-activate-pct').value)||0, activateMins: parseFloat(document.getElementById('trail-activate-mins').value)||0 },
     liqFloor: parseFloat(document.getElementById('entry-liq-floor').value)||0,
+    entryReason: document.getElementById('entry-reason').value.trim() || 'No reason recorded',
     maxHoldHours: account.maxHoldHours,
   };
 
@@ -688,7 +694,8 @@ async function fetchAndEnter() {
   save();
 
   remiLog_add(slip_result.msg, slip_result.type === 'clean' ? 'ok' : 'warn');
-  remiLog_add('Opened ' + symbol + ' on ' + (CHAINS[chain]?.label||chain) + ' | Entry: ' + fPrice(entryPrice) + ' | Size: ' + fUsd(size) + ' | Gas: ' + fUsd(gas), 'ok');
+  const entryReason = document.getElementById('entry-reason').value.trim() || 'No reason recorded';
+  remiLog_add('Opened ' + symbol + ' on ' + (CHAINS[chain]?.label||chain) + ' | Entry: ' + fPrice(entryPrice) + ' | Size: ' + fUsd(size) + ' | Gas: ' + fUsd(gas) + ' | Reason: ' + entryReason, 'ok');
 
   renderAll();
   toast('Position opened: ' + symbol);
@@ -697,6 +704,7 @@ async function fetchAndEnter() {
   document.getElementById('fetch-btn').textContent = '▶ FETCH PRICE & ENTER';
   document.getElementById('entry-address').value = '';
   document.getElementById('entry-symbol').value  = '';
+  document.getElementById('entry-reason').value  = '';
   document.getElementById('fetched-price').textContent = '';
 }
 
@@ -859,6 +867,7 @@ function closePartial(pos, sellPct, exitPrice, reason, gasCost) {
     pnl,
     pnlPct:     (pnl / sellValue) * 100,
     reason,
+    entryReason: pos.entryReason || 'No reason recorded',
     durationMs: Date.now() - pos.enteredAt,
     outcome:    pnl >= 0 ? 'win' : 'loss'
   });
@@ -1019,6 +1028,7 @@ function renderPositions() {
       <td>${fmtLvl(pos.tp2, pos.tp2.triggered)}</td>
       <td>${fmtLvl(pos.tp3, pos.tp3.triggered)}</td>
       <td>${pos.trail.on ? (pos.trail.triggered ? '<span style="color:var(--green-hi)">✓</span>' : pos.trail.pct + '%') : '<span style="color:var(--text-dim)">off</span>'}</td>
+      <td style="font-size:10px;color:var(--text-dim);max-width:180px;overflow:hidden;text-overflow:ellipsis" title="${pos.entryReason}">${pos.entryReason}</td>
       <td style="display:flex;gap:4px">
         <button class="btn-sm" onclick="openOverride(${pos.id})" title="Override levels">&#9998;</button>
         <button class="btn-sm" style="border-color:var(--blue);color:var(--blue)" onclick="copyAddr('${pos.poolAddress}')" title="Copy pool address">&#9670;</button>
@@ -1048,7 +1058,8 @@ function renderClosed() {
       <td style="color:var(--amber)">${fUsd(t.gas)}</td>
       <td class="${cls}">${t.pnl >= 0 ? '+' : ''}${fUsd(t.pnl)}</td>
       <td class="${cls}">${t.pnlPct >= 0 ? '+' : ''}${t.pnlPct.toFixed(2)}%</td>
-      <td style="font-size:10px;color:var(--text-dim);max-width:200px;overflow:hidden;text-overflow:ellipsis" title="${t.reason}">${t.reason.substring(0,60)}${t.reason.length > 60 ? '…' : ''}</td>
+      <td style="font-size:10px;color:var(--blue-lt);max-width:160px;overflow:hidden;text-overflow:ellipsis" title="${t.entryReason}">${(t.entryReason||'—').substring(0,40)}${(t.entryReason||'').length > 40 ? '…' : ''}</td>
+      <td style="font-size:10px;color:var(--text-dim);max-width:160px;overflow:hidden;text-overflow:ellipsis" title="${t.reason}">${t.reason.substring(0,40)}${t.reason.length > 40 ? '…' : ''}</td>
       <td>${dur}</td>
     </tr>`;
   }).join('');
@@ -1056,8 +1067,8 @@ function renderClosed() {
 
 // ── Exports ────────────────────────────────────────────────────
 function exportCSV() {
-  const hdr  = 'date,chain,symbol,entry,exit,size,gas,pnl,pnl_pct,reason,duration_hours,outcome\n';
-  const rows = closed.map(t => `${t.date},${t.chain},${t.symbol},${t.entryPrice},${t.exitPrice},${t.size},${t.gas},${t.pnl.toFixed(2)},${t.pnlPct.toFixed(2)},"${t.reason.replace(/"/g,"'")}",${t.durationMs?(t.durationMs/3600000).toFixed(2):''},${t.outcome}`).join('\n');
+  const hdr  = 'date,chain,symbol,entry,exit,size,gas,pnl,pnl_pct,entry_reason,exit_reason,duration_hours,outcome\n';
+  const rows = closed.map(t => `${t.date},${t.chain},${t.symbol},${t.entryPrice},${t.exitPrice},${t.size},${t.gas},${t.pnl.toFixed(2)},${t.pnlPct.toFixed(2)},"${(t.entryReason||'').replace(/"/g,"'")}","${t.reason.replace(/"/g,"'")}",${t.durationMs?(t.durationMs/3600000).toFixed(2):''},${t.outcome}`).join('\n');
   dl('rocking_m_paper_trades.csv', hdr + rows, 'text/csv');
 }
 
@@ -1079,6 +1090,8 @@ function exportJSON() {
       gas_cost:      t.gas,
       pnl_usd:       t.pnl,
       pnl_pct:       t.pnlPct,
+      entry_reason:  t.entryReason || 'No reason recorded',
+      filters_hit:   t.entryReason || 'No reason recorded',
       exit_reason:   t.reason,
       duration_hours: t.durationMs ? (t.durationMs/3600000).toFixed(2) : null,
       outcome:       t.outcome,
