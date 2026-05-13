@@ -605,8 +605,7 @@ async function fetchAndEnter() {
 
   // Check available balance
   const reserved   = account.balance * (account.reservePct / 100);
-  const inPositions = positions.reduce((s,p) => s + p.remainingValue, 0);
-  const available  = account.balance - reserved - inPositions;
+  const available  = Math.max(0, account.balance - reserved);
 
   if (size > available) {
     toast('Insufficient available balance. Available: ' + fUsd(available)); return;
@@ -662,8 +661,9 @@ async function fetchAndEnter() {
     }
   }
 
-  // Deduct gas
+  // Deduct gas and position size from balance on entry
   account.balance -= gas;
+  account.balance -= size;
 
   // Build position
   const pos = {
@@ -845,11 +845,12 @@ function checkHoldTimers() {
 function closePartial(pos, sellPct, exitPrice, reason, gasCost) {
   const sellFraction  = sellPct / 100;
   const sellValue     = pos.remainingValue * sellFraction;
-  // exitValue reflects actual price change from entry — if exit is below entry this correctly returns less than sellValue
+  // exitValue = what we actually get back based on price movement from entry
   const priceRatio    = exitPrice / pos.entryPrice;
-  const exitValue     = (pos.size * sellFraction) * priceRatio;
+  const exitValue     = sellValue * priceRatio;
   const pnl           = exitValue - sellValue - gasCost;
 
+  // Add back exit proceeds minus gas — position size was already deducted at entry
   account.balance += Math.max(0, exitValue - gasCost);
   pos.remainingPct    -= sellPct * (pos.remainingPct / 100);
   pos.remainingValue  -= sellValue;
@@ -872,7 +873,6 @@ function closePartial(pos, sellPct, exitPrice, reason, gasCost) {
     outcome:    pnl >= 0 ? 'win' : 'loss'
   });
 
-  account.balance -= gasCost;
   remiLog_add(reason, pnl >= 0 ? 'ok' : 'err');
 
   // Remove position if fully closed
@@ -974,7 +974,7 @@ function renderPortfolio() {
   }
   const reserved    = account.balance * (account.reservePct / 100);
   const inPositions = positions.reduce((s,p) => s + p.remainingValue, 0);
-  const available   = Math.max(0, account.balance - reserved - inPositions);
+  const available   = Math.max(0, account.balance - reserved);
   const openPnl     = positions.reduce((s,p) => {
     const pct = (p.currentPrice - p.entryPrice) / p.entryPrice;
     return s + (p.remainingValue * pct);
