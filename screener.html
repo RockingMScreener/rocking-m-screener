@@ -47,19 +47,19 @@
   .chip:hover:not(.disabled){border-color:var(--green);color:var(--green);background:#f0f8f4;}
 
   /* Active states per chain */
-  .chip.active[data-chain="solana"]  {border-color:#9945ff;background:#2d1a4a;color:#c49fff;}
-  .chip.active[data-chain="eth"]     {border-color:#6699ff;background:#1a2040;color:#aabfff;}
-  .chip.active[data-chain="base"]    {border-color:#4488ff;background:#001a3a;color:#88aaff;}
-  .chip.active[data-chain="bsc"]     {border-color:#f0b800;background:#2a2000;color:#f0d060;}
-  .chip.active[data-chain="arbitrum"]{border-color:#12aaff;background:#001a2a;color:#70ccff;}
-  .chip.active[data-chain="optimism"]{border-color:#ff4444;background:#2a0000;color:#ff9090;}
-  .chip.active[data-chain="polygon_pos"] {border-color:#8247e5;background:#1a0a30;color:#b080ff;}
-  .chip.active[data-chain="avax"]    {border-color:#e84142;background:#2a0505;color:#ff8080;}
+  .chip.active[data-chain="solana"]     {border-color:#9945ff;background:#2d1a4a;color:#c49fff;}
+  .chip.active[data-chain="eth"]        {border-color:#6699ff;background:#1a2040;color:#aabfff;}
+  .chip.active[data-chain="base"]       {border-color:#4488ff;background:#001a3a;color:#88aaff;}
+  .chip.active[data-chain="bsc"]        {border-color:#f0b800;background:#2a2000;color:#f0d060;}
+  .chip.active[data-chain="arbitrum"]   {border-color:#12aaff;background:#001a2a;color:#70ccff;}
+  .chip.active[data-chain="optimism"]   {border-color:#ff4444;background:#2a0000;color:#ff9090;}
+  .chip.active[data-chain="polygon_pos"]{border-color:#8247e5;background:#1a0a30;color:#b080ff;}
+  .chip.active[data-chain="avax"]       {border-color:#e84142;background:#2a0505;color:#ff8080;}
   .chip.active[data-chain="sui-network"]{border-color:#4da2ff;background:#001830;color:#90c8ff;}
-  .chip.active[data-chain="ton"]     {border-color:#0088cc;background:#001a26;color:#60b8e8;}
-  .chip.active[data-chain="aptos"]   {border-color:#00c2a8;background:#002020;color:#60e8d8;}
-  .chip.active[data-chain="fantom"]  {border-color:#1969ff;background:#000a2a;color:#6090ff;}
-  .chip.active[data-chain="cosmos"]  {border-color:#6f4e8a;background:#120a1e;color:#b090d0;}
+  .chip.active[data-chain="tron"]       {border-color:#ff0013;background:#2a0005;color:#ff6070;}
+  .chip.active[data-chain="blast"]      {border-color:#fcfc03;background:#1a1a00;color:#f0f060;}
+  .chip.active[data-chain="berachain"]  {border-color:#8b4513;background:#1a0a00;color:#d2691e;}
+  .chip.active[data-chain="cosmos"]     {border-color:#6f4e8a;background:#120a1e;color:#b090d0;}
 
   .chip.disabled{opacity:.35;cursor:not-allowed;pointer-events:none;}
 
@@ -67,6 +67,11 @@
   .chain-counter{font-family:var(--mono);font-size:11px;font-weight:600;padding:4px 12px;border:1px solid var(--border);background:var(--bg2);color:var(--text-mid);margin-left:auto;}
   .chain-counter.at-limit{border-color:var(--amber);color:var(--amber);background:#fff8e6;}
   .chain-hint{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-top:8px;}
+
+  /* ── GoPlus banner ── */
+  .goplus-banner{display:none;align-items:center;gap:10px;margin-bottom:10px;padding:8px 14px;background:#e6f4ec;border:1px solid var(--green);border-left:4px solid var(--green-hi);font-family:var(--mono);font-size:10px;color:var(--green);letter-spacing:1px;}
+  .goplus-banner.active{display:flex;}
+  .goplus-dot{width:7px;height:7px;border-radius:50%;background:var(--green-hi);box-shadow:0 0 5px var(--green-hi);animation:blink 2s infinite;flex-shrink:0;}
 
   /* ── Filter panel ── */
   .filter-panel{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-top:3px solid var(--green);}
@@ -116,6 +121,11 @@
   th.sorted{color:var(--green-hi);}
   th.sorted::after{content:' \2193';}
   th.sorted.asc::after{content:' \2191';}
+  /* GoPlus header group */
+  th.gp-header{color:#00cc66;border-left:2px solid rgba(0,204,102,.3);}
+  th.gp-header:first-of-type{}
+  .gp-divider{border-left:2px solid rgba(0,204,102,.3)!important;}
+
   tbody tr{border-bottom:1px solid var(--border);transition:background .1s;animation:row-in .22s ease forwards;opacity:0;}
   @keyframes row-in{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:translateX(0)}}
   tbody tr:nth-child(even){background:#f7f9fb;}
@@ -135,22 +145,39 @@
   td.link-col a{color:var(--green);text-decoration:none;font-size:10px;font-weight:600;letter-spacing:1px;}
   td.link-col a:hover{text-decoration:underline;}
 
-  /* ── Chain color pills in table — each chain distinct ── */
+  /* GoPlus cell styles */
+  td.gp-cell{border-left:2px solid rgba(0,204,102,.15);font-size:10px;}
+  .gp-safe{color:var(--green);font-weight:600;}
+  .gp-warn{color:var(--amber);font-weight:600;}
+  .gp-danger{color:var(--red);font-weight:600;}
+  .gp-dim{color:var(--text-dim);}
+  .gp-loading{color:var(--text-dim);font-style:italic;}
+  .hp-badge{font-size:9px;letter-spacing:1px;padding:2px 7px;font-weight:700;text-transform:uppercase;}
+  .hp-safe{background:var(--green-bg);color:var(--green);border:1px solid var(--green);}
+  .hp-danger{background:#fde8e8;color:var(--red);border:1px solid var(--red);}
+  .hp-unknown{background:var(--bg2);color:var(--text-dim);border:1px solid var(--border2);}
+  .risk-badge{font-size:10px;letter-spacing:2px;padding:3px 10px;font-weight:800;text-transform:uppercase;display:inline-block;}
+  .risk-red   {background:#fde8e8;color:var(--red);border:1px solid var(--red);}
+  .risk-amber {background:#fff3cd;color:var(--amber);border:1px solid var(--amber);}
+  .risk-green {background:var(--green-bg);color:var(--green);border:1px solid var(--green);}
+  .risk-grey  {background:var(--bg2);color:var(--text-dim);border:1px solid var(--border2);font-weight:600;letter-spacing:1px;}
+
+  /* ── Chain color pills in table ── */
   .chain-tag{font-size:9px;letter-spacing:1px;padding:2px 8px;text-transform:uppercase;font-weight:600;border-radius:2px;display:inline-block;}
-  span.chain-tag.ct-solana  {background:#2d1a4a!important;color:#c49fff!important;border:1px solid #9945ff;}
-  span.chain-tag.ct-eth     {background:#1a2040!important;color:#aabfff!important;border:1px solid #6699ff;}
-  span.chain-tag.ct-base    {background:#001a3a!important;color:#88aaff!important;border:1px solid #4488ff;}
-  span.chain-tag.ct-bsc     {background:#2a2000!important;color:#f0d060!important;border:1px solid #f0b800;}
-  span.chain-tag.ct-arbitrum{background:#001a2a!important;color:#70ccff!important;border:1px solid #12aaff;}
-  span.chain-tag.ct-optimism{background:#2a0000!important;color:#ff9090!important;border:1px solid #ff4444;}
-  span.chain-tag.ct-polygon {background:#1a0a30!important;color:#b080ff!important;border:1px solid #8247e5;}
-  span.chain-tag.ct-avax    {background:#2a0505!important;color:#ff8080!important;border:1px solid #e84142;}
-  span.chain-tag.ct-sui     {background:#001830!important;color:#90c8ff!important;border:1px solid #4da2ff;}
-  span.chain-tag.ct-ton     {background:#001a26!important;color:#60b8e8!important;border:1px solid #0088cc;}
-  span.chain-tag.ct-aptos   {background:#002020!important;color:#60e8d8!important;border:1px solid #00c2a8;}
-  span.chain-tag.ct-fantom  {background:#000a2a!important;color:#6090ff!important;border:1px solid #1969ff;}
-  span.chain-tag.ct-cosmos  {background:#120a1e!important;color:#b090d0!important;border:1px solid #6f4e8a;}
-  span.chain-tag.ct-other   {background:#1a2330!important;color:#8fa0b0!important;border:1px solid #3d5570;}
+  span.chain-tag.ct-solana   {background:#2d1a4a!important;color:#c49fff!important;border:1px solid #9945ff;}
+  span.chain-tag.ct-eth      {background:#1a2040!important;color:#aabfff!important;border:1px solid #6699ff;}
+  span.chain-tag.ct-base     {background:#001a3a!important;color:#88aaff!important;border:1px solid #4488ff;}
+  span.chain-tag.ct-bsc      {background:#2a2000!important;color:#f0d060!important;border:1px solid #f0b800;}
+  span.chain-tag.ct-arbitrum {background:#001a2a!important;color:#70ccff!important;border:1px solid #12aaff;}
+  span.chain-tag.ct-optimism {background:#2a0000!important;color:#ff9090!important;border:1px solid #ff4444;}
+  span.chain-tag.ct-polygon  {background:#1a0a30!important;color:#b080ff!important;border:1px solid #8247e5;}
+  span.chain-tag.ct-avax     {background:#2a0505!important;color:#ff8080!important;border:1px solid #e84142;}
+  span.chain-tag.ct-sui      {background:#001830!important;color:#90c8ff!important;border:1px solid #4da2ff;}
+  span.chain-tag.ct-tron     {background:#2a0005!important;color:#ff6070!important;border:1px solid #ff0013;}
+  span.chain-tag.ct-blast    {background:#1a1a00!important;color:#f0f060!important;border:1px solid #fcfc03;}
+  span.chain-tag.ct-berachain{background:#1a0a00!important;color:#d2691e!important;border:1px solid #8b4513;}
+  span.chain-tag.ct-cosmos   {background:#120a1e!important;color:#b090d0!important;border:1px solid #6f4e8a;}
+  span.chain-tag.ct-other    {background:#1a2330!important;color:#8fa0b0!important;border:1px solid #3d5570;}
 
   .chg-high{color:#fff;background:var(--green);padding:2px 7px;font-weight:600;}
   .chg-med{color:#fff;background:var(--green-lt);padding:2px 7px;}
@@ -201,7 +228,7 @@
     </div>
     <div class="brand-text">
       <div class="brand-title">ROCKING <span>M</span> CRYPTO</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:3px;color:#3d5570;text-transform:uppercase;margin-top:2px;">Token Screener &middot; v1.4</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:3px;color:#3d5570;text-transform:uppercase;margin-top:2px;">Token Screener &middot; v1.5</div>
       <div class="brand-tagline">You don't have to be a master trader.<br>You just need to know how to use the tools.</div>
     </div>
   </div>
@@ -222,7 +249,7 @@
       <span class="chain-counter" id="chain-counter">1 / 5 selected</span>
     </div>
 
-    <div class="chain-tier-label">Tier 1 &mdash; High Volume</div>
+    <div class="chain-tier-label">Tier 1 &mdash; High Volume &middot; GoPlus Security Enabled</div>
     <div class="chain-chips" id="tier1-chips">
       <button class="chip active" data-chain="solana"   onclick="toggleChain(this)">&#9672; Solana</button>
       <button class="chip"        data-chain="eth"      onclick="toggleChain(this)">&#9672; Ethereum</button>
@@ -232,18 +259,24 @@
       <button class="chip"        data-chain="optimism" onclick="toggleChain(this)">&#9672; Optimism</button>
     </div>
 
-    <div class="chain-tier-label">Tier 2 &mdash; Active Communities</div>
+    <div class="chain-tier-label">Tier 2 &mdash; Active Communities &middot; Price Data Only</div>
     <div class="chain-chips" id="tier2-chips">
       <button class="chip" data-chain="polygon_pos" onclick="toggleChain(this)">&#9672; Polygon</button>
       <button class="chip" data-chain="avax"        onclick="toggleChain(this)">&#9672; Avalanche</button>
       <button class="chip" data-chain="sui-network" onclick="toggleChain(this)">&#9672; Sui</button>
-      <button class="chip" data-chain="ton"         onclick="toggleChain(this)">&#9672; TON</button>
-      <button class="chip" data-chain="aptos"       onclick="toggleChain(this)">&#9672; Aptos</button>
-      <button class="chip" data-chain="fantom"      onclick="toggleChain(this)">&#9672; Fantom</button>
+      <button class="chip" data-chain="tron"        onclick="toggleChain(this)">&#9672; Tron</button>
+      <button class="chip" data-chain="blast"       onclick="toggleChain(this)">&#9672; Blast</button>
+      <button class="chip" data-chain="berachain"   onclick="toggleChain(this)">&#9672; Berachain</button>
       <button class="chip" data-chain="cosmos"      onclick="toggleChain(this)">&#9672; Cosmos</button>
     </div>
 
-    <div class="chain-hint">Select up to 5 chains per scan &mdash; results combined into one table. Deselect a chain to enable others.</div>
+    <div class="chain-hint">Select up to 5 chains per scan &mdash; results combined into one table. Tier 1 chains include GoPlus security data. Deselect a chain to enable others.</div>
+  </div>
+
+  <!-- ── GoPlus Active Banner ── -->
+  <div class="goplus-banner" id="goplus-banner">
+    <span class="goplus-dot"></span>
+    GOPLUS SECURITY ACTIVE &mdash; Honeypot detection, tax analysis &amp; holder data powered by GoPlus Labs &middot; Free &middot; No key required
   </div>
 
   <!-- ── Filters ── -->
@@ -287,7 +320,7 @@
   <!-- ── Table ── -->
   <div class="tbl-wrap">
     <table id="main-table">
-      <thead>
+      <thead id="tbl-head">
         <tr>
           <th onclick="sortBy('chain')">Chain</th>
           <th onclick="sortBy('name')">Name</th>
@@ -351,32 +384,43 @@
 
   <footer>
     <span><span class="live-dot" id="footer-dot" style="margin-right:6px;vertical-align:middle"></span><span id="footer-txt">IDLE</span></span>
-    <span>GeckoTerminal Free API &middot; 13 Chains &middot; Max 5 per scan &middot; No key required</span>
-    <span>Rocking M Crypto Screener v1.4 &middot; ElizaOS Ready &middot; <a href="remi.html" target="_blank" style="color:var(--green-hi);text-decoration:none;">Ask Remi &#8599;</a></span>
+    <span>GeckoTerminal Free API &middot; GoPlus Security API &middot; 13 Chains &middot; Max 5 per scan &middot; No key required</span>
+    <span>Rocking M Crypto Screener v1.5 &middot; ElizaOS Ready &middot; <a href="remi.html" target="_blank" style="color:var(--green-hi);text-decoration:none;">Ask Remi &#8599;</a></span>
   </footer>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ── Chain metadata — id maps to GeckoTerminal network id ───────
+// ── Chain metadata ─────────────────────────────────────────────
 const CHAIN_META = {
-  'solana':      { label:'Solana',    cssClass:'ct-solana'   },
-  'eth':         { label:'Ethereum',  cssClass:'ct-eth'      },
-  'base':        { label:'Base',      cssClass:'ct-base'     },
-  'bsc':         { label:'BSC',       cssClass:'ct-bsc'      },
-  'arbitrum':    { label:'Arbitrum',  cssClass:'ct-arbitrum' },
-  'optimism':    { label:'Optimism',  cssClass:'ct-optimism' },
-  'polygon_pos': { label:'Polygon',   cssClass:'ct-polygon'  },
-  'avax':        { label:'Avalanche', cssClass:'ct-avax'     },
-  'sui-network': { label:'Sui',       cssClass:'ct-sui'      },
-  'ton':         { label:'TON',       cssClass:'ct-ton'      },
-  'aptos':       { label:'Aptos',     cssClass:'ct-aptos'    },
-  'fantom':      { label:'Fantom',    cssClass:'ct-fantom'   },
-  'cosmos':      { label:'Cosmos',    cssClass:'ct-cosmos'   },
+  'solana':      { label:'Solana',    cssClass:'ct-solana',    tier:1 },
+  'eth':         { label:'Ethereum',  cssClass:'ct-eth',       tier:1 },
+  'base':        { label:'Base',      cssClass:'ct-base',      tier:1 },
+  'bsc':         { label:'BSC',       cssClass:'ct-bsc',       tier:1 },
+  'arbitrum':    { label:'Arbitrum',  cssClass:'ct-arbitrum',  tier:1 },
+  'optimism':    { label:'Optimism',  cssClass:'ct-optimism',  tier:1 },
+  'polygon_pos': { label:'Polygon',   cssClass:'ct-polygon',   tier:2 },
+  'avax':        { label:'Avalanche', cssClass:'ct-avax',      tier:2 },
+  'sui-network': { label:'Sui',       cssClass:'ct-sui',       tier:2 },
+  'tron':        { label:'Tron',      cssClass:'ct-tron',      tier:2 },
+  'blast':       { label:'Blast',     cssClass:'ct-blast',     tier:2 },
+  'berachain':   { label:'Berachain', cssClass:'ct-berachain', tier:2 },
+  'cosmos':      { label:'Cosmos',    cssClass:'ct-cosmos',    tier:2 },
 };
 
-const MAX_CHAINS = 5;
+// GoPlus chain ID map (Tier 1 only)
+const GOPLUS_CHAIN_ID = {
+  'solana':   'solana',   // uses separate GoPlus endpoint
+  'eth':      '1',
+  'base':     '8453',
+  'bsc':      '56',
+  'arbitrum': '42161',
+  'optimism': '10',
+};
+
+const TIER1_CHAINS = new Set(Object.keys(GOPLUS_CHAIN_ID));
+const MAX_CHAINS   = 5;
 
 // ── State ──────────────────────────────────────────────────────
 let tokens    = [];
@@ -386,19 +430,19 @@ let sortAsc   = false;
 let autoTimer = null;
 let nextTick  = null;
 let nextTime  = null;
+let showGoPlusColumns = false;
 
 // ── Chain toggle logic ─────────────────────────────────────────
 function toggleChain(btn) {
   const isActive = btn.classList.contains('active');
   const selected = getSelectedChains();
-
   if (!isActive && selected.length >= MAX_CHAINS) {
     toast('Max 5 chains per scan — deselect one first');
     return;
   }
-
   btn.classList.toggle('active');
   updateChipStates();
+  updateGoPlusBanner();
 }
 
 function updateChipStates() {
@@ -407,19 +451,22 @@ function updateChipStates() {
   const counter  = document.getElementById('chain-counter');
   counter.textContent = `${selected.length} / ${MAX_CHAINS} selected`;
   counter.className   = 'chain-counter' + (atLimit ? ' at-limit' : '');
-
   document.querySelectorAll('.chip').forEach(chip => {
-    const isActive = chip.classList.contains('active');
-    if (atLimit && !isActive) {
-      chip.classList.add('disabled');
-    } else {
-      chip.classList.remove('disabled');
-    }
+    chip.classList.toggle('disabled', atLimit && !chip.classList.contains('active'));
   });
+}
+
+function updateGoPlusBanner() {
+  const hasTier1 = getSelectedChains().some(c => TIER1_CHAINS.has(c));
+  document.getElementById('goplus-banner').classList.toggle('active', hasTier1);
 }
 
 function getSelectedChains() {
   return [...document.querySelectorAll('.chip.active')].map(c => c.dataset.chain);
+}
+
+function hasTier1Selected() {
+  return getSelectedChains().some(c => TIER1_CHAINS.has(c));
 }
 
 // ── Config ─────────────────────────────────────────────────────
@@ -451,7 +498,7 @@ function setStatus(s, msg) {
     dot.className = 'live-dot on'; txt.textContent = msg || 'SCANNING...';
     fdot.className = 'live-dot on'; ftxt.textContent = 'SCANNING';
   } else {
-    btn.classList.remove('scanning'); btn.textContent = 'RUN SCAN'; btn.disabled = false;
+    btn.classList.remove('scanning'); btn.innerHTML = '&#9654; RUN SCAN'; btn.disabled = false;
     dot.className = 'live-dot on'; txt.textContent = 'LIVE';
     fdot.className = 'live-dot on'; ftxt.textContent = 'LIVE';
   }
@@ -498,10 +545,100 @@ async function fetchGecko(network) {
       vol24h, mcap: fdv, dex: a.dex_id || '',
       address:  tattr?.address || a.address,
       poolAddr: a.address,
-      link: `https://www.geckoterminal.com/${network}/pools/${a.address}`
+      link: `https://www.geckoterminal.com/${network}/pools/${a.address}`,
+      // GoPlus fields — populated after scan
+      gp_loaded: false,
+      gp_honeypot: null,
+      gp_buy_tax: null,
+      gp_sell_tax: null,
+      gp_holders: null,
+      gp_creator_pct: null,
     });
   });
   return out;
+}
+
+// ── GoPlus fetch ───────────────────────────────────────────────
+function fetchWithTimeout(url, ms) {
+  return Promise.race([
+    fetch(url),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))
+  ]);
+}
+
+function safeTax(val) {
+  // GoPlus returns tax as string decimal e.g. "0.05" = 5%
+  // Some tokens return "" or null — must handle gracefully
+  if (val == null || val === '' || val === 'null') return null;
+  const n = parseFloat(val);
+  if (isNaN(n)) return null;
+  // Values < 1 are decimals (0.05 = 5%), values >= 1 are already % (5 = 5%)
+  return n < 1 ? n * 100 : n;
+}
+
+function safeFloat(val) {
+  if (val == null || val === '' || val === 'null') return null;
+  const n = parseFloat(val);
+  return isNaN(n) ? null : n;
+}
+
+function safeInt(val) {
+  if (val == null || val === '' || val === 'null') return null;
+  const n = parseInt(val);
+  return isNaN(n) ? null : n;
+}
+
+async function fetchGoPlus(token) {
+  if (!TIER1_CHAINS.has(token.chain)) return; // Tier 2 — skip
+  const address = token.address;
+  if (!address) { token.gp_loaded = true; return; }
+
+  try {
+    let url, result;
+
+    if (token.chain === 'solana') {
+      url = `https://api.gopluslabs.io/api/v1/solana/token_security?contract_addresses=${address}`;
+      const r = await fetchWithTimeout(url, 8000);
+      if (!r.ok) { token.gp_loaded = true; return; }
+      const data = await r.json();
+      // GoPlus Solana returns result keyed by address — try both cases
+      result = data?.result?.[address] || data?.result?.[address.toLowerCase()] || null;
+      if (!result) { token.gp_loaded = true; return; }
+      // Solana: is_honeypot not always present, use transfer_fee/freeze_authority as proxy
+      token.gp_honeypot    = result.is_honeypot != null
+        ? (result.is_honeypot === '1' || result.is_honeypot === true)
+        : null;
+      token.gp_buy_tax     = safeTax(result.buy_tax);
+      token.gp_sell_tax    = safeTax(result.sell_tax);
+      token.gp_holders     = safeInt(result.holder_count);
+      token.gp_creator_pct = safeFloat(result.creator_percent) != null
+        ? safeFloat(result.creator_percent) * 100
+        : null;
+    } else {
+      // EVM chains
+      const chainId = GOPLUS_CHAIN_ID[token.chain];
+      url = `https://api.gopluslabs.io/api/v1/token_security/${chainId}?contract_addresses=${address}`;
+      const r = await fetchWithTimeout(url, 8000);
+      if (!r.ok) { token.gp_loaded = true; return; }
+      const data = await r.json();
+      result = data?.result?.[address.toLowerCase()] || data?.result?.[address] || null;
+      if (!result) { token.gp_loaded = true; return; }
+      token.gp_honeypot    = result.is_honeypot != null
+        ? (result.is_honeypot === '1' || result.is_honeypot === true)
+        : null;
+      token.gp_buy_tax     = safeTax(result.buy_tax);
+      token.gp_sell_tax    = safeTax(result.sell_tax);
+      token.gp_holders     = safeInt(result.holder_count);
+      token.gp_creator_pct = safeFloat(result.creator_percent) != null
+        ? safeFloat(result.creator_percent) * 100
+        : null;
+    }
+
+    token.gp_loaded = true;
+  } catch(e) {
+    // Timeout or network error — mark loaded so scanning... clears
+    token.gp_loaded = true;
+  }
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
@@ -510,9 +647,15 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 async function runScreener() {
   const chains = getSelectedChains();
   if (!chains.length) { toast('Select at least one chain'); return; }
+
+  showGoPlusColumns = chains.some(c => TIER1_CHAINS.has(c));
+  updateTableHeaders();
+
   setStatus('running', `Scanning ${chains.length} chain${chains.length > 1 ? 's' : ''}...`);
   tokens = [];
+
   try {
+    // Step 1: GeckoTerminal scan
     for (let i = 0; i < chains.length; i++) {
       const chain = chains[i];
       const meta  = CHAIN_META[chain] || { label: chain };
@@ -521,16 +664,119 @@ async function runScreener() {
       tokens = [...tokens, ...results];
       if (i < chains.length - 1) await sleep(2500);
     }
+
     tokens.sort((a, b) => b.chg1h - a.chg1h);
     renderTable();
     updateStats(chains);
     document.getElementById('last-scan').textContent = new Date().toLocaleTimeString();
     document.getElementById('tok-count').textContent = tokens.length;
     toast(`${tokens.length} tokens across ${chains.length} chain${chains.length > 1 ? 's' : ''}`);
+
+    // Step 2: GoPlus enrichment for Tier 1 tokens
+    const tier1Tokens = tokens.filter(t => TIER1_CHAINS.has(t.chain));
+    if (tier1Tokens.length > 0) {
+      setStatus('running', `GoPlus security scan — ${tier1Tokens.length} tokens...`);
+      // Batch with small delay to be polite to the free API
+      for (let i = 0; i < tier1Tokens.length; i++) {
+        await fetchGoPlus(tier1Tokens[i]);
+        if (i < tier1Tokens.length - 1) await sleep(300);
+        // Re-render every 5 tokens so user sees data flowing in
+        if (i % 5 === 4) renderTable();
+      }
+      renderTable();
+      toast(`GoPlus scan complete — ${tier1Tokens.length} tokens checked`);
+    }
+
   } catch(e) {
     toast('Scan error — check connection');
   }
+
   setStatus('idle');
+}
+
+// ── Composite risk score ───────────────────────────────────────
+function calcRiskScore(t) {
+  // Returns { level: 'red'|'amber'|'green'|'unscored', reasons: [] }
+  if (!t.gp_loaded) return { level: 'unscored', reasons: ['scanning'] };
+
+  const reasons = [];
+  let redFlags   = 0;
+  let amberFlags = 0;
+  let dataPoints = 0;
+
+  // Honeypot — hard RED if confirmed
+  if (t.gp_honeypot === true) {
+    redFlags++; dataPoints++;
+    reasons.push('Honeypot confirmed');
+  } else if (t.gp_honeypot === false) {
+    dataPoints++;
+  }
+  // honeypot=null counts as unknown, not a data point
+
+  // Sell tax — most important tax signal
+  if (t.gp_sell_tax != null) {
+    dataPoints++;
+    if (t.gp_sell_tax > 10)      { redFlags++;   reasons.push(`Sell tax ${t.gp_sell_tax.toFixed(1)}%`); }
+    else if (t.gp_sell_tax > 5)  { amberFlags++; reasons.push(`Sell tax ${t.gp_sell_tax.toFixed(1)}%`); }
+  }
+
+  // Buy tax
+  if (t.gp_buy_tax != null) {
+    dataPoints++;
+    if (t.gp_buy_tax > 10)      { redFlags++;   reasons.push(`Buy tax ${t.gp_buy_tax.toFixed(1)}%`); }
+    else if (t.gp_buy_tax > 5)  { amberFlags++; reasons.push(`Buy tax ${t.gp_buy_tax.toFixed(1)}%`); }
+  }
+
+  // Creator % — high concentration is a major red flag
+  if (t.gp_creator_pct != null) {
+    dataPoints++;
+    if (t.gp_creator_pct > 50)      { redFlags++;   reasons.push(`Creator ${t.gp_creator_pct.toFixed(1)}%`); }
+    else if (t.gp_creator_pct > 20) { amberFlags++; reasons.push(`Creator ${t.gp_creator_pct.toFixed(1)}%`); }
+  }
+
+  // Holders — very few holders is a warning
+  if (t.gp_holders != null) {
+    dataPoints++;
+    if (t.gp_holders < 10)       { amberFlags++; reasons.push(`Only ${t.gp_holders} holders`); }
+  }
+
+  // Need at least 2 data points to render a verdict
+  if (dataPoints < 2) return { level: 'unscored', reasons: ['Insufficient data'] };
+
+  if (redFlags > 0)        return { level: 'red',   reasons };
+  if (amberFlags > 0)      return { level: 'amber', reasons };
+  return                          { level: 'green',  reasons: ['No major flags'] };
+}
+
+// ── Table headers ──────────────────────────────────────────────
+function updateTableHeaders() {
+  const head = document.getElementById('tbl-head');
+  const baseHeaders = `
+    <th onclick="sortBy('chain')">Chain</th>
+    <th onclick="sortBy('name')">Name</th>
+    <th onclick="sortBy('symbol')">Symbol</th>
+    <th onclick="sortBy('age')">Age</th>
+    <th onclick="sortBy('price')">Price</th>
+    <th onclick="sortBy('liquidity')">Liquidity</th>
+    <th onclick="sortBy('poolPct')">Pool %</th>
+    <th onclick="sortBy('chg1h')" class="sorted">1H %</th>
+    <th onclick="sortBy('chg6h')">6H %</th>
+    <th onclick="sortBy('chg24h')">24H %</th>
+    <th onclick="sortBy('vol24h')">Vol 24H</th>
+    <th onclick="sortBy('mcap')">Mkt Cap</th>
+    <th>DEX</th>
+    <th>Address</th>
+    <th>Link</th>`;
+
+  const gpHeaders = showGoPlusColumns ? `
+    <th class="gp-header gp-divider" onclick="sortBy('gp_risk')" title="Composite risk score from GoPlus data">&#9679; Risk Score</th>
+    <th class="gp-header" onclick="sortBy('gp_honeypot')" title="Honeypot check only">HP Check</th>
+    <th class="gp-header" onclick="sortBy('gp_buy_tax')" title="Buy Tax %">Buy Tax</th>
+    <th class="gp-header" onclick="sortBy('gp_sell_tax')" title="Sell Tax %">Sell Tax</th>
+    <th class="gp-header" onclick="sortBy('gp_holders')" title="Holder Count">Holders</th>
+    <th class="gp-header" onclick="sortBy('gp_creator_pct')" title="Creator % of supply">Creator %</th>` : '';
+
+  head.innerHTML = `<tr>${baseHeaders}${gpHeaders}</tr>`;
 }
 
 // ── Render table ───────────────────────────────────────────────
@@ -540,8 +786,57 @@ function getChainTag(chainId) {
   return `<span class="chain-tag ct-other">${chainId}</span>`;
 }
 
+function renderGpCells(t) {
+  if (!showGoPlusColumns) return '';
+  const colCount = 6;
+  if (!TIER1_CHAINS.has(t.chain)) {
+    return `<td class="gp-cell gp-divider gp-dim">&#8212;</td>${'<td class="gp-cell gp-dim">&#8212;</td>'.repeat(colCount - 1)}`;
+  }
+  if (!t.gp_loaded) {
+    return `<td class="gp-cell gp-divider gp-loading" colspan="${colCount}"><span class="spinner"></span>scanning...</td>`;
+  }
+
+  // ── Composite risk score ──
+  const risk = calcRiskScore(t);
+  let riskBadge;
+  const riskTitle = risk.reasons.join(' · ');
+  if      (risk.level === 'red')      riskBadge = `<span class="risk-badge risk-red"   title="${riskTitle}">HIGH RISK</span>`;
+  else if (risk.level === 'amber')    riskBadge = `<span class="risk-badge risk-amber" title="${riskTitle}">CAUTION</span>`;
+  else if (risk.level === 'green')    riskBadge = `<span class="risk-badge risk-green" title="${riskTitle}">LOW RISK</span>`;
+  else                                riskBadge = `<span class="risk-badge risk-grey"  title="${riskTitle}">UNSCORED</span>`;
+
+  // ── HP Check (honeypot only) ──
+  let hpCell;
+  if      (t.gp_honeypot === true)  hpCell = `<span class="hp-badge hp-danger">HP: YES</span>`;
+  else if (t.gp_honeypot === false) hpCell = `<span class="hp-badge hp-safe">HP: NO</span>`;
+  else                               hpCell = `<span class="hp-badge hp-unknown">HP: ?</span>`;
+
+  // Buy tax
+  const buyTax = t.gp_buy_tax != null
+    ? `<span class="${t.gp_buy_tax > 10 ? 'gp-danger' : t.gp_buy_tax > 5 ? 'gp-warn' : 'gp-safe'}">${t.gp_buy_tax.toFixed(1)}%</span>`
+    : `<span class="gp-dim">&#8212;</span>`;
+
+  // Sell tax
+  const sellTax = t.gp_sell_tax != null
+    ? `<span class="${t.gp_sell_tax > 10 ? 'gp-danger' : t.gp_sell_tax > 5 ? 'gp-warn' : 'gp-safe'}">${t.gp_sell_tax.toFixed(1)}%</span>`
+    : `<span class="gp-dim">&#8212;</span>`;
+
+  // Holders
+  const holders = t.gp_holders != null
+    ? `<span class="${t.gp_holders < 10 ? 'gp-warn' : 'gp-safe'}">${t.gp_holders.toLocaleString()}</span>`
+    : `<span class="gp-dim">&#8212;</span>`;
+
+  // Creator %
+  const creatorPct = t.gp_creator_pct != null
+    ? `<span class="${t.gp_creator_pct > 50 ? 'gp-danger' : t.gp_creator_pct > 20 ? 'gp-warn' : 'gp-safe'}">${t.gp_creator_pct.toFixed(1)}%</span>`
+    : `<span class="gp-dim">&#8212;</span>`;
+
+  return `<td class="gp-cell gp-divider">${riskBadge}</td><td class="gp-cell">${hpCell}</td><td class="gp-cell">${buyTax}</td><td class="gp-cell">${sellTax}</td><td class="gp-cell">${holders}</td><td class="gp-cell">${creatorPct}</td>`;
+}
+
 function renderTable() {
   const body = document.getElementById('tbl-body');
+  const colSpan = showGoPlusColumns ? 21 : 15;
   let data = [...tokens];
   data.sort((a, b) => {
     const av = a[sortKey], bv = b[sortKey];
@@ -551,7 +846,7 @@ function renderTable() {
     return sortAsc ? av - bv : bv - av;
   });
   if (!data.length) {
-    body.innerHTML = '<tr><td colspan="15" class="empty-msg">No tokens passed filters — try loosening thresholds</td></tr>';
+    body.innerHTML = `<tr><td colspan="${colSpan}" class="empty-msg">No tokens passed filters — try loosening thresholds</td></tr>`;
     return;
   }
   body.innerHTML = data.map((t, i) => `
@@ -571,6 +866,7 @@ function renderTable() {
       <td><span class="badge">${t.dex}</span></td>
       <td class="addr-col" onclick="copyAddr('${t.address}')" title="Click to copy">${(t.address||'').substring(0,8)}&#8230;</td>
       <td class="link-col"><a href="${t.link}" target="_blank">VIEW &#8599;</a></td>
+      ${renderGpCells(t)}
     </tr>`).join('');
 }
 
@@ -593,13 +889,6 @@ function sortBy(key) {
   sortAsc = sortKey === key ? !sortAsc : false;
   sortKey = key;
   document.querySelectorAll('th').forEach(th => th.classList.remove('sorted','asc'));
-  const keys = ['chain','name','symbol','age','price','liquidity','poolPct','chg1h','chg6h','chg24h','vol24h','mcap','','',''];
-  const idx = keys.indexOf(key);
-  if (idx >= 0) {
-    const ths = document.querySelectorAll('th');
-    ths[idx].classList.add('sorted');
-    if (sortAsc) ths[idx].classList.add('asc');
-  }
   renderTable();
 }
 
@@ -738,6 +1027,7 @@ function copyAddr(a) { if (a) navigator.clipboard.writeText(a).then(() => toast(
 // ── Init ───────────────────────────────────────────────────────
 renderTrades();
 updateChipStates();
+updateGoPlusBanner();
 </script>
 </body>
 </html>
