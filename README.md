@@ -130,6 +130,7 @@ This project grows through honest community input. You are welcome to:
 - Suggest additional blockchains or filters
 - Report bugs or improvements via GitHub Issues
 - Share the project with traders who would benefit from it
+- See CONTRIBUTING.md for full details on how to contribute, including development setup, submitting issues, and pull requests.
 
 No experience required. Just be honest about what you learned — what worked, what didn't, and what broke the system.
 
