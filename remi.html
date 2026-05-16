@@ -46,7 +46,6 @@
     flex-direction: column;
   }
 
-  /* Leather texture overlay */
   body::before {
     content: '';
     position: fixed; inset: 0;
@@ -73,7 +72,6 @@
     padding: 14px 0;
   }
 
-  /* Remi badge */
   .remi-badge {
     width: 64px; height: 70px;
     background: var(--leather-dk);
@@ -253,7 +251,6 @@
   .msg.remi .msg-name { color: var(--forest); }
   .msg.user .msg-name { color: var(--tan-lt); text-align: right; }
 
-  /* Thinking indicator */
   .thinking .msg-bubble {
     display: flex; align-items: center; gap: 4px;
     padding: 14px 16px;
@@ -355,7 +352,6 @@
   footer a { color: var(--tan); text-decoration: none; }
   footer a:hover { text-decoration: underline; }
 
-  /* ── Responsive ── */
   @media (max-width: 600px) {
     .site-header { padding: 0 16px; }
     .main-wrap { padding: 16px 16px 0; }
@@ -406,8 +402,9 @@
       <div class="remi-intro-desc">
         Named for the Rocking M brand. Plain spoken, no nonsense, and patient with beginners.
         Ask me about the screener filters, how to spot a rug pull, what the numbers mean,
-        or anything else about researching new tokens. I won't tell you what to buy —
-        but I'll help you learn how to read the numbers.
+        or anything else about researching new tokens. Need a social media post or community
+        update drafted? I can do that too. I won't tell you what to buy —
+        but I'll help you learn how to read the numbers and tell the story.
       </div>
       <div style="margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--leather);letter-spacing:1px;background:var(--tan-pale);border:1px solid var(--border);padding:6px 12px;display:inline-block;">
         &#9888; Remi has no live market data &mdash; use the <a href="screener.html" style="color:var(--forest);font-weight:600;">Screener</a> for real time results
@@ -426,7 +423,8 @@
     <button class="qchip" onclick="askQuick('What is a factory wallet?')">What is a factory wallet?</button>
     <button class="qchip" onclick="askQuick('What is the Rocking M Screener?')">What is Rocking M Screener?</button>
     <button class="qchip" onclick="askQuick('What chains does the screener support?')">What chains are supported?</button>
-    <button class="qchip" onclick="askQuick('Write me a short X post announcing the GoPlus security integration in plain language, no hype')">Write a social media post</button>
+    <button class="qchip" onclick="askQuick('What does the GoPlus risk score mean and how should I use it?')">What does the risk score mean?</button>
+    <button class="qchip" onclick="askQuick('Write a short X post announcing the GoPlus security integration in plain language, no hype')">Write a social media post</button>
   </div>
 
   <!-- Chat Window -->
@@ -438,6 +436,7 @@
         <div class="msg-bubble">
           Morning. I'm Remi — the Rocking M trail guide. Ask me anything about the screener,
           reading token data, or how to avoid the common traps new traders fall into.
+          I can also draft social media posts and community updates in Edward's voice.
           I won't sugarcoat things and I won't tell you what to buy.
           But if you want to learn how to read the numbers, you're in the right place.
         </div>
@@ -450,7 +449,7 @@
     <textarea
       class="chat-input"
       id="chat-input"
-      placeholder="Ask Remi anything about the screener or token research..."
+      placeholder="Ask Remi anything about the screener, token research, or ask her to draft a social media post..."
       rows="1"
       onkeydown="handleKey(event)"
       oninput="autoResize(this)"
@@ -464,8 +463,12 @@
 <footer>
   <span>Remi &middot; Rocking M Crypto Screener &middot; Powered by Groq (free tier)</span>
   <span>
-    <span><a href="index.html">Landing Page</a> &middot; <a href="screener.html">Launch Screener</a> &middot; <a href="https://github.com/RockingMScreener/rocking-m-screener">GitHub</a> &middot; <a href="https://x.com/Rockingmscreen" target="_blank" rel="noopener noreferrer" style="color:var(--tan);text-decoration:none;">X</a> &middot; <a href="https://discord.gg/Z2VWxUcpy" target="_blank" rel="noopener noreferrer" style="color:var(--tan);text-decoration:none;">Discord</a></span>
-    </span>
+    <a href="index.html">Landing Page</a> &middot;
+    <a href="screener.html">Launch Screener</a> &middot;
+    <a href="https://github.com/RockingMScreener/rocking-m-screener">GitHub</a> &middot;
+    <a href="https://x.com/Rockingmscreen" target="_blank" rel="noopener noreferrer">X</a> &middot;
+    <a href="https://discord.gg/Z2VWxUcpy" target="_blank" rel="noopener noreferrer">Discord</a>
+  </span>
 </footer>
 
 <script>
@@ -490,26 +493,27 @@ Your personality:
 
 Your knowledge:
 - The Rocking M Screener scans new liquidity pools across 13 blockchains using GeckoTerminal's free API
-- - Supported chains: Solana, Ethereum, Base, BSC, Arbitrum, Optimism, Polygon, Avalanche, Sui, TON, Aptos, Fantom, Cosmos
+- Supported chains split into two tiers. Tier 1 (full GoPlus security scanning): Solana, Ethereum, Base, BSC, Arbitrum, Optimism. Tier 2 (price data only, no security scanning): Polygon, Avalanche, Sui, Tron, Blast, Berachain, Cosmos
 - Users can scan up to 5 chains simultaneously
 - Filters: minimum liquidity, maximum pool age, minimum 1-hour price change, minimum 24-hour volume
 - The results table shows: chain, name, symbol, age, price, liquidity, pool%, 1H%, 6H%, 24H%, volume, market cap, DEX, address, GeckoTerminal link
 - Pool percentage = liquidity as % of market cap — high pool% with low holders can be a red flag
 - The trade journal logs token, address, entry price, exit price, and reason — no dollar amounts ever collected
-- CRITICAL: You have no live market data connection. You cannot see current pools, current prices, current liquidity, or current token listings. You do not know what pools exist right now. If asked about specific live pool data, current prices, or which tokens are trending right now, always be honest — tell the user you have no live data connection and direct them to run a scan in the Rocking M Screener at rockingmscreener.com to get real current data. Never invent or guess pool addresses, prices, liquidity figures, or token names — fabricated data is worse than no data in a trading context.
--- GoPlus Security API: after every scan on Tier 1 chains, the screener automatically runs a GoPlus security check on each token. GoPlus is free, requires no API key, and covers all Tier 1 chains. It returns: honeypot detection (can the token actually be sold), buy tax %, sell tax %, holder count, and creator wallet % of supply
+- GoPlus Security API: after every scan on Tier 1 chains, the screener automatically runs a GoPlus security check on each token. GoPlus is free, requires no API key, and covers all Tier 1 chains. It returns: honeypot detection (can the token actually be sold), buy tax %, sell tax %, holder count, and creator wallet % of supply
 - The screener combines these into a composite Risk Score: HIGH RISK (red) means honeypot confirmed, sell tax over 10%, or creator holds over 50% of supply. CAUTION (amber) means sell tax 5-10%, creator holds 20-50%, or under 10 holders. LOW RISK (green) means passed all checks. UNSCORED (grey) means the token is too new for GoPlus to have enough data — common on tokens under an hour old. UNSCORED is not a clean bill of health, it means insufficient data
 - HP Check column shows the raw honeypot result only — HP: NO means the sell function works mechanically, but it does not mean the token is safe overall. A token can be HP: NO and still be HIGH RISK if the creator holds 100% of supply
 - Tier 2 chains show no GoPlus columns — users should do extra manual research before trading any Tier 2 token
 - When GoPlus columns appear: always check the Risk Score first, then HP Check, then Creator % — creator concentration is often the most important signal on brand new tokens
--Trade journal data can be exported as JSON for ElizaOS agent training
-- When discussing a specific token or pool from the screener results, never provide a partial address and tell the user to copy it — partial addresses are not copyable and not useful. Never tell the user to open GeckoTerminal and search for the token — that is sending them in a circle. The correct workflow is simple: click the VIEW link in the screener results table. That link opens the exact GeckoTerminal page for that pool. The user is already there. The full pool address is in the browser URL bar after /pools/ — copy it directly from there. That is all they need to do.
+- Trade journal data can be exported as JSON for ElizaOS agent training
+- CRITICAL: You have no live market data connection. You cannot see current pools, current prices, current liquidity, or current token listings. If asked about specific live pool data, current prices, or which tokens are trending right now, always be honest — tell the user you have no live data connection and direct them to run a scan in the Rocking M Screener at rockingmscreener.com. Never invent or guess pool addresses, prices, liquidity figures, or token names — fabricated data is worse than no data in a trading context.
+- When discussing a specific token or pool from the screener results, the correct workflow is simple: click the VIEW link in the screener results table. That link opens the exact GeckoTerminal page for that pool. The full pool address is in the browser URL bar after /pools/ — copy it directly from there.
 
 Rug pull warning signs:
 - Liquidity under $5,000 — very high risk
 - Factory wallet behavior — deployer has launched 50+ tokens
 - Duplicate token names launching within seconds — bot spam
 - Very high pool percentage combined with low holder count
+- Creator wallet holding over 50% of supply — can dump at any time
 - None of these alone are guarantees but they stack risk fast
 
 The Rocking M brand:
@@ -517,7 +521,20 @@ The Rocking M brand:
 - The inverted rocker arc in the logo represents craft skills applied to modern technology
 - The project is free, open source, and community driven — no gatekeeping, no hype
 - GitHub Discussions open for filter presets and trade journal contributions
-- The community values: help each other learn, share what works and what doesn't, no experience required`;
+- The community values: help each other learn, share what works and what doesn't, no experience required
+- Social presence: X at x.com/Rockingmscreen and Discord at discord.gg/Z2VWxUcpy
+
+Social media writing:
+- When asked to write social media posts, drafts, or content for X, Discord, or other platforms, write in Edward's voice — plain spoken, no hype, no jargon, grounded in craft and skill analogies
+- Posts should feel like they come from a real person who built something useful and wants to share it honestly, not a marketing department
+- X posts should be under 280 characters unless a thread is requested. Label thread posts 1/, 2/ etc
+- Always end social media drafts with a suggested hashtag set drawn from: #CryptoScreener #DeFi #NewTraders #OpenSource #RockingM #Web3 #Solana #Base — use only the ones that fit the post topic
+- When writing a post about a feature, lead with what it does for the user, not what it is technically
+- Never use exclamation marks more than once per post — they dilute the honest voice
+- If asked to write multiple variations, label them clearly as Option A, Option B etc so Edward can choose
+- Research performed by Remi should be noted at the end of any post where Remi gathered or synthesized information to support the content
+- Discord posts can be longer and more conversational than X posts — they are talking to the community directly, not broadcasting
+- When writing community updates, acknowledge what is still in progress honestly — the community values transparency over polish`;
 
 // ── State ────────────────────────────────────────────────────────
 let groqKey     = localStorage.getItem('remi_groq_key') || '';
@@ -628,10 +645,9 @@ async function sendMessage() {
 
 // ── DOM helpers ──────────────────────────────────────────────────
 function addMessage(role, text) {
-  const window = document.getElementById('chat-window');
-  const div    = document.createElement('div');
+  const win = document.getElementById('chat-window');
+  const div = document.createElement('div');
   div.className = `msg ${role}`;
-
   const isRemi = role === 'remi';
   div.innerHTML = `
     <div class="msg-avatar">${isRemi ? 'M' : 'U'}</div>
@@ -639,16 +655,15 @@ function addMessage(role, text) {
       <div class="msg-name">${isRemi ? 'Remi' : 'You'}</div>
       <div class="msg-bubble">${escHtml(text)}</div>
     </div>`;
-
-  window.appendChild(div);
-  window.scrollTop = window.scrollHeight;
+  win.appendChild(div);
+  win.scrollTop = win.scrollHeight;
   return div;
 }
 
 function addThinking() {
-  const window = document.getElementById('chat-window');
-  const div    = document.createElement('div');
-  const id     = 'think-' + Date.now();
+  const win = document.getElementById('chat-window');
+  const div = document.createElement('div');
+  const id  = 'think-' + Date.now();
   div.id        = id;
   div.className = 'msg remi thinking';
   div.innerHTML = `
@@ -659,8 +674,8 @@ function addThinking() {
         <div class="dot-pulse"><span></span><span></span><span></span></div>
       </div>
     </div>`;
-  window.appendChild(div);
-  window.scrollTop = window.scrollHeight;
+  win.appendChild(div);
+  win.scrollTop = win.scrollHeight;
   return id;
 }
 
