@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://rockingmscreener.github.io/rocking-m-screener/sitemap.xml
