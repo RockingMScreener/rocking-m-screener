@@ -163,6 +163,7 @@ No experience required. Just be honest about what you learned — what worked, w
 ## License
 
 MIT License — free to use, modify and share. See LICENSE file for details.
+
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute.
 ---
 
