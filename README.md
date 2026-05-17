@@ -143,8 +143,8 @@ No experience required. Just be honest about what you learned — what worked, w
 - ✅ Community contribution system
 - ✅ Rocking M social media presence
 - ✅ Remi — AI trail guide powered by Groq
-- ⬜ Rocking M Paper Trader — simulated trading with real market data, tiered stop loss and take profit automation, liquidity collapse detection, and ElizaOS compatible trade outcome export
-- ⬜ GoPlus Security integration — honeypot detection, tax analysis, holder concentration, and rug flags across Tier 1 chains
+- ✅ Rocking M Paper Trader — simulated trading with real market data, tiered stop loss and take profit automation, liquidity collapse detection, and ElizaOS compatible trade outcome export
+- ✅ GoPlus Security integration — honeypot detection, tax analysis, holder concentration, and rug flags across Tier 1 chains
 - ⬜ Smart money tracking *(research ongoing — no free-tier solution identified yet)*
 - ⬜ ElizaOS agent integration — autonomous trading powered by on-chain data and Rocking M signals
 
