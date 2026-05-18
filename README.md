@@ -1,55 +1,68 @@
-# Rocking M Crypto Screener
-### Open source crypto screener built by a leather craftsman from Montana
+# 🏔️ Rocking M Crypto Screener
 
-*You don't have to be a master trader. You just need to know how to use the tools.*
+[![GitHub stars](https://img.shields.io/github/stars/RockingMScreener/rocking-m-screener.svg)](https://github.com/RockingMScreener/rocking-m-screener/stargazers)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Language](https://img.shields.io/badge/Language-HTML%20100%25-blue.svg)](https://github.com/RockingMScreener/rocking-m-screener)
+[![Live Demo](https://img.shields.io/badge/Demo-rockingmscreener.com-brightgreen)](https://rockingmscreener.com)
 
-A free, open source, multi-chain token screener built on GeckoTerminal's free API. No paywalls, no whale tools, no influencer noise — just hard numbers you set yourself.
+**Open source multi-chain crypto screener built by a leather craftsman from Montana.**
+
+> *You don't have to be a master trader. You just need to know how to use the tools.*
+
+**No paywalls. No signups. No influencer noise.** Just honest, filterable on-chain data you control.
+
+**[🚀 Launch the Screener](https://rockingmscreener.com/screener.html)**  
+**[📊 Paper Trader](https://rockingmscreener.com/papertrader.html)** · **[🤖 Remi AI](https://rockingmscreener.com/remi.html)**  
+**[@Rockingmscreen on X](https://x.com/Rockingmscreen)** · **[Discord](https://discord.gg/Z2VWxUcpy)**
+
+---
+
+## Why Rocking M?
+
+I'm Edward, a small-town handyman and leather craftsman from Montana. I got tired of complicated or paywalled trading tools built for whales, not regular people. So I built something better — a **simple, powerful, fully open-source token screener** that runs 100% in your browser.
+
+The Rocking M brand comes from my leather work. The inverted rocker in the logo represents taking old-school craftsmanship (patience, honesty, quality) into modern technology.
 
 ---
 
 ## What It Does
 
-The Rocking M Screener scans new liquidity pools across multiple blockchains simultaneously and filters results based on parameters you control. It returns real data — not rumors, not wishful thinking — so you can make more informed decisions about which tokens are worth researching further.
+The Rocking M Screener scans new liquidity pools using **GeckoTerminal's free API**. You can scan up to **5 chains at once**, with support for a total of **13 blockchains**. You set the filters — it returns real data so you can decide what's worth deeper research.
 
-**Current features:**
-
-- 13 blockchains available, scan up to 5 simultaneously
-- Two-tier chain system — Tier 1 chains include GoPlus security scanning, Tier 2 chains return price data only
-- GoPlus Security integration — automatic honeypot detection, buy/sell tax analysis, holder count, and creator wallet concentration on all Tier 1 chains. No API key required
-- Composite risk scoring — HIGH RISK, CAUTION, LOW RISK, or UNSCORED based on combined GoPlus signals
-- Filters for minimum liquidity, pool age, 1H price change, and 24H volume
-- Color-coded chain identification in results
-- Clickable GeckoTerminal links for deeper research
-- Contract address copy to clipboard
-- Optional trade journal for logging entries and exits
-- CSV and JSON export for ElizaOS agent training data
-- Auto-refresh with configurable intervals
+### Key Features
+- **Multi-chain scanning** — Select up to 5 chains at a time
+- **Tier 1 + Tier 2 chains** with clear security differences
+- **GoPlus Security** (Tier 1 only) — automatic honeypot, tax, holder, and creator concentration checks + composite risk score
+- **Remi** — your plain-spoken AI trail guide (powered by Groq Llama 3.1)
+- **Paper Trader** — realistic simulated trading with stop-loss, take-profit, trailing stops, and liquidity alerts
+- **Trade Journal** + CSV/JSON export (ElizaOS compatible)
+- **Auto-refresh** and one-click GeckoTerminal links
+- **100% client-side** — no backend, no tracking, no accounts
 
 ---
 
-## The Chain Tiers
+## Supported Chains
 
-**Tier 1 — Full GoPlus Security Scanning**
+**Tier 1 — Full GoPlus Security Scanning**  
 Solana, Ethereum, Base, BSC, Arbitrum, Optimism
 
-**Tier 2 — Price Data Only**
+**Tier 2 — Price & Liquidity Data Only**  
 Polygon, Avalanche, Sui, Tron, Blast, Berachain, Cosmos
 
-Tier 2 chains return live price and liquidity data from GeckoTerminal but do not include GoPlus security data. Do additional manual research before trading any Tier 2 token.
+> **Note:** Always do extra research on Tier 2 tokens since GoPlus security data is not available.
 
 ---
 
-## GoPlus Security
+## GoPlus Security & Risk Scoring
 
-When scanning Tier 1 chains, the screener automatically queries the GoPlus Security API for each token found. GoPlus is completely free and requires no API key.
+For Tier 1 chains, the screener automatically checks every token after each scan:
 
-**What GoPlus checks:**
 - Honeypot detection — can the token actually be sold
-- Buy tax and sell tax percentages
+- Buy and sell tax percentages
 - Holder count
-- Creator wallet percentage of total supply
+- Creator wallet concentration — high % means the dev can dump at any time
 
-**Risk Score — what it means:**
+**Risk Score Meaning:**
 
 | Score | Meaning |
 |---|---|
@@ -58,47 +71,40 @@ When scanning Tier 1 chains, the screener automatically queries the GoPlus Secur
 | 🟢 LOW RISK | Passed all checks with sufficient data |
 | ⬜ UNSCORED | Too new for GoPlus to have enough data — not a clean bill of health |
 
-**Important:** The HP Check column shows the honeypot result only. HP: NO means the sell function works mechanically — it does not mean the token is safe. A token can show HP: NO and still score HIGH RISK if the creator holds 100% of supply. Always read the full Risk Score, not just the honeypot result.
+**Important:** The HP Check column shows the honeypot result only. HP: NO means the sell function works mechanically — it does not mean the token is safe. A token can show HP: NO and still score HIGH RISK if the creator holds 100% of supply. Always read the full Risk Score first.
 
 ---
 
-## Meet Remi
+## Meet Remi & the Paper Trader
 
-Remi is the Rocking M AI trail guide, available at [rockingmscreener.com/remi.html](https://rockingmscreener.com/remi.html).
+**[Remi AI](https://rockingmscreener.com/remi.html)** — Plain spoken, no-hype AI trail guide. Helps you understand filters, spot rug pull patterns, interpret GoPlus results, and learn how to read the numbers. Can also draft social media posts and community updates in Edward's voice. Powered by Groq's free API — requires a free Groq key from [console.groq.com](https://console.groq.com). Your key is stored only in your browser.
 
-Powered by Groq's free API running Llama 3.1. Remi won't tell you what to buy — but she will help you learn how to read the numbers, understand the filters, spot rug pull patterns, and make better use of the screener. Plain spoken, no hype, patient with beginners.
-
-Remi requires a free Groq API key from [console.groq.com](https://console.groq.com). Your key is stored only in your browser and never sent anywhere except Groq.
+**[Paper Trader](https://rockingmscreener.com/papertrader.html)** — Simulate trades using real market data across all 13 chains with no real money at risk. Features tiered stop loss, take profit levels, trailing stop with activation conditions, liquidity collapse detection with emergency exit, slippage simulation, and full Remi event logging. Trade outcomes export as CSV and JSON in ElizaOS training data format.
 
 ---
 
-## Rocking M Paper Trader
+## Screenshots
 
-The Paper Trader lets you simulate trades using real market data with no real money at risk. Available at [rockingmscreener.com/papertrader.html](https://rockingmscreener.com/papertrader.html).
+![Screener Interface](screener.png)
+*Five Tier 1 chains — GoPlus Risk Score, HP Check, and security columns visible*
 
-**Features:**
-- Real-time prices via GeckoTerminal across all 13 chains
-- Configurable tiered stop loss (SL1 partial, SL2 full exit)
-- Configurable take profit levels (TP1, TP2, TP3)
-- Trailing stop with activation conditions (gain % and time)
-- Liquidity collapse detection with emergency exit
-- Slippage simulation with retry logic
-- Remi event log tracking every automated action
-- CSV and JSON export in ElizaOS training data format
+![Remi AI](remi.png)
+*Remi answering a question about the GoPlus risk scoring system*
 
-Tier 2 chain trades include a warning in the Remi log — no GoPlus security data is available for those chains.
+![Paper Trader](papertrader.png)
+*Paper Trader with open positions, automated level tracking, and Remi event log*
 
 ---
 
-## How To Use The Screener
+## Quick Start
 
-No installation required. Open `screener.html` in any modern browser.
+No installation required. Open in any modern browser.
 
-1. Select one to five blockchains from the chain selector
-2. Adjust filters to match your trading preferences or leave the presets as they are
-3. Hit **RUN SCAN**
-4. GoPlus security data populates automatically for Tier 1 chains after the scan completes
-5. Click **VIEW** on any result to open it in GeckoTerminal for further research
+1. Go to [rockingmscreener.com](https://rockingmscreener.com) or open `screener.html` locally
+2. Select up to 5 chains from the chain selector
+3. Adjust filters or leave the presets as they are
+4. Click **RUN SCAN**
+5. GoPlus security data loads automatically for all Tier 1 results
 
 ---
 
@@ -117,67 +123,59 @@ No installation required. Open `screener.html` in any modern browser.
 
 The optional trade journal logs what you traded and why — token, contract address, entry price, exit price, and your reason for the trade. No dollar amounts are ever collected or requested. Your position size is your business.
 
-Journal data can be exported as JSON in a format designed for ElizaOS agent training — building a dataset of real trade decisions and outcomes over time.
-
----
-
-## Community Contributions
-
-This project grows through honest community input. You are welcome to:
-
-- Submit filter presets that have worked for you
-- Contribute trade outcomes to the shared dataset
-- Suggest additional blockchains or filters
-- Report bugs or improvements via GitHub Issues
-- Share the project with traders who would benefit from it
-
-No experience required. Just be honest about what you learned — what worked, what didn't, and what broke the system.
-
----
-
-## Roadmap
-
-- ✅ Build and test the screener
-- ✅ Secure rockingmscreener.com
-- ✅ GitHub repo open for contributions
-- ✅ Community contribution system
-- ✅ Rocking M social media presence
-- ✅ Remi — AI trail guide powered by Groq
-- ✅ Rocking M Paper Trader — simulated trading with real market data, tiered stop loss and take profit automation, liquidity collapse detection, and ElizaOS compatible trade outcome export
-- ✅ GoPlus Security integration — honeypot detection, tax analysis, holder concentration, and rug flags across Tier 1 chains
-- ⬜ Smart money tracking *(research ongoing — no free-tier solution identified yet)*
-- ⬜ ElizaOS agent integration — autonomous trading powered by on-chain data and Rocking M signals
+Journal data exports as JSON in a format designed for ElizaOS agent training — building a dataset of real trade decisions and outcomes over time.
 
 ---
 
 ## Tech Stack
 
-- Vanilla HTML, CSS, JavaScript — no frameworks, no dependencies
+- Vanilla HTML, CSS & JavaScript — no frameworks, no dependencies
 - GeckoTerminal free API — no key required
 - GoPlus Security API — no key required, Tier 1 chains only
 - Groq free API — key required for Remi (free at console.groq.com)
-- Runs entirely in the browser — no server, no backend
+
+Runs entirely in the browser — no server, no backend, no tracking.
+
+---
+
+## Roadmap
+
+- ✅ Create the screener and test it
+- ✅ Secure the URL — rockingmscreener.com
+- ✅ Build the GitHub repo and open it for contributions
+- ✅ Create Rocking M social media (X/Twitter, Farcaster, Discord)
+- ✅ Remi — AI trail guide powered by Groq
+- ✅ Rocking M Paper Trader — simulated trading with real market data, tiered stop loss and take profit automation, liquidity collapse detection, and ElizaOS compatible trade outcome export
+- ✅ GoPlus Security integration — honeypot detection, tax analysis, holder concentration, and rug flags across Tier 1 chains
+- ⬜ Smart money tracking *(research ongoing — no free-tier solution identified yet)*
+- ⬜ ElizaOS agent integration — autonomous trading powered by on-chain data and Rocking M signals
+- ⬜ Community filter presets and shared learnings
+
+---
+
+## Contributing
+
+This project grows through honest community input. You are welcome to:
+
+- Share filter presets that have worked for you
+- Contribute trade journal insights and outcomes
+- Suggest new chains or features
+- Report bugs or improvements via GitHub Issues
+- Spread the word to traders who would benefit from honest tools
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details. No coding experience required — real trader feedback is extremely valuable.
 
 ---
 
 ## License
 
-MIT License — free to use, modify and share. See LICENSE file for details.
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute.
+MIT License — free to use, modify, and share. See LICENSE file for details.
 
 ---
 
-## About
+**Made in Montana with patience, real-world trading frustration, and AI assistance.**
 
-Built by Edward, a small-town handyman and leather craftsman from Montana who got frustrated with the crypto tools available to regular traders and decided to build something better.
+Thank you for checking out Rocking M. I hope it helps you swing the hammer a little straighter.
 
-The Rocking M brand comes from Rocking M Leather Works — the inverted rocker arc in the logo represents the same skills applied in a new direction. Old school craftsmanship meets modern technology.
-
-This project was developed with the assistance of Claude AI. The vision, writing, and direction are entirely human.
-
-**[rockingmscreener.com](https://rockingmscreener.com)**
-&nbsp;·&nbsp;
-**[X / Twitter](https://x.com/Rockingmscreen)**
-&nbsp;·&nbsp;
-**[Discord](https://discord.gg/Z2VWxUcpy)**
+— Edward  
+Rocking M Leather Works · Montana
