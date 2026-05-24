@@ -101,7 +101,7 @@ For Tier 1 chains, the screener automatically checks every token after each scan
 No installation required. Open in any modern browser.
 
 1. Go to [rockingmscreener.com](https://rockingmscreener.com) or open `screener.html` locally
-2. Select up to 5 chains from the chain selector
+2. Select up to 5 chains from the chain selector — GoPlus security scoring only runs on Tier 1 chain results. Tier 2 returns price and liquidity data only.
 3. Adjust filters or leave the presets as they are
 4. Click **RUN SCAN**
 5. GoPlus security data loads automatically for all Tier 1 results
@@ -163,8 +163,7 @@ This project grows through honest community input. You are welcome to:
 - Report bugs or improvements via GitHub Issues
 - Spread the word to traders who would benefit from honest tools
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details. No coding experience required — real trader feedback is extremely valuable.
-
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details. No coding experience required — real trader feedback is extremely valuable. Developers: the entire stack is vanilla HTML/CSS/JavaScript with no build step required. Clone and open in a browser.
 ---
 
 ## License
