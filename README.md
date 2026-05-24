@@ -13,7 +13,7 @@
 
 **[🚀 Launch the Screener](https://rockingmscreener.com/screener.html)**  
 **[📊 Paper Trader](https://rockingmscreener.com/papertrader.html)** · **[🤖 Remi AI](https://rockingmscreener.com/remi.html)**  
-**[@Rockingmscreen on X](https://x.com/Rockingmscreen)** · **[Discord](https://discord.gg/Z2VWxUcpy)**
+**[@Rockingmscreen on X](https://x.com/Rockingmscreen)** · **[Discord](https://https://discord.gg/aumVpSavB)**
 
 ---
 
