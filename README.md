@@ -164,6 +164,7 @@ This project grows through honest community input. You are welcome to:
 - Spread the word to traders who would benefit from honest tools
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details. No coding experience required — real trader feedback is extremely valuable. Developers: the entire stack is vanilla HTML/CSS/JavaScript with no build step required. Clone and open in a browser.
+
 ---
 
 ## License
