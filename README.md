@@ -148,7 +148,7 @@ Runs entirely in the browser — no server, no backend, no tracking.
 - ✅ Rocking M Paper Trader — simulated trading with real market data, tiered stop loss and take profit automation, liquidity collapse detection, and ElizaOS compatible trade outcome export
 - ✅ GoPlus Security integration — honeypot detection, tax analysis, holder concentration, and rug flags across Tier 1 chains
 - ⬜ Smart money tracking *(research ongoing — no free-tier solution identified yet)*
-- ⬜ ElizaOS agent integration — autonomous trading powered by on-chain data and Rocking M signals
+- ⬜ ElizaOS agent integration — Phase 3 in progress, autonomous trading powered by on-chain data and Rocking M signals
 - ⬜ Community filter presets and shared learnings
 
 ---
