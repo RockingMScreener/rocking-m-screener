@@ -88,14 +88,14 @@ td {padding:10px; border-bottom:1px solid #c4cad2;}
 </div>
 
 <script>
-// ==================== STATE ====================
+// STATE
 let account = null;
 let positions = [];
 let closedTrades = [];
 let remiLog = [];
 let scannerRunning = false;
 
-// ==================== INIT ====================
+// INIT
 function initAccount() {
   account = {
     balance: parseFloat(document.getElementById('start-balance').value) || 1000,
@@ -113,15 +113,20 @@ function initAccount() {
   renderAll();
 }
 
-// ==================== SCANNER (Gentle Staggered) ====================
+// SCANNER
 async function scanCycle() {
   if (!scannerRunning || !account) return;
-  addLog("🔍 Scanning chains...", "info");
+  addLog("🔍 Scanning chains (gentle mode)...", "info");
 
   const nets = ["solana","base","eth","bsc"];
   for (let net of nets) {
     try {
-      const res = await fetch(`https://api.geckoterminal.com/api/v2/networks/${net}/new_pools?limit=10`);
+      const res = await fetch(`https://api.geckoterminal.com/api/v2/networks/${net}/new_pools?limit=8`);
+      if (!res.ok && res.status === 429) {
+        addLog("⚠️ Rate limit hit — pausing for 3 minutes", "err");
+        setTimeout(() => addLog("✅ Backoff ended", "ok"), 180000);
+        return;
+      }
       const data = await res.json();
       for (let pool of (data.data || [])) {
         const result = calculateSafetyScore(pool);
@@ -129,9 +134,7 @@ async function scanCycle() {
           attemptAutoEntry(pool, net, result);
         }
       }
-    } catch(e) {
-      addLog(`Rate limit or error on ${net} — waiting longer`, "info");
-    }
+    } catch(e) {}
   }
 }
 
@@ -153,11 +156,9 @@ function calculateSafetyScore(pool) {
 
 function attemptAutoEntry(pool, chain, result) {
   if (positions.length >= account.maxPositions) return;
-
   const reserved = account.balance * (account.reservePct / 100);
   const available = Math.max(0, account.balance - reserved);
   const entrySize = Math.min(account.maxEntry, available * 0.6);
-
   if (entrySize < 2) return;
 
   const a = pool.attributes || {};
@@ -332,9 +333,9 @@ function toggleScanner() {
   btn.textContent = scannerRunning ? "⏹ STOP REMI SCANNER" : "▶ Start REMI Scanner";
 
   if (scannerRunning) {
-    addLog("🚀 REMI Scanner Started (Gentle Mode - 20s cycle)", "ok");
-    setInterval(scanCycle, 20000);   // 20 seconds - much gentler
-    setInterval(updatePositions, 2800);
+    addLog("🚀 REMI Scanner Started (Gentle Mode)", "ok");
+    setInterval(scanCycle, 45000);
+    setInterval(updatePositions, 3000);
     scanCycle();
   }
 }
