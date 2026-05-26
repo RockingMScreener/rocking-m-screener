@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rocking M REMI - Autonomous Paper Trader v4.1</title>
+<title>Rocking M REMI - Autonomous Paper Trader</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Barlow+Condensed:wght@300;400;600;700;800&display=swap');
 :root {
@@ -33,8 +33,8 @@ td {padding:10px; border-bottom:1px solid #c4cad2;}
 <div class="top-bar">
   <div class="logo">M</div>
   <div>
-    <h1 style="margin:0; font-size:28px; letter-spacing:2px;">ROCKING M AI TRADER</h1>
-    <p style="margin:0; font-size:12px; color:var(--green); letter-spacing:1px;">AUTONOMOUS PAPER TRADER • AI TRAINING DATA • NO REAL MONEY</p>
+    <h1 style="margin:0; font-size:28px; letter-spacing:2px;">ROCKING M PAPER TRADER</h1>
+    <p style="margin:0; font-size:12px; color:var(--green); letter-spacing:1px;">SIMULATED TRADING • AI TRAINING DATA • NO REAL MONEY</p>
   </div>
 </div>
 
@@ -88,14 +88,14 @@ td {padding:10px; border-bottom:1px solid #c4cad2;}
 </div>
 
 <script>
-// STATE
+// ==================== STATE ====================
 let account = null;
 let positions = [];
 let closedTrades = [];
 let remiLog = [];
 let scannerRunning = false;
 
-// INIT
+// ==================== INIT ====================
 function initAccount() {
   account = {
     balance: parseFloat(document.getElementById('start-balance').value) || 1000,
@@ -113,7 +113,7 @@ function initAccount() {
   renderAll();
 }
 
-// SCANNER + SAFETY (Staggered)
+// ==================== SCANNER (Gentle Staggered) ====================
 async function scanCycle() {
   if (!scannerRunning || !account) return;
   addLog("🔍 Scanning chains...", "info");
@@ -129,7 +129,9 @@ async function scanCycle() {
           attemptAutoEntry(pool, net, result);
         }
       }
-    } catch(e) {}
+    } catch(e) {
+      addLog(`Rate limit or error on ${net} — waiting longer`, "info");
+    }
   }
 }
 
@@ -151,9 +153,11 @@ function calculateSafetyScore(pool) {
 
 function attemptAutoEntry(pool, chain, result) {
   if (positions.length >= account.maxPositions) return;
+
   const reserved = account.balance * (account.reservePct / 100);
   const available = Math.max(0, account.balance - reserved);
   const entrySize = Math.min(account.maxEntry, available * 0.6);
+
   if (entrySize < 2) return;
 
   const a = pool.attributes || {};
@@ -227,7 +231,7 @@ function closePartial(pos, sellPct, reason) {
   if (pos.remainingValue < 2) positions = positions.filter(p => p !== pos);
 }
 
-// RENDER
+// RENDER + MANUAL CLOSE
 function renderAll() {
   renderPortfolio();
   renderPositions();
@@ -268,7 +272,7 @@ function renderPositions() {
 }
 
 function manualClose(index) {
-  if (confirm("Close this position?")) {
+  if (confirm("Manually close this position?")) {
     const pos = positions[index];
     if (pos) closePartial(pos, 100, "MANUAL CLOSE");
   }
@@ -305,7 +309,7 @@ function exportCSV() {
 }
 
 function exportJSON() {
-  const data = {account, closedTrades, logs: remiLog};
+  const data = { account, closedTrades, logs: remiLog };
   download("remi_elizaos.json", JSON.stringify(data, null, 2));
 }
 
@@ -328,8 +332,8 @@ function toggleScanner() {
   btn.textContent = scannerRunning ? "⏹ STOP REMI SCANNER" : "▶ Start REMI Scanner";
 
   if (scannerRunning) {
-    addLog("🚀 REMI Scanner Started (Staggered)", "ok");
-    setInterval(scanCycle, 12000);
+    addLog("🚀 REMI Scanner Started (Gentle Mode - 20s cycle)", "ok");
+    setInterval(scanCycle, 20000);   // 20 seconds - much gentler
     setInterval(updatePositions, 2800);
     scanCycle();
   }
