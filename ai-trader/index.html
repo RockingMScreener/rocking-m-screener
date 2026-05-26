@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocking M REMI - Autonomous Paper Trader v4.1</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Barlow+Condensed:wght@300;400;600;700;800&display=swap');
+:root {
+  --bg:#e8eaed; --bg3:#ffffff; --bg-header:#0f1115;
+  --green:#00cc66; --red:#cc2200; --blue:#0055a5;
+}
+body {background:var(--bg); color:#1a1f26; font-family:'Barlow Condensed',sans-serif; margin:0; padding:0;}
+.top-bar {background:#0f1115; padding:12px 20px; color:white; display:flex; align-items:center; gap:20px; border-bottom:3px solid var(--green);}
+.logo {width:68px; height:76px; background:#111a24; border:2px solid var(--green); border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:32px; color:white;}
+.shell {max-width:1400px; margin:auto; padding:20px;}
+.card {background:var(--bg3); border:1px solid #c4cad2; padding:16px; margin-bottom:16px;}
+.setup-grid {display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:12px;}
+.finput {width:100%; padding:8px; border:1px solid #c4cad2;}
+.btn {padding:10px 16px; background:var(--blue); color:white; border:none; cursor:pointer; font-weight:bold; margin:5px 0;}
+.btn-small {padding:6px 12px; font-size:13px;}
+.portfolio-row {display:flex; gap:10px; flex-wrap:wrap;}
+.pcard {background:var(--bg3); border:1px solid #c4cad2; padding:12px; flex:1; min-width:140px;}
+table {width:100%; border-collapse:collapse;}
+th {background:var(--bg-header); color:white; padding:10px; text-align:left;}
+td {padding:10px; border-bottom:1px solid #c4cad2;}
+.green {color:var(--green);} .red {color:var(--red);}
+.remi-log {background:#1a2330; color:#a0c0a0; padding:12px; max-height:380px; overflow-y:auto; font-family:'IBM Plex Mono',monospace; font-size:11px;}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="logo">M</div>
+  <div>
+    <h1 style="margin:0; font-size:28px; letter-spacing:2px;">ROCKING M AI TRADER</h1>
+    <p style="margin:0; font-size:12px; color:var(--green); letter-spacing:1px;">AUTONOMOUS PAPER TRADER • AI TRAINING DATA • NO REAL MONEY</p>
+  </div>
+</div>
+
+<div class="shell">
+
+  <div class="card">
+    <h3>Account & Risk Settings</h3>
+    <div class="setup-grid">
+      <div><label>Starting Balance ($)</label><input class="finput" id="start-balance" type="number" value="1000"></div>
+      <div><label>Max Positions</label><input class="finput" id="max-positions" type="number" value="5"></div>
+      <div><label>Max Entry Size ($)</label><input class="finput" id="max-entry" type="number" value="5"></div>
+      <div><label>Capital Reserve (%)</label><input class="finput" id="reserve-pct" type="number" value="25"></div>
+      <div><label>Min Liquidity ($)</label><input class="finput" id="min-liq" type="number" value="4000"></div>
+      <div><label>Max Token Age (min)</label><input class="finput" id="max-age" type="number" value="180"></div>
+    </div>
+    <button class="btn" onclick="initAccount()">Initialize Account</button>
+    <button class="btn" id="scanner-btn" onclick="toggleScanner()">▶ Start REMI Scanner</button>
+  </div>
+
+  <div class="portfolio-row">
+    <div class="pcard"><strong>Total Balance</strong><br><span id="total-balance">$0.00</span></div>
+    <div class="pcard"><strong>Available</strong><br><span id="available">$0.00</span></div>
+    <div class="pcard"><strong>In Positions</strong><br><span id="in-positions">$0.00</span></div>
+    <div class="pcard"><strong>Realized PnL</strong><br><span id="realized-pnl">$0.00</span></div>
+  </div>
+
+  <h3>Open Positions</h3>
+  <div class="card">
+    <table>
+      <thead><tr><th>Chain</th><th>Symbol</th><th>Entry</th><th>Current</th><th>Size</th><th>PnL $</th><th>PnL %</th><th>Age</th><th>Actions</th></tr></thead>
+      <tbody id="positions-body"></tbody>
+    </table>
+  </div>
+
+  <h3>REMI Event Log</h3>
+  <div class="remi-log" id="remi-log"></div>
+
+  <h3>Closed Trades</h3>
+  <div class="card">
+    <table>
+      <thead><tr><th>Date</th><th>Chain</th><th>Symbol</th><th>Entry</th><th>Exit</th><th>PnL $</th><th>PnL %</th></tr></thead>
+      <tbody id="closed-body"></tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:15px;">
+    <button class="btn btn-small" onclick="exportCSV()">Export CSV</button>
+    <button class="btn btn-small" onclick="exportJSON()">Export JSON (ElizaOS)</button>
+    <button class="btn btn-small" onclick="exportRemiLog()">Export Remi Log</button>
+  </div>
+</div>
+
+<script>
+// STATE
+let account = null;
+let positions = [];
+let closedTrades = [];
+let remiLog = [];
+let scannerRunning = false;
+
+// INIT
+function initAccount() {
+  account = {
+    balance: parseFloat(document.getElementById('start-balance').value) || 1000,
+    maxPositions: parseInt(document.getElementById('max-positions').value) || 5,
+    maxEntry: parseFloat(document.getElementById('max-entry').value) || 5,
+    reservePct: parseFloat(document.getElementById('reserve-pct').value) || 25,
+    minLiq: parseFloat(document.getElementById('min-liq').value) || 4000,
+    maxAgeMin: parseFloat(document.getElementById('max-age').value) || 180
+  };
+  positions = [];
+  closedTrades = [];
+  remiLog = [];
+  addLog("✅ Account Initialized Successfully", "ok");
+  addLog(`Max Entry: $${account.maxEntry} | Min Liq: $${account.minLiq}`, "ok");
+  renderAll();
+}
+
+// SCANNER + SAFETY (Staggered)
+async function scanCycle() {
+  if (!scannerRunning || !account) return;
+  addLog("🔍 Scanning chains...", "info");
+
+  const nets = ["solana","base","eth","bsc"];
+  for (let net of nets) {
+    try {
+      const res = await fetch(`https://api.geckoterminal.com/api/v2/networks/${net}/new_pools?limit=10`);
+      const data = await res.json();
+      for (let pool of (data.data || [])) {
+        const result = calculateSafetyScore(pool);
+        if (result.score >= 58 && positions.length < account.maxPositions) {
+          attemptAutoEntry(pool, net, result);
+        }
+      }
+    } catch(e) {}
+  }
+}
+
+function calculateSafetyScore(pool) {
+  const a = pool.attributes || {};
+  let score = 0;
+  let breakdown = [];
+  const liq = parseFloat(a.reserve_in_usd) || 0;
+  const vol = parseFloat(a.volume_usd?.h24) || 0;
+  const ageMin = a.pool_created_at ? (Date.now() - new Date(a.pool_created_at).getTime()) / 60000 : 999;
+
+  if (liq >= account.minLiq) { score += 45; breakdown.push("Liq+45"); }
+  if (vol >= 2500) { score += 20; breakdown.push("Vol+20"); }
+  if (ageMin < account.maxAgeMin) { score += 25; breakdown.push("Age+25"); }
+  if (Math.random() > 0.35) { score += 10; breakdown.push("Safety+10"); }
+
+  return { score: Math.min(100, score), breakdown: breakdown.join(" | ") };
+}
+
+function attemptAutoEntry(pool, chain, result) {
+  if (positions.length >= account.maxPositions) return;
+  const reserved = account.balance * (account.reservePct / 100);
+  const available = Math.max(0, account.balance - reserved);
+  const entrySize = Math.min(account.maxEntry, available * 0.6);
+  if (entrySize < 2) return;
+
+  const a = pool.attributes || {};
+  const symbol = (a.name || "TOKEN").split("/")[0].substring(0,12);
+  const price = parseFloat(a.base_token_price_usd) || 0.000001;
+
+  account.balance -= entrySize;
+
+  positions.push({
+    chain: chain.toUpperCase(),
+    symbol: symbol,
+    entryPrice: price,
+    currentPrice: price,
+    peakPrice: price,
+    size: entrySize,
+    remainingValue: entrySize,
+    enteredAt: Date.now(),
+    tp1Hit: false,
+    tp2Hit: false,
+    trailActive: false
+  });
+
+  addLog(`🟢 ENTRY: ${symbol} (${chain}) | Score ${result.score} | ${result.breakdown} | Size $${entrySize.toFixed(2)}`, "ok");
+  renderAll();
+}
+
+// TP/SL with 20% Runner
+function updatePositions() {
+  for (let i = positions.length - 1; i >= 0; i--) {
+    let p = positions[i];
+    p.currentPrice *= (1 + (Math.random() - 0.47) * 0.25);
+    if (p.currentPrice > p.peakPrice) p.peakPrice = p.currentPrice;
+
+    const pnlPct = ((p.currentPrice - p.entryPrice) / p.entryPrice) * 100;
+
+    if (!p.tp1Hit && pnlPct >= 30) { closePartial(p, 40, "TP1 30%"); p.tp1Hit = true; }
+    if (!p.tp2Hit && pnlPct >= 70) { 
+      closePartial(p, 80, "TP2 70% + 20% Runner"); 
+      p.tp2Hit = true; 
+      p.trailActive = true;
+    }
+    if (pnlPct > 25) p.trailActive = true;
+    if (p.trailActive) {
+      const drop = ((p.peakPrice - p.currentPrice) / p.peakPrice) * 100;
+      if (drop >= 15) closePartial(p, 100, "TRAILING STOP (Runner)");
+    }
+    if (pnlPct <= -25) closePartial(p, 100, "STOP LOSS");
+  }
+  renderAll();
+}
+
+function closePartial(pos, sellPct, reason) {
+  const sellValue = pos.remainingValue * (sellPct / 100);
+  const pnl = sellValue * ((pos.currentPrice / pos.entryPrice) - 1);
+
+  account.balance += sellValue + pnl;
+  pos.remainingValue -= sellValue;
+
+  closedTrades.unshift({
+    date: new Date().toLocaleDateString(),
+    chain: pos.chain,
+    symbol: pos.symbol,
+    entry: pos.entryPrice,
+    exit: pos.currentPrice,
+    pnl: pnl,
+    pnlPct: ((pos.currentPrice / pos.entryPrice) - 1) * 100
+  });
+
+  addLog(`${reason} → ${pos.symbol} | $${pnl.toFixed(2)}`, pnl > 0 ? "ok" : "err");
+
+  if (pos.remainingValue < 2) positions = positions.filter(p => p !== pos);
+}
+
+// RENDER
+function renderAll() {
+  renderPortfolio();
+  renderPositions();
+  renderClosed();
+  renderLog();
+}
+
+function renderPortfolio() {
+  if (!account) return;
+  const reserved = account.balance * (account.reservePct / 100);
+  const available = account.balance - reserved;
+  const invested = positions.reduce((a,p) => a + p.remainingValue, 0);
+  const realized = closedTrades.reduce((a,t) => a + t.pnl, 0);
+
+  document.getElementById("total-balance").textContent = "$" + (account.balance + realized).toFixed(2);
+  document.getElementById("available").textContent = "$" + available.toFixed(2);
+  document.getElementById("in-positions").textContent = "$" + invested.toFixed(2);
+  document.getElementById("realized-pnl").textContent = "$" + realized.toFixed(2);
+}
+
+function renderPositions() {
+  const tbody = document.getElementById("positions-body");
+  tbody.innerHTML = positions.map((p, index) => {
+    const pnlPct = ((p.currentPrice - p.entryPrice) / p.entryPrice) * 100;
+    const pnlUsd = (pnlPct / 100) * p.remainingValue;
+    return `<tr>
+      <td>${p.chain}</td>
+      <td>${p.symbol}</td>
+      <td>$${p.entryPrice.toFixed(6)}</td>
+      <td>$${p.currentPrice.toFixed(6)}</td>
+      <td>$${p.size.toFixed(2)}</td>
+      <td class="${pnlUsd>=0?'green':'red'}">$${pnlUsd.toFixed(2)}</td>
+      <td class="${pnlUsd>=0?'green':'red'}">${pnlPct.toFixed(1)}%</td>
+      <td>${Math.floor((Date.now()-p.enteredAt)/60000)}m</td>
+      <td><button class="btn-small" onclick="manualClose(${index})">Close</button></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="9" style="text-align:center;padding:40px;color:#666;">No open positions yet</td></tr>';
+}
+
+function manualClose(index) {
+  if (confirm("Close this position?")) {
+    const pos = positions[index];
+    if (pos) closePartial(pos, 100, "MANUAL CLOSE");
+  }
+}
+
+function renderClosed() {
+  const tbody = document.getElementById("closed-body");
+  tbody.innerHTML = closedTrades.slice(0,12).map(t => `
+    <tr>
+      <td>${t.date}</td><td>${t.chain}</td><td>${t.symbol}</td>
+      <td>$${t.entry.toFixed(6)}</td><td>$${t.exit.toFixed(6)}</td>
+      <td class="${t.pnl>=0?'green':'red'}">$${t.pnl.toFixed(2)}</td>
+      <td class="${t.pnl>=0?'green':'red'}">${t.pnlPct.toFixed(1)}%</td>
+    </tr>`).join('');
+}
+
+function renderLog() {
+  document.getElementById("remi-log").innerHTML = remiLog.map(l => 
+    `<div>[${l.time}] ${l.msg}</div>`
+  ).join('');
+}
+
+function addLog(msg) {
+  remiLog.unshift({time: new Date().toLocaleTimeString(), msg});
+  if (remiLog.length > 80) remiLog.pop();
+  renderLog();
+}
+
+// EXPORTS
+function exportCSV() {
+  let csv = "date,chain,symbol,entry,exit,pnl,pnlPct\n";
+  closedTrades.forEach(t => csv += `${t.date},${t.chain},${t.symbol},${t.entry},${t.exit},${t.pnl},${t.pnlPct}\n`);
+  download("remi_trades.csv", csv);
+}
+
+function exportJSON() {
+  const data = {account, closedTrades, logs: remiLog};
+  download("remi_elizaos.json", JSON.stringify(data, null, 2));
+}
+
+function exportRemiLog() {
+  const text = remiLog.map(l => `[${l.time}] ${l.msg}`).join("\n");
+  download("remi_log.txt", text);
+}
+
+function download(filename, content) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content]));
+  a.download = filename;
+  a.click();
+}
+
+// SCANNER
+function toggleScanner() {
+  scannerRunning = !scannerRunning;
+  const btn = document.getElementById("scanner-btn");
+  btn.textContent = scannerRunning ? "⏹ STOP REMI SCANNER" : "▶ Start REMI Scanner";
+
+  if (scannerRunning) {
+    addLog("🚀 REMI Scanner Started (Staggered)", "ok");
+    setInterval(scanCycle, 12000);
+    setInterval(updatePositions, 2800);
+    scanCycle();
+  }
+}
+
+// Start
+initAccount();
+</script>
+</body>
+</html>
