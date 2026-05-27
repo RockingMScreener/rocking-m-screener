@@ -12,7 +12,37 @@ Autonomous paper trader for testing AI trading logic and decision-making before 
 - **AI training data** — Exports trades in ElizaOS format
 
 ---
+## Philosophy & Intended Use
 
+This tool is designed around a specific trading philosophy — **two separate approaches 
+to crypto trading that should never be mixed:**
+
+### The Lottery Ticket (This Tool)
+Deploy small, disposable capital you have mentally already written off. Chase newly 
+launched tokens with high risk and high reward potential. Losses are expected and 
+acceptable — the goal is finding the occasional 10x that more than covers everything 
+else. Never deploy capital here that you cannot afford to lose entirely.
+
+### The Capital Preservation Side (Main Paper Trader)
+Disciplined entries, tiered exits, hard stop losses. Profits systematically moved into 
+stable long-term assets (BTC, ETH, SOL). Slow steady account growth with downside 
+protection. This is a separate tool for a separate mindset.
+
+**Keeping these two approaches architecturally and psychologically separate is 
+intentional.** Most traders blur them and end up with neither working. The lottery 
+ticket money is mentally spent before you deploy it — that discipline is the point.
+
+### ElizaOS Training Value
+Both tools generate distinct training datasets:
+- **AI Trader** — high risk autonomous discovery patterns
+- **Main Paper Trader** — disciplined risk management patterns
+
+An ElizaOS agent trained on both datasets can eventually manage both strategies 
+simultaneously with separate capital pools — a sophisticated dual-strategy trading 
+system built from real decision data.
+
+> ⚠️ **This tool is for research, testing, and AI training data generation only. 
+> Never deploy more capital here than you are fully prepared to lose.**
 ## Current Behavior (Phase 1)
 
 ### 🟢 Real Data (Live)
