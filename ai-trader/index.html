@@ -224,12 +224,15 @@ function closePartial(pos, sellPct, reason) {
     entry: pos.entryPrice,
     exit: pos.currentPrice,
     pnl: pnl,
-    pnlPct: ((pos.currentPrice / pos.entryPrice) - 1) * 100
+    pnlPct: ((pos.currentPrice / pos.entryPrice) - 1) * 100,
+    reason: reason
   });
 
   addLog(`${reason} → ${pos.symbol} | $${pnl.toFixed(2)}`, pnl > 0 ? "ok" : "err");
 
-  if (pos.remainingValue < 2) positions = positions.filter(p => p !== pos);
+  if (pos.remainingValue < 2) {
+    positions = positions.filter(p => p !== pos);
+  }
 }
 
 // RENDER + MANUAL CLOSE
@@ -304,13 +307,29 @@ function addLog(msg) {
 
 // EXPORTS
 function exportCSV() {
-  let csv = "date,chain,symbol,entry,exit,pnl,pnlPct\n";
-  closedTrades.forEach(t => csv += `${t.date},${t.chain},${t.symbol},${t.entry},${t.exit},${t.pnl},${t.pnlPct}\n`);
+  let csv = "date,chain,symbol,entry,exit,pnl,pnlPct,reason\n";
+  closedTrades.forEach(t => {
+    const reason = t.reason ? t.reason.replace(/"/g, '""') : "Unknown";
+    csv += `${t.date},${t.chain},${t.symbol},${t.entry},${t.exit},${t.pnl},${t.pnlPct},"${reason}"\n`;
+  });
   download("remi_trades.csv", csv);
 }
 
 function exportJSON() {
-  const data = { account, closedTrades, logs: remiLog };
+  const data = {
+    account: account,
+    closedTrades: closedTrades.map(t => ({
+      date: t.date,
+      chain: t.chain,
+      symbol: t.symbol,
+      entry: t.entry,
+      exit: t.exit,
+      pnl: t.pnl,
+      pnlPct: t.pnlPct,
+      reason: t.reason || "Unknown"
+    })),
+    logs: remiLog
+  };
   download("remi_elizaos.json", JSON.stringify(data, null, 2));
 }
 
