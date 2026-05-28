@@ -128,8 +128,8 @@ Settings in the UI:
 - [x] Risk management framework
 - [x] Trade logging & exports
 - **In Progress:**
-  - [ ] Add exit reasons to CSV & JSON exports
-  - [ ] Comprehensive logging (why each trade closed)
+  - [x] Add exit reasons to CSV & JSON exports
+  - [x] Comprehensive logging (why each trade closed)
   - [ ] Testing & validation
 
 ### ⬜ Phase 1.5: Real Price Tracking (Next Priority)
