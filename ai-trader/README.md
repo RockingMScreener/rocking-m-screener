@@ -105,7 +105,7 @@ Settings in the UI:
 
 ## Running It
 
-1. Open `index.html` in your browser
+1. Open https://rockingmscreener.com/ai-trader/index.html in your browser
 2. Set account parameters
 3. Click **Initialize Account**
 4. Click **Start REMI Scanner**
