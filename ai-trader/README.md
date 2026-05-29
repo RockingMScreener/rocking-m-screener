@@ -4,18 +4,19 @@ Autonomous paper trader for testing AI trading logic and decision-making before 
 
 ## What It Does
 
-- **Live token discovery** — Real feeds from GeckoTerminal across 4 chains (Solana, Base, Ethereum, BSC)
-- **Automated entry logic** — Safety scoring based on real pool data (liquidity, volume, age, risk factors)
-- **Smart exits** — TP1 (30%), TP2 (70% + 20% runner), trailing stops (15%), stop loss (25%)
-- **Risk management** — Max positions, capital reserve, position sizing limits
-- **Event logging** — REMI logs every decision for analysis
-- **AI training data** — Exports trades in ElizaOS format
+Live token discovery — Real-time feeds from DexScreener across Solana, Base, and BSC
+Automated entry logic — Safety scoring based on real pool data (liquidity, volume, age)
+Smart exits — TP1 (30%), TP2 (70% + runner), trailing stops (15%), stop loss (25%)
+Real price tracking — Open positions now use live market prices
+Risk management — Max positions, capital reserve, position sizing limits
+Event logging — Detailed REMI logs for every decision
+AI training data — Exports trades in ElizaOS-compatible format
 
 ---
 ## Philosophy & Intended Use
 
-This tool is designed around a specific trading philosophy — **two separate approaches 
-to crypto trading that should never be mixed:**
+This tool follows a clear "Lottery Ticket" trading approach:High-Risk / High-Reward Bucket
+Deploy only small amounts of capital you are fully prepared to lose. The goal is to catch occasional big winners that offset many small losses. This is kept completely separate from your disciplined "Capital Preservation" strategy (used in the main Paper Trader). Keeping these two mindsets and capital pools separate is intentional and critical for long-term success.
 
 ### The Lottery Ticket (This Tool)
 Deploy small, disposable capital you have mentally already written off. Chase newly 
@@ -50,39 +51,23 @@ system built from real decision data.
 - **Entry Decisions** — Based on real pool data (liquidity, volume, age, holder concentration)
 - **Safety Scoring** — Analyzes actual on-chain metrics
 
-### 🟡 Paper Trading (Simulated)
-- **The Trade Itself** — Fully simulated paper trading
-  - Virtual balance decrements on entry (no real money used)
-  - Position tracking is in software only
-- **Price Movement** — Currently randomized/simulated
-  - Does NOT follow real token prices after entry
-  - Generates synthetic price volatility for testing purposes
-  - Useful for testing logic, but not realistic market conditions
-- **Exits (TP/SL/Trailing)** — Calculated on simulated prices
-
-### Example Flow
-```
-REAL: Scanner finds token with $50k liquidity, $10k volume, 45 minutes old
-REAL: Safety score = 87 (meets entry threshold)
-PAPER: Subtracts $5 from virtual balance, creates position
-FAKE: Price randomly fluctuates ±25% per tick
-PAPER: Exits trigger on fake price movements
-```
-
 ---
 
 ## How It Works
 
 ### Safety Score Calculation
-Each pool gets scored 0-100 based on:
-- **Liquidity** (+45 if >= min config) 
-- **24h Volume** (+20 if >= $2,500)
-- **Pool Age** (+25 if < max age config)
-- **Safety factor** (+10 randomized)
+Liquidity (major factor)
+24h Volume
+Pool Age
+Basic risk filters
 
 **Auto-entry trigger:** Score >= 58 AND available positions < max
 
 ### Position Management
+Prices update from DexScreener every ~75 seconds
+All TP, SL, and trailing stop logic runs on real market prices
+Exits trigger based on actual price movement
+
 Once entered:
 - **TP1 at +30%** — Sells 40% of position
 - **TP2 at +70%** — Sells 80%, activates 20% runner with trailing stop
@@ -133,8 +118,8 @@ Settings in the UI:
   - [ ] Testing & validation
 
 ### ⬜ Phase 1.5: Real Price Tracking (Next Priority)
-- [ ] Live price feeds for open positions
-- [ ] Replace randomized prices with real token prices
+- [x] Live price feeds for open positions
+- [x] Replace randomized prices with real token prices
 - [ ] User-configurable TP/SL levels
 - [ ] More granular exit reasons
 - [ ] Accurate PnL based on actual market prices
@@ -164,14 +149,14 @@ Settings in the UI:
 ## Immediate Action Items
 
 **Now (Phase 1 Polish):**
-- [ ] Update CSV export to include exit reasons (TP1, TP2, TRAILING STOP, STOP LOSS, MANUAL)
-- [ ] Update JSON export to include full decision log
+- [x] Update CSV export to include exit reasons (TP1, TP2, TRAILING STOP, STOP LOSS, MANUAL)
+- [x] Update JSON export to include full decision log
 - [ ] Test with various market conditions
 - [ ] Validate safety scoring accuracy
 
 **Next (Phase 1.5 - Real Prices):**
-- [ ] Integrate live price feeds from GeckoTerminal for open positions
-- [ ] Replace random price generation with real market data
+- [x] Integrate live price feeds from DexScreener every  ~75 seconds for open positions
+- [x] Replace random price generation with real market data
 - [ ] Add user input UI for custom TP/SL levels
 - [ ] Make exit reasons explicit in logs
 
@@ -179,7 +164,6 @@ Settings in the UI:
 
 ## Known Limitations
 
-- **Simulated prices** — Price updates are randomized, not real market data
 - **No wallet integration** — Paper trading only, no real funds
 - **Static TP/SL** — Hardcoded at 30%/70%/15%/25% (user config coming Phase 1.5)
 - **No liquidity impact** — Doesn't account for slippage or liquidity depth
