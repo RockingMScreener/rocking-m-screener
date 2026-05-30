@@ -131,7 +131,7 @@ Ask Remi anything about the screener or crypto trading fundamentals. Powered by 
 
 No installation required. Open in any modern browser.
 
-1. **Visit** [rockingmscreener.com](https://rockingmscreener.com) or open `https://rockingmscreener.com/screener.html` locally
+1. **Visit** [rockingmscreener.com](https://rockingmscreener.com) or open [screener.html](https://rockingmscreener.com/screener.html)
 2. **Select chains** — up to 5 at a time. GoPlus security scoring only runs on Tier 1 results. Tier 2 returns price and liquidity data only.
 3. **Adjust filters** or leave the presets as they are:
    - **Min Liquidity** — filters out dust, focuses on established pools
