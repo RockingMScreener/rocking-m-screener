@@ -2,11 +2,10 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/RockingMScreener/rocking-m-screener.svg)](https://github.com/RockingMScreener/rocking-m-screener/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tech Stack](https://img.shields.io/badge/Stack-Vanilla%20JS%20%2B%20APIs-blue.svg)]()
+[![Tech Stack](https://img.shields.io/badge/Stack-Vanilla%20JS%20%2B%20APIs-blue.svg)](https://github.com/RockingMScreener/rocking-m-screener/blob/main)
 [![Live Demo](https://img.shields.io/badge/Demo-rockingmscreener.com-brightgreen)](https://rockingmscreener.com)
 
 **Open source multi-chain crypto screener built by a leather craftsman from Montana.**
-
 > *You don't have to be a master trader. You just need to know how to use the tools.*
 
 **No paywalls. No signups. No influencer noise.** Just honest, filterable on-chain data you control.
@@ -27,7 +26,7 @@ The Rocking M brand comes from my leather work. The inverted rocker in the logo 
 
 ## What It Does
 
-The Rocking M Screener scans new liquidity pools across multiple blockchains using **GeckoTerminal's free API**. You can scan up to **5 chains simultaneously**, with support for a total of **13 blockchains**. You set the filters—minimum liquidity, max pool age, volume, price movement—and the screener returns what matches. For Tier 1 chains, every result is automatically checked for security red flags using GoPlus.
+The Rocking M Screener scans new liquidity pools across multiple blockchains using **GeckoTerminal's free API**. You can scan up to **5 chains simultaneously**, with support for a total of **13 blockchains**. You set the filters — minimum liquidity, max pool age, volume, price movement — and the screener returns what matches. For Tier 1 chains, every result is automatically checked for security red flags using GoPlus, then ranked by a composite score that weighs momentum, liquidity, freshness, and volume together.
 
 Think of it as a fishing net with adjustable mesh: cast it where you want, tune the holes, and see what swims up.
 
@@ -36,6 +35,7 @@ Think of it as a fishing net with adjustable mesh: cast it where you want, tune 
 - **Multi-chain scanning** — Select up to 5 chains at a time
 - **Tier 1 + Tier 2 chains** with clear security differences marked
 - **GoPlus Security scanning** (Tier 1 only) — automatic honeypot, tax, holder, and creator concentration checks with composite risk scoring
+- **Composite Pool Score** — weighted ranking (momentum 40%, liquidity 25%, freshness 20%, volume 15%) so the best overall opportunities surface first
 - **Remi** — your plain-spoken AI trail guide (powered by Groq Llama 3.1)
 - **Paper Trader** — realistic simulated trading with stop-loss, take-profit, trailing stops, and liquidity alerts
 - **Trade Journal** + CSV/JSON export (ElizaOS compatible)
@@ -65,7 +65,7 @@ For Tier 1 chains, the screener automatically checks every token after each scan
 - **Holder count** — is the supply spread out or concentrated?
 - **Creator wallet concentration** — high % means the dev can dump at any time
 
-### Risk Score Meaning:
+### Risk Score Meaning
 
 | Score | Meaning |
 |---|---|
@@ -78,9 +78,25 @@ For Tier 1 chains, the screener automatically checks every token after each scan
 
 ---
 
+## Composite Pool Score
+
+After each scan, every token receives a 0–100 composite score used for the default sort order:
+
+| Signal | Weight | Cap |
+|---|---|---|
+| 1H Momentum | 40% | 200% gain |
+| Liquidity | 25% | $100K |
+| Freshness (pool age) | 20% | 24h window |
+| Volume 24H | 15% | $500K |
+
+Newer, liquid, actively-traded tokens showing strong 1H momentum rank at the top. You can still sort by any individual column — Score is just the default starting view. The Score column is visible in the table and sortable.
+
+---
+
 ## Meet Remi & the Paper Trader
 
 **[Remi AI](https://rockingmscreener.com/remi.html)** — Your plain-spoken, no-hype trail guide. Remi helps you:
+
 - Understand what each filter does and why
 - Spot rug pull patterns and scam tactics
 - Interpret GoPlus security results
@@ -89,6 +105,7 @@ For Tier 1 chains, the screener automatically checks every token after each scan
 Ask Remi anything about the screener or crypto trading fundamentals. Powered by Groq's Llama 3.1 (requires a free API key from console.groq.com).
 
 **[Paper Trader](https://rockingmscreener.com/papertrader.html)** — Simulate trades using real market data across all 13 chains with no real money at risk. Features:
+
 - Tiered stop loss and take profit levels
 - Trailing stops
 - Automated level tracking
@@ -100,7 +117,7 @@ Ask Remi anything about the screener or crypto trading fundamentals. Powered by 
 ## Screenshots
 
 ![Screener Interface](screener.png)
-*Five Tier 1 chains — GoPlus Risk Score, HP Check, and security columns visible*
+*Five Tier 1 chains — GoPlus Risk Score, HP Check, Composite Score column, and security data visible*
 
 ![Remi AI](remi.png)
 *Remi answering a question about the GoPlus risk scoring system*
@@ -122,7 +139,7 @@ No installation required. Open in any modern browser.
    - **Min 1H Change** — targets fast movers or steady climbers
    - **Min Volume 24H** — confirms real trading activity
 4. **Click RUN SCAN** — screener queries GeckoTerminal
-5. **GoPlus data loads automatically** for all Tier 1 results with honeypot and tax info
+5. **Results are ranked by Composite Score** — best overall opportunities first. GoPlus data loads automatically for all Tier 1 results.
 
 ---
 
@@ -139,7 +156,7 @@ No installation required. Open in any modern browser.
 
 ## Trade Journal
 
-The optional trade journal logs what you traded and why — token, contract address, entry price, exit price, and your reason for the trade. No dollar amounts are ever collected or requested. 
+The optional trade journal logs what you traded and why — token, contract address, entry price, exit price, and your reason for the trade. No dollar amounts are ever collected or requested.
 
 Journal data exports as **JSON in a format designed for ElizaOS agent training** — building a dataset of real trade decisions and outcomes over time so AI agents can learn your strategy.
 
@@ -156,18 +173,39 @@ Journal data exports as **JSON in a format designed for ElizaOS agent training**
 
 ---
 
+## Code Architecture (screener.html)
+
+The screener JavaScript is organized into focused modules, each with a clear responsibility:
+
+| Module | Functions | Purpose |
+|---|---|---|
+| **Filter Module** | `getFilterConfig()`, `applyFilters()` | Reads UI values; tests each token against active filters |
+| **Scoring Module** | `scorePool()`, `calcRiskScore()` | Composite pool ranking; GoPlus risk verdict |
+| **Fetch Module** | `fetchGecko()`, `fetchGoPlus()` | GeckoTerminal and GoPlus API calls |
+| **Render Module** | `updateTableHeaders()`, `getChainTag()`, `renderGpCells()`, `renderTable()`, `updateStats()` | All DOM output |
+
+This modular structure prepares the codebase for Phase 2 — the master dashboard and `agent-core.js` decision engine can call these functions directly without touching unrelated code.
+
+---
+
 ## Roadmap
 
-- ✅ Create the screener and test it
-- ✅ Secure the URL — rockingmscreener.com
-- ✅ Build the GitHub repo and open it for contributions
-- ✅ Create Rocking M social media (X/Twitter, Farcaster, Discord)
+- ✅ Multi-chain screener (13 chains, max 5 per scan)
+- ✅ GoPlus Security integration — honeypot detection, tax analysis, holder concentration, composite risk scoring
 - ✅ Remi — AI trail guide powered by Groq
-- ✅ Rocking M Paper Trader — simulated trading with real market data, tiered stop loss and take profit automation, liquidity collapse detection, and ElizaOS compatible trade outcome export
-- ✅ GoPlus Security integration — honeypot detection, tax analysis, holder concentration, and rug flags across Tier 1 chains
+- ✅ Paper Trader — tiered SL/TP, trailing stops, liquidity detection, ElizaOS export
+- ✅ Trade Journal with CSV + JSON export
+- ✅ AI Trader Phase 1 — autonomous paper trader (experimental)
+- ✅ AI Trader Phase 1.5 — real DexScreener price tracking
+- ✅ **Screener refactor** — modular filter, scoring, and render architecture (v1.6)
+- ⬜ **Leaderboard** — community paper trader leaderboard (built, launching June 1)
+- ⬜ **Paper Trader refactor** — extract entry/exit logic, risk calculations, export functions
+- ⬜ **AI Trader refactor** — extract safety scoring, position/exit logic
+- ⬜ **Mobile optimization** — full responsive layout across all tools
+- ⬜ **Master Dashboard** — unified view of both portfolios with combined performance metrics
+- ⬜ **Profit allocation engine** — rules-based routing of gains to preservation/yield buckets
 - ⬜ **Smart money tracking** *(research ongoing — no free-tier solution identified yet)*
-- ⬜ **ElizaOS agent integration** — Phase 3 in progress, autonomous trading powered by on-chain data and Rocking M signals
-- ⬜ **Community filter presets** — shared presets and learnings from the community
+- ⬜ **ElizaOS agent integration** — autonomous trading powered by Rocking M signals and real trade history
 
 ---
 
@@ -181,7 +219,7 @@ This project grows through honest community input. You are welcome to:
 - **Report bugs or improvements** — GitHub Issues (no coding required)
 - **Spread the word** — to traders who would benefit from honest tools
 
-**[See CONTRIBUTING.md](CONTRIBUTING.md) for details.** No coding experience required — real trader feedback is extremely valuable. 
+**[See CONTRIBUTING.md](https://github.com/RockingMScreener/rocking-m-screener/blob/main/CONTRIBUTING.md) for details.** No coding experience required — real trader feedback is extremely valuable.
 
 **Developers:** The entire stack is vanilla HTML/CSS/JavaScript with no build process. Clone the repo, open `screener.html` in your browser, and start hacking. We welcome PRs for bug fixes, new chains, optimizations, and features.
 
@@ -189,7 +227,7 @@ This project grows through honest community input. You are welcome to:
 
 ## License
 
-MIT License — free to use, modify, and share. See [LICENSE](LICENSE) file for details.
+MIT License — free to use, modify, and share. See [LICENSE](https://github.com/RockingMScreener/rocking-m-screener/blob/main/LICENSE) file for details.
 
 ---
 
