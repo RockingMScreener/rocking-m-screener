@@ -3,688 +3,520 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rocking M Crypto Screener</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Barlow+Condensed:wght@300;400;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<title>Stormchaser — High Risk. High Reward. · Rocking M</title>
 <style>
-  :root {
-    --bg:        #e8eaed;
-    --bg2:       #f2f4f6;
-    --bg3:       #ffffff;
-    --bg-header: #1a2330;
-    --bg-dark:   #111a24;
-    --border:    #c4cad2;
-    --border2:   #a8b2bc;
-    --green:     #007a3d;
-    --green-lt:  #00a651;
-    --green-bg:  #e6f4ec;
-    --green-hi:  #00cc66;
-    --blue:      #0055a5;
-    --red:       #cc2200;
-    --amber:     #c47a00;
-    --text:      #1a1f26;
-    --text-mid:  #3d4a57;
-    --text-dim:  #6b7a8a;
-    --mono:      'IBM Plex Mono', monospace;
-    --sans:      'Barlow Condensed', sans-serif;
-    --serif:     'Lora', Georgia, serif;
-  }
-
-  * { margin:0; padding:0; box-sizing:border-box; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--serif);
-    font-size: 17px;
-    line-height: 1.8;
-  }
-
-  /* ── Header ── */
-  .site-header {
-    background: var(--bg-header);
-    border-bottom: 3px solid var(--green-lt);
-    padding: 14px 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 20px rgba(0,0,0,0.3);
-  }
-
-  .logo-lockup { display:flex; align-items:center; gap:16px; }
-
-  .badge-mark {
-    width: 68px; height: 76px;
-    background: var(--bg-dark);
-    border: 1.5px solid var(--green-lt);
-    border-radius: 6px;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: flex-start;
-    padding-top: 6px; flex-shrink: 0; position: relative;
-  }
-
-  .badge-rocking {
-    font-family: var(--sans); font-size: 8px; font-weight: 800;
-    letter-spacing: 4px; color: var(--green-hi); text-transform: uppercase; line-height: 1;
-  }
-
-  .badge-m {
-    font-family: var(--serif); font-size: 50px; font-weight: 600;
-    color: #fff; line-height: 1; margin-top: -2px;
-  }
-
-  .badge-sub {
-    font-family: var(--sans); font-size: 7px; font-weight: 600;
-    letter-spacing: 3px; color: #3d5570; text-transform: uppercase;
-    position: absolute; bottom: 5px;
-  }
-
-  .brand-text { display:flex; flex-direction:column; gap:2px; }
-
-  .brand-title {
-    font-family: var(--sans); font-size: 26px; font-weight: 800;
-    letter-spacing: 3px; text-transform: uppercase; color: #fff; line-height: 1;
-  }
-
-  .brand-title span { color: var(--green-hi); }
-
-  .brand-tagline {
-    font-family: var(--mono); font-size: 9px;
-    color: #4a6070; letter-spacing: 1px; margin-top: 3px; line-height: 1.6;
-  }
-
-  .launch-btn {
-    font-family: var(--sans); font-size: 15px; font-weight: 800;
-    letter-spacing: 3px; text-transform: uppercase;
-    padding: 10px 28px; border: 2px solid var(--green);
-    background: var(--green); color: #fff;
-    text-decoration: none; transition: all .15s;
-    box-shadow: 0 2px 12px rgba(0,122,61,.4);
-    white-space: nowrap;
-  }
-
-  .launch-btn:hover { background: var(--green-lt); border-color: var(--green-lt); }
-
-  /* ── Hero ── */
-  .hero {
-    background: var(--bg-header);
-    padding: 80px 40px;
-    text-align: center;
-    border-bottom: 1px solid #2a3a4a;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .hero::before {
-    content: '';
-    position: absolute; inset: 0;
-    background-image:
-      linear-gradient(rgba(0,166,81,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,166,81,0.04) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-  }
-
-  .hero-eyebrow {
-    font-family: var(--mono); font-size: 10px; letter-spacing: 4px;
-    color: var(--green-hi); text-transform: uppercase; margin-bottom: 20px;
-    animation: fade-up 0.6s ease forwards; opacity: 0;
-  }
-
-  .hero-title {
-    font-family: var(--sans); font-size: clamp(36px, 6vw, 72px);
-    font-weight: 800; letter-spacing: 4px; text-transform: uppercase;
-    color: #fff; line-height: 1.1; margin-bottom: 24px;
-    animation: fade-up 0.7s ease 0.1s forwards; opacity: 0;
-  }
-
-  .hero-title span { color: var(--green-hi); }
-
-  .hero-tagline {
-    font-family: var(--serif); font-style: italic;
-    font-size: clamp(18px, 2.5vw, 26px); color: #8fa0b0;
-    max-width: 700px; margin: 0 auto 40px;
-    animation: fade-up 0.7s ease 0.2s forwards; opacity: 0;
-  }
-
-  .hero-cta {
-    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
-    animation: fade-up 0.7s ease 0.3s forwards; opacity: 0;
-  }
-
-  .btn-primary {
-    font-family: var(--sans); font-size: 18px; font-weight: 800;
-    letter-spacing: 3px; text-transform: uppercase;
-    padding: 14px 40px; background: var(--green); color: #fff;
-    border: 2px solid var(--green); text-decoration: none;
-    transition: all .15s; box-shadow: 0 4px 20px rgba(0,122,61,.4);
-  }
-
-  .btn-primary:hover { background: var(--green-lt); border-color: var(--green-lt); transform: translateY(-2px); }
-
-  .btn-secondary {
-    font-family: var(--sans); font-size: 18px; font-weight: 700;
-    letter-spacing: 3px; text-transform: uppercase;
-    padding: 14px 40px; background: transparent; color: #8fa0b0;
-    border: 2px solid #2a3a4a; text-decoration: none;
-    transition: all .15s;
-  }
-
-  .btn-secondary:hover { border-color: #4a6070; color: #c0d0dc; }
-
-  @keyframes fade-up {
-    from { opacity:0; transform: translateY(16px); }
-    to   { opacity:1; transform: translateY(0); }
-  }
-
-  /* ── Main content ── */
-  .content-wrap {
-    max-width: 820px;
-    margin: 0 auto;
-    padding: 60px 40px;
-  }
-
-  /* ── Section divider ── */
-  .section-divider {
-    display: flex; align-items: center; gap: 16px;
-    margin: 56px 0 32px;
-  }
-
-  .section-divider-line {
-    flex: 1; height: 1px; background: var(--border);
-  }
-
-  .section-divider-label {
-    font-family: var(--sans); font-size: 14px; font-weight: 700; letter-spacing: 4px;
-    color: var(--green); text-transform: uppercase; white-space: nowrap;
-  }
-
-  /* ── Pull quote ── */
-  .pull-quote {
-    border-left: 4px solid var(--green);
-    padding: 20px 28px;
-    margin: 36px 0;
-    background: var(--bg3);
-    box-shadow: 0 1px 4px rgba(0,0,0,.07);
-  }
-
-  .pull-quote p {
-    font-family: var(--serif); font-style: italic;
-    font-size: 20px; color: var(--text-mid); line-height: 1.6;
-  }
-
-  /* ── Makers mark section ── */
-  .makers-mark-section {
-    display: flex; gap: 36px; align-items: flex-start;
-    margin: 36px 0; flex-wrap: wrap;
-  }
-
-  .makers-mark-photo {
-    width: 200px; flex-shrink: 0;
-    border: 3px solid var(--border2);
-    background: var(--bg2);
-    display: flex; align-items: center; justify-content: center;
-    min-height: 200px; position: relative;
-    box-shadow: 0 2px 12px rgba(0,0,0,.1);
-  }
-
-  .makers-mark-photo img {
-    width: 100%; height: auto; display: block;
-  }
-
-  .makers-mark-photo .photo-placeholder {
-    font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
-    color: var(--text-dim); text-align: center; padding: 20px;
-    text-transform: uppercase; line-height: 2;
-  }
-
-  .makers-mark-caption {
-    font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
-    color: var(--text-dim); text-align: center; margin-top: 8px;
-    text-transform: uppercase;
-  }
-
-  /* ── Body text ── */
-  .content-wrap p {
-    margin-bottom: 24px;
-    color: var(--text);
-  }
-
-  .content-wrap p:last-child { margin-bottom: 0; }
-
-  /* ── Intro paragraph ── */
-  .intro-graf {
-    font-size: 19px; color: var(--text-mid); line-height: 1.9;
-  }
-
-  /* ── School of hard knocks list ── */
-  .hard-knocks {
-    background: var(--bg-header);
-    border-left: 4px solid var(--green);
-    padding: 24px 32px;
-    margin: 28px 0;
-    border-radius: 2px;
-  }
-
-  .hard-knocks p {
-    font-family: var(--mono); font-size: 12px; letter-spacing: 1px;
-    color: #8fa0b0; margin-bottom: 12px; padding-left: 16px;
-    position: relative;
-  }
-
-  .hard-knocks p::before {
-    content: '▸';
-    position: absolute; left: 0;
-    color: var(--green-hi);
-  }
-
-  .hard-knocks p:last-child { margin-bottom: 0; }
-
-  /* ── Section heading ── */
-  .section-heading {
-    font-family: var(--sans); font-size: 28px; font-weight: 800;
-    letter-spacing: 3px; text-transform: uppercase; color: var(--text);
-    margin-bottom: 24px; padding-bottom: 10px;
-    border-bottom: 2px solid var(--green);
-  }
-
-  /* ── Roadmap ── */
-  .roadmap {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-top: 3px solid var(--green);
-    padding: 28px 32px;
-    margin: 28px 0;
-    box-shadow: 0 1px 4px rgba(0,0,0,.07);
-  }
-
-  .roadmap-item {
-    display: flex; align-items: flex-start; gap: 14px;
-    padding: 10px 0; border-bottom: 1px solid var(--border);
-    font-family: var(--mono); font-size: 12px; letter-spacing: 1px;
-    color: var(--text-mid);
-  }
-
-  .roadmap-item:last-child { border-bottom: none; }
-
-  .roadmap-check {
-    width: 20px; height: 20px; flex-shrink: 0;
-    border: 2px solid var(--border2);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; margin-top: 1px;
-  }
-
-  .roadmap-check.done {
-    background: var(--green-bg); border-color: var(--green);
-    color: var(--green);
-  }
-
-  .roadmap-check.pending { color: transparent; }
-
-  .roadmap-item.done-item { color: var(--green); }
-  .roadmap-item.done-item .roadmap-text { text-decoration: none; }
-
-  /* ── Vision callout ── */
-  .vision-box {
-    background: var(--bg-header);
-    border: 1px solid #2a3a4a;
-    border-left: 4px solid var(--green-hi);
-    padding: 28px 32px;
-    margin: 28px 0;
-  }
-
-  .vision-box p {
-    font-family: var(--serif); font-style: italic;
-    font-size: 18px; color: #8fa0b0; line-height: 1.7; margin: 0;
-  }
-
-  /* ── CTA section ── */
-  .cta-section {
-    background: var(--bg-header);
-    border-top: 3px solid var(--green-lt);
-    border-bottom: 3px solid var(--green-lt);
-    padding: 60px 40px;
-    text-align: center;
-    margin: 60px 0 0;
-  }
-
-  .cta-section h2 {
-    font-family: var(--sans); font-size: 42px; font-weight: 800;
-    letter-spacing: 4px; text-transform: uppercase; color: #fff;
-    margin-bottom: 16px;
-  }
-
-  .cta-section h2 span { color: var(--green-hi); }
-
-  .cta-section p {
-    font-family: var(--serif); font-style: italic;
-    font-size: 18px; color: #8fa0b0; margin-bottom: 36px;
-    max-width: 500px; margin-left: auto; margin-right: auto;
-  }
-
-  /* ── Disclaimer ── */
-  .disclaimer {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-left: 4px solid var(--amber);
-    padding: 20px 28px;
-    margin: 40px 0 0;
-  }
-
-  .disclaimer h3 {
-    font-family: var(--sans); font-size: 13px; font-weight: 700;
-    letter-spacing: 3px; text-transform: uppercase; color: var(--amber);
-    margin-bottom: 10px;
-  }
-
-  .disclaimer p {
-    font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
-    color: var(--text-dim); line-height: 1.8; margin: 0;
-  }
-
-  /* ── Footer ── */
-  site-footer {
-    background: var(--bg-header);
-    border-top: 1px solid #2a3a4a;
-    padding: 24px 40px;
-    display: flex; justify-content: space-between; align-items: center;
-    flex-wrap: wrap; gap: 12px;
-  }
-
-  .footer-left {
-    font-family: var(--mono); font-size: 10px;
-    color: #3d5570; letter-spacing: 1px;
-  }
-
-  .footer-right {
-    font-family: var(--mono); font-size: 10px;
-    color: #3d5570; letter-spacing: 1px;
-  }
-
-  .footer-right a {
-    color: var(--green-hi); text-decoration: none;
-  }
-
-  .footer-right a:hover { text-decoration: underline; }
-
-  /* ── Responsive ── */
-  @media (max-width: 640px) {
-    .content-wrap { padding: 40px 24px; }
-    .hero { padding: 60px 24px; }
-    .site-header { padding: 12px 20px; }
-    .makers-mark-section { flex-direction: column; }
-    .makers-mark-photo { width: 100%; max-width: 280px; }
-    .cta-section { padding: 40px 24px; }
-  }
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Barlow+Condensed:wght@300;400;600;700;800&display=swap');
+:root {
+  --bg:#e8eaed; --bg3:#ffffff; --bg-header:#0f1115;
+  --green:#00cc66; --red:#cc2200; --blue:#0055a5;
+}
+body {background:var(--bg); color:#1a1f26; font-family:'Barlow Condensed',sans-serif; margin:0; padding:0;}
+.top-bar {background:#0f1115; padding:12px 20px; color:white; display:flex; align-items:center; gap:20px; border-bottom:3px solid var(--green);}
+.badge-mark{width:72px;height:82px;background:#111a24;border:1.5px solid #00cc66;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:7px;flex-shrink:0;position:relative;}
+.badge-rocking{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:800;letter-spacing:4px;color:#00cc66;text-transform:uppercase;line-height:1;}
+.badge-m{font-family:'Georgia','Times New Roman',serif;font-size:54px;font-weight:700;color:#fff;line-height:1;margin-top:-2px;}
+.badge-sub{font-family:'Barlow Condensed',sans-serif;font-size:7px;font-weight:600;letter-spacing:3px;color:#3d5570;text-transform:uppercase;position:absolute;bottom:6px;}
+.shell {max-width:1400px; margin:auto; padding:20px;}
+.card {background:var(--bg3); border:1px solid #c4cad2; padding:16px; margin-bottom:16px;}
+.setup-grid {display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:12px;}
+.finput {width:100%; padding:8px; border:1px solid #c4cad2;}
+.btn {padding:10px 16px; background:var(--blue); color:white; border:none; cursor:pointer; font-weight:bold; margin:5px 0;}
+.btn-small {padding:6px 12px; font-size:13px;}
+.portfolio-row {display:flex; gap:10px; flex-wrap:wrap;}
+.pcard {background:var(--bg3); border:1px solid #c4cad2; padding:12px; flex:1; min-width:140px;}
+table {width:100%; border-collapse:collapse;}
+th {background:var(--bg-header); color:white; padding:10px; text-align:left;}
+td {padding:10px; border-bottom:1px solid #c4cad2;}
+.green {color:var(--green);} .red {color:var(--red);}
+.remi-log {background:#1a2330; color:#a0c0a0; padding:12px; max-height:380px; overflow-y:auto; font-family:'IBM Plex Mono',monospace; font-size:11px;}
+.last-updated {font-size:11px; color:#666;}
 </style>
 </head>
 <body>
 
-<!-- ── Sticky Header ── -->
-<header class="site-header">
-  <div class="logo-lockup">
-    <div class="badge-mark">
-      <span class="badge-rocking">Rocking</span>
-      <svg width="54" height="13" viewBox="0 0 54 13" fill="none" style="display:block;margin:2px 0 -4px">
-        <path d="M 2 11 Q 27 2 52 11" stroke="#00cc66" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-      </svg>
-      <span class="badge-m">M</span>
-      <span class="badge-sub">Crypto</span>
-    </div>
-    <div class="brand-text">
-      <div class="brand-title">ROCKING <span>M</span> CRYPTO</div>
-      <div class="brand-tagline">Token Screener &middot; Free &middot; Open Source &middot; Multi-chain</div>
-    </div>
+<div class="top-bar">
+  <div class="badge-mark">
+    <span class="badge-rocking">Rocking</span>
+    <svg width="58" height="14" viewBox="0 0 58 14" fill="none" style="display:block;margin:2px 0 -4px">
+      <path d="M 2 12 Q 29 2 56 12" stroke="#00cc66" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    </svg>
+    <span class="badge-m">M</span>
+    <span class="badge-sub">Crypto</span>
   </div>
-  <a href="cipher.html" class="launch-btn">&#9654; Launch Cipher</a>
-  <a href="trailguide.html" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;border:2px solid #3d6b3d;background:transparent;color:#5a9a5a;text-decoration:none;transition:all .15s;white-space:nowrap;" onmouseover="this.style.background='#3d6b3d';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='#5a9a5a'">&#9672; Trail Guide</a> <a href="craftsman.html" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;border:2px solid #3d6b3d;background:transparent;color:#5a9a5a;text-decoration:none;transition:all .15s;white-space:nowrap;" onmouseover="this.style.background='#3d6b3d';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='#5a9a5a'">&#9672;Craftsman </a>
-</header>
-
-<!-- ── Hero ── -->
-<section class="hero">
-  <div class="hero-eyebrow">Rocking M Crypto Screener &middot; Free &middot; Open Source</div>
-  <h1 class="hero-title">ROCKING <span>M</span><br>CRYPTO SCREENER</h1>
-  <p class="hero-tagline">"You don't have to be a master trader; you just need to know how to use the tools."</p>
-  <div class="hero-cta">
-
-    <a href="#about" class="btn-secondary">&#9660; Read the Story</a>
-  </div>
-</section>
-
-<!-- ── Main Content ── -->
-<main class="content-wrap" id="about">
-
-  <!-- Intro -->
-  <p class="intro-graf">
-    I'm a small-town handyman from Montana who does leather work on the side. I started trading crypto and got frustrated with the tools available. The School of Hard Knocks has taught me:
-  </p>
-
-  <div class="hard-knocks">
-    <p>Crypto tools are too complex or hidden behind paywalls, built for whales, not new traders.</p>
-    <p>Influencer noise drowns out real information.</p>
-    <p>New traders get eaten alive without guidance.</p>
-  </div>
-
-  <div class="vision-box">
-    <p>I may not have all the answers, but I have a vision: to build a community-driven, open-source screener that will be multi-chain, free, and honest, getting smarter as more people contribute their knowledge or experience, and to build a platform to train AI agents from real trade data.</p>
-  </div>
-
-  <!-- Makers Mark -->
-  <div class="section-divider">
-    <div class="section-divider-line"></div>
-    <div class="section-divider-label">The Origin</div>
-    <div class="section-divider-line"></div>
-  </div>
-
-  <div class="makers-mark-section">
-    <div>
-      <div class="makers-mark-photo">
-    <img src="makers-mark.jpg" alt="Rocking M Leather Works makers mark">
-    </div>
-    <div class="makers-mark-caption">Rocking M Leather Works</div>
-    </div>
-    <div>
-      <p>I am Edward, and this is my maker's mark &mdash; the Rocking M Leather Works brand. It is the inspiration for the Rocking M Crypto Screener.</p>
-      <p>From old-school craftsmanship to modern-day technology, the skills you need are the same. Patience is the key; if you take your time and learn the tools, you can build something that lasts the test of time. Just like my maker's mark pictured, it has seen some rough days. It is scratched and showing its age, but it still boldly proclaims I will prevail.</p>
-    </div>
-  </div>
-
-  <p>Just like learning leather work, you cannot just read a book and boom &mdash; you can do it. All the knowledge you get from reading about charts and candlesticks is a great place to start, but you need to get your hands on the tools and feel the pain of a mistake to fully understand them. Paper trading has its place, just like practicing stamping leather scraps to get a feel for how the tool works. But now it is time to put some skin in the game and test those trading skills. As with everything, small gains and losses teach just as much as one big win, and don't hurt as badly as a big loss.</p>
-
-  <p>Yes, the rocker bar in my logo has been inverted from my maker's mark. Even though the skills needed are similar, the inversion shows the growth from low-tech/no-tech to embracing modern technology.</p>
-
-  <!-- The Tools -->
-  <div class="section-divider">
-    <div class="section-divider-line"></div>
-    <div class="section-divider-label">Knowing Your Tools</div>
-    <div class="section-divider-line"></div>
-  </div>
-
-  <p>No craftsman can build anything without knowing how to use his tools. Yes, I said knowing how to use his tools, not how much his tools cost. Any competent carpenter can drive a nail with a $20 hammer from a big box store, but the unskilled person will make a mess of the project even if they own a $60 Estwing. The same is true when trading &mdash; charts you can draw, moving averages, or candlesticks that show clear gains and losses are great, but if you can't read those charts, they are just noise.</p>
-
-  <p>That's where this screener comes in; it is programmable and preloaded with the settings and options I have found helpful to weed out the higher-risk tokens. Is it going to show you just the winners? No, it will not, but it will help stack the odds in your favor. With community input and some good old-fashioned luck, we can all learn to swing the hammer and drive the nail home.</p>
-
-  <p>Every search is dictated by the inputs you choose, so it is not going to create a list based on rumors or wishful thinking, but hard numbers that you set in the search parameters. These are just the ones I have found helpful in my education through wins and losses. With community input, they will grow as the community grows.</p>
-
-  <div class="pull-quote">
-    <p>"Well, that is me and the Rocking M brand &mdash; where it started and a brief vision of where it will go. I look forward to working within a community of people wanting to help each other instead of pushing them down."</p>
-  </div>
-
-  <!-- How It Works -->
-  <div class="section-divider">
-    <div class="section-divider-line"></div>
-    <div class="section-divider-label">How It Works</div>
-    <div class="section-divider-line"></div>
-  </div>
-
-  <p>When you open the screener, you will be given several choices. They all have presets, so you don't have to do anything if you don't want to &mdash; just hit Run Scan. That is the box store hammer; it gets the job done, but it is plain and not balanced to fit your desires. Every filter you change balances the hammer to you.</p>
-
-  <p>So let's talk about those choices. Currently, you can select what blockchain or chains you want, up to five at one time. The more you select, the longer it takes to run; the limit of five takes around 15 to 20 seconds to scan and fill. Tier One has the current high-volume blockchains (current as of 05/14/2026). Tier Two has some additional high-volume blockchains. At this point, you are probably scratching your head and thinking Cosmos doesn't fit that description. You would be right, but I use it, so it is included for personal flavor. GeckoTerminal has over 90 blockchains; I mostly chose the ones that were active and would not constantly return zero results.</p>
-
-  <p>The next section is where this screener shines and really makes the search yours &mdash; it balances the hammer in your hand and aligns it with the nail you want to drive home. The minimum liquidity weeds out low-value noise, and the maximum age keeps it aligned to your trading preferences. The minimum 1-hour change lets you decide if you want to search for a fast mover or a slow cooker, and the 24-hour volume lets you nail down that choice.</p>
-
-  <p>The results table has a clickable link to GeckoTerminal for that particular token, which accesses the free version so you can do some research. It also has an address copy feature, so if you have a preferred charting tool, you can copy and paste into that.</p>
-
-  <p>The optional trade journal will be used to refine the filters and give others a chance to learn what signals to watch for. Neither I nor anyone else involved in this project will ever ask how much you invested; it is none of our business. The research is about what you traded and why &mdash; the minimum liquidity was X, the moving average was Y, you had a gut feeling, or you liked the name. The information may also be used to train an ElizaOS agent.</p>
-
-  <!-- Community -->
-  <div class="section-divider">
-    <div class="section-divider-line"></div>
-    <div class="section-divider-label">The Community</div>
-    <div class="section-divider-line"></div>
-  </div>
-
-  <p>I've spent a lot of time talking about what the screener does; now let's talk about what the community can do to help improve on what I have started. Anonymously contribute your trades and share your filter presets &mdash; the ones that worked and those that didn't. Help build something that teaches everyone how to limit losses and maximize gains. Suggest filters or blockchains I may have missed, or anything you see that can be improved. Spread the word about this project so we can grow this community.</p>
-
-  <p>You don't need experience &mdash; just be honest about what you have learned: what worked, what didn't, and what broke the system. The crypto market is full of box store tools; let's teach each other how to balance those tools to fit our needs.</p>
-
-  <!-- Roadmap -->
-  <div class="section-divider">
-    <div class="section-divider-line"></div>
-    <div class="section-divider-label">The Roadmap</div>
-    <div class="section-divider-line"></div>
-  </div>
-
-  <p>Let's step away from the workbench for a moment and cover the technical stuff. I like to look at it more like a pattern. In order to make a leather wallet you need a pattern; the same applies to crypto trading. This is the pattern I propose for this project.</p>
-
-<div class="roadmap">
-  <div class="roadmap-item done-item">
-    <div class="roadmap-check done">&#10003;</div>
-    <div class="roadmap-text">Cipher — multi-chain token screener, 13 blockchains, free, no signup</div>
-  </div>
-  <div class="roadmap-item done-item">
-    <div class="roadmap-check done">&#10003;</div>
-    <div class="roadmap-text">GoPlus Security integration — honeypot detection, tax analysis, holder concentration across Tier 1 chains</div>
-  </div>
-  <div class="roadmap-item done-item">
-    <div class="roadmap-check done">&#10003;</div>
-    <div class="roadmap-text">Trail Guide — AI assistant powered by Groq, plain spoken, no hype</div>
-  </div>
-  <div class="roadmap-item done-item">
-    <div class="roadmap-check done">&#10003;</div>
-    <div class="roadmap-text">Craftsman — paper trader with tiered stop loss, take profit automation, liquidity detection, and ElizaOS trade export</div>
-  </div>
-  <div class="roadmap-item done-item">
-    <div class="roadmap-check done">&#10003;</div>
-    <div class="roadmap-text">Stormchaser — autonomous AI paper trader, high risk / high reward, live DexScreener price tracking</div>
-  </div>
-  <div class="roadmap-item done-item">
-    <div class="roadmap-check done">&#10003;</div>
-    <div class="roadmap-text">GitHub repo open for contributions &middot; Secure URL &middot; Social media active on X, Farcaster, Discord</div>
-  </div>
-  <div class="roadmap-item done-item">
-    <div class="roadmap-check done">&#10003;</div>
-    <div class="roadmap-text">Community leaderboard — built, launching June 1</div>
-  </div>
-  <div class="roadmap-item">
-    <div class="roadmap-check pending">&#10003;</div>
-    <div class="roadmap-text">Ranch House — master dashboard unifying both strategies with combined performance metrics and profit allocation</div>
-  </div>
-  <div class="roadmap-item">
-    <div class="roadmap-check pending">&#10003;</div>
-    <div class="roadmap-text">Automated profit routing — move gains from Stormchaser into Craftsman, then into long-term holds like BTC, ETH, SOL, ETFs</div>
-  </div>
-  <div class="roadmap-item">
-    <div class="roadmap-check pending">&#10003;</div>
-    <div class="roadmap-text">ElizaOS agent integration — autonomous trading powered by real trade history and Rocking M signals</div>
-  </div>
-  <div class="roadmap-item">
-    <div class="roadmap-check pending">&#10003;</div>
-    <div class="roadmap-text">Smart money tracking <em style="color:var(--text-dim);font-style:normal;">(research ongoing &mdash; no free-tier solution found yet)</em></div>
-  </div>
-  <div class="roadmap-item">
-    <div class="roadmap-check pending">&#10003;</div>
-    <div class="roadmap-text">Community contributions &mdash; filter presets, trade journal data, chain suggestions (ongoing)</div>
+  <div>
+    <h1 style="margin:0; font-size:28px; letter-spacing:2px;">STORMCHASER</h1>
+    <p style="margin:0; font-size:12px; color:var(--green); letter-spacing:1px;">ROCKING M &middot; HIGH RISK. HIGH REWARD. &middot; DexScreener &middot; 45s Refresh</p>
   </div>
 </div>
 
-  <p>Thank you for taking the time to read about the Rocking M Crypto Screener. I look forward to building something that helps instead of creating noise.</p>
-
-  <div class="disclaimer">
-    <h3>Important Disclaimer</h3>
-    <p>This project was developed with the help of AI, and I want to be upfront about that. I am me, and the writing is mine, but without the help of Claude AI, this project would be collecting dust.</p>
+<div class="shell">
+  <div class="card">
+    <h3>Account & Risk Settings</h3>
+    <div class="setup-grid">
+      <div><label>Starting Balance ($)</label><input class="finput" id="start-balance" type="number" value="1000"></div>
+      <div><label>Max Positions</label><input class="finput" id="max-positions" type="number" value="5"></div>
+      <div><label>Max Entry Size ($)</label><input class="finput" id="max-entry" type="number" value="5"></div>
+      <div><label>Capital Reserve (%)</label><input class="finput" id="reserve-pct" type="number" value="25"></div>
+      <div><label>Min Liquidity ($)</label><input class="finput" id="min-liq" type="number" value="5000"></div>
+      <div><label>Max Token Age (min)</label><input class="finput" id="max-age" type="number" value="180"></div>
+    </div>
+    <button class="btn" onclick="initAccount()">Initialize Account</button>
+    <button class="btn" id="scanner-btn" onclick="toggleScanner()">&#9654; Start Stormchaser</button>
   </div>
 
-</main>
+  <div class="portfolio-row">
+    <div class="pcard"><strong>Total Balance</strong><br><span id="total-balance">$0.00</span></div>
+    <div class="pcard"><strong>Available</strong><br><span id="available">$0.00</span></div>
+    <div class="pcard"><strong>In Positions</strong><br><span id="in-positions">$0.00</span></div>
+    <div class="pcard"><strong>Realized PnL</strong><br><span id="realized-pnl">$0.00</span></div>
+  </div>
 
-<!-- ── CTA Section ── -->
-<section class="cta-section">
-  <h2>READY TO <span>SCAN?</span></h2>
-  <p>No signup. No paywall. No noise. Just the tools.</p>
-  <a href="cipher.html" class="btn-primary">Launch Cipher</a>
-  <a href="trailguide.html" style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:12px 32px;border:2px solid #3d6b3d;background:transparent;color:#5a9a5a;text-decoration:none;transition:all .15s;margin-top:8px;display:inline-block;" onmouseover="this.style.background='#3d6b3d';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='#5a9a5a'">&#9672; Trail Guide</a> <a href="craftsman.html" style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:12px 32px;border:2px solid #3d6b3d;background:transparent;color:#5a9a5a;text-decoration:none;transition:all .15s;margin-top:8px;display:inline-block;" onmouseover="this.style.background='#3d6b3d';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='#5a9a5a'">&#9672; Craftsman</a>
-</section>
+  <h3>Open Positions <span class="last-updated" id="last-update">Last price update: never</span></h3>
+  <div class="card">
+    <table>
+      <thead><tr><th>Chain</th><th>Symbol</th><th>Entry</th><th>Current</th><th>Size</th><th>PnL $</th><th>PnL %</th><th>Age</th><th>Actions</th></tr></thead>
+      <tbody id="positions-body"></tbody>
+    </table>
+  </div>
 
-<!-- ── Footer ── -->
-<footer style="background:var(--bg-header);border-top:1px solid #2a3a4a;padding:20px 40px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-  
-  <span style="font-family:var(--mono);font-size:10px;color:#3d5570;letter-spacing:1px;">
-    &copy; 2026 Rocking M Screener &middot; MIT License &middot; Open Source
-  </span>
+  <h3>Stormchaser Event Log</h3>
+  <div class="remi-log" id="remi-log"></div>
 
-  <span style="font-family:var(--mono);font-size:10px;color:#3d5570;letter-spacing:1px;">
-    
-    <a href="cipher.html" style="color:var(--green-hi);text-decoration:none;">
-      Launch Cipher
-    </a>
+  <h3>Closed Trades</h3>
+  <div class="card">
+    <table>
+      <thead><tr><th>Date</th><th>Chain</th><th>Symbol</th><th>Entry</th><th>Exit</th><th>PnL $</th><th>PnL %</th><th>Reason</th></tr></thead>
+      <tbody id="closed-body"></tbody>
+    </table>
+  </div>
 
-    &middot;
+  <div style="margin-top:15px;">
+    <button class="btn btn-small" onclick="exportCSV()">Export CSV</button>
+    <button class="btn btn-small" onclick="exportJSON()">Export JSON (ElizaOS)</button>
+    <button class="btn btn-small" onclick="exportLog()">Export Event Log</button>
+  </div>
+</div>
 
-    <a href="trailguide.html" style="color:var(--green-hi);text-decoration:none;">
-      Trail Guide
-    </a> &middot;
+<script>
+// ── State ──────────────────────────────────────────────────────
+let account       = null;
+let positions     = [];
+let closedTrades  = [];
+let eventLog      = [];
+let scannerRunning = false;
+let isUpdating    = false;
 
-    <a href="craftsman.html" style="color:var(--green-hi);text-decoration:none;">
-      Craftsman
-    </a>
-   <a href="ai-trader/index.html" style="color:var(--green-hi);text-decoration:none;">
-  Stormchaser
-</a> 
+const REFRESH_SECONDS  = 45;
+const SUPPORTED_CHAINS = ['solana', 'base', 'bsc'];
+let priceCache = {};
 
-    &middot;
 
-    <a href="https://github.com/RockingMScreener/rocking-m-screener"
-       target="_blank"
-       rel="noopener noreferrer"
-       style="color:var(--green-hi);text-decoration:none;">
-      GitHub
-    </a>
+// ── Score Config — #16 ────────────────────────────────────────
+// All scoring weights and thresholds in one place.
+// Adjust here; scoreCandidate() reads from this object.
+const SCORE_CONFIG = {
+  minScore:   58,    // Minimum score to trigger auto-entry
+  liqWeight:  40,    // Max points from liquidity
+  ageWeight:  30,    // Max points from pool freshness
+  volWeight:  30,    // Max points from 24h volume
+  liqCap:     100000, // Liquidity cap for scoring ($)
+  volCap:     500000, // Volume cap for scoring ($)
+};
 
-    &middot;
 
-    <a href="https://x.com/Rockingmscreen"
-       target="_blank"
-       rel="noopener noreferrer"
-       style="color:var(--green-hi);text-decoration:none;">
-      X
-    </a>
+// ── Exit Config — #18 ────────────────────────────────────────
+// All TP/SL/trailing thresholds in one place.
+// Adjust here; updatePositions() reads from this object.
+const EXIT_CONFIG = {
+  tp1Pct:         30,   // TP1 trigger — % gain
+  tp1SellPct:     40,   // % of position to sell at TP1
+  tp2Pct:         70,   // TP2 trigger — % gain
+  tp2SellPct:     80,   // % of position to sell at TP2
+  trailActivePct: 25,   // % gain at which trailing stop activates
+  trailDropPct:   15,   // % drop from peak to trigger trailing exit
+  slPct:         -25,   // Hard stop loss — % loss
+  minValue:        2,   // Min remaining position value before auto-close ($)
+};
 
-    &middot;
 
-    <a href="https://discord.gg/Z2VWxUcpy”
-       target="_blank"
-       rel="noopener noreferrer"
-       style="color:var(--green-hi);text-decoration:none;">
-      Discord
-    </a>
+// ── Init ───────────────────────────────────────────────────────
+function initAccount() {
+  account = {
+    balance:      parseFloat(document.getElementById('start-balance').value) || 1000,
+    maxPositions: parseInt(document.getElementById('max-positions').value)   || 5,
+    maxEntry:     parseFloat(document.getElementById('max-entry').value)     || 5,
+    reservePct:   parseFloat(document.getElementById('reserve-pct').value)   || 25,
+    minLiq:       parseFloat(document.getElementById('min-liq').value)       || 5000,
+    maxAgeMin:    parseFloat(document.getElementById('max-age').value)       || 180,
+  };
+  positions    = [];
+  closedTrades = [];
+  eventLog     = [];
+  priceCache   = {};
+  addLog('✅ Stormchaser initialized — DexScreener · 45s refresh', 'ok');
+  renderAll();
+}
 
-    &middot;
 
-    <a href="https://rockingmscreener.com"
-       target="_blank"
-       rel="noopener noreferrer"
-       style="color:var(--green-hi);text-decoration:none;">
-      rockingmscreener.com
-    </a>
+// ── Scoring Module — #16 ──────────────────────────────────────
 
-  </span>
-</footer>
+/**
+ * scoreCandidate(pair, account)
+ * Evaluates a DexScreener pair against SCORE_CONFIG weights.
+ * Returns { score: Number, reasons: String[] }
+ *
+ * Score breakdown (0–100):
+ *   40pts — Liquidity  (capped at SCORE_CONFIG.liqCap)
+ *   30pts — Freshness  (newer pool = higher score)
+ *   30pts — Volume 24H (capped at SCORE_CONFIG.volCap)
+ */
+function scoreCandidate(pair, acct) {
+  const reasons = [];
+  let score = 0;
+
+  // Liquidity (0–40 pts)
+  const liq = parseFloat(pair.liquidity?.usd || 0);
+  if (liq < acct.minLiq) return { score: 0, reasons: [`Liq $${liq.toFixed(0)} below min`] };
+  const liqScore = Math.min(liq, SCORE_CONFIG.liqCap) / SCORE_CONFIG.liqCap * SCORE_CONFIG.liqWeight;
+  score += liqScore;
+  reasons.push(`Liq $${(liq / 1000).toFixed(1)}K`);
+
+  // Freshness (0–30 pts) — newer pool scores higher
+  const ageMs  = pair.pairCreatedAt ? Date.now() - pair.pairCreatedAt : null;
+  const ageMin = ageMs != null ? ageMs / 60000 : 999;
+  if (ageMin > acct.maxAgeMin) return { score: 0, reasons: [`Age ${Math.floor(ageMin)}m exceeds max`] };
+  const ageScore = Math.max(0, (acct.maxAgeMin - ageMin) / acct.maxAgeMin) * SCORE_CONFIG.ageWeight;
+  score += ageScore;
+  reasons.push(`Age ${Math.floor(ageMin)}m`);
+
+  // Volume 24H (0–30 pts)
+  const vol = parseFloat(pair.volume?.h24 || 0);
+  const volScore = Math.min(vol, SCORE_CONFIG.volCap) / SCORE_CONFIG.volCap * SCORE_CONFIG.volWeight;
+  score += volScore;
+  if (vol > 0) reasons.push(`Vol $${(vol / 1000).toFixed(1)}K`);
+
+  return { score: Math.round(score), reasons };
+}
+
+
+// ── Position Module — #18 ─────────────────────────────────────
+
+/**
+ * evaluatePositions()
+ * Checks all open positions against EXIT_CONFIG thresholds.
+ * Triggers partial or full closes as needed.
+ * Calls renderAll() once after all positions are evaluated.
+ */
+function evaluatePositions() {
+  let changed = false;
+
+  for (let i = positions.length - 1; i >= 0; i--) {
+    const p      = positions[i];
+    const pnlPct = ((p.currentPrice - p.entryPrice) / p.entryPrice) * 100;
+
+    // TP1
+    if (!p.tp1Hit && pnlPct >= EXIT_CONFIG.tp1Pct) {
+      closePartial(p, EXIT_CONFIG.tp1SellPct, `TP1 +${EXIT_CONFIG.tp1Pct}%`);
+      p.tp1Hit = true;
+      changed  = true;
+    }
+
+    // TP2 — also activates trailing stop
+    if (!p.tp2Hit && pnlPct >= EXIT_CONFIG.tp2Pct) {
+      closePartial(p, EXIT_CONFIG.tp2SellPct, `TP2 +${EXIT_CONFIG.tp2Pct}%`);
+      p.tp2Hit      = true;
+      p.trailActive = true;
+      changed       = true;
+    }
+
+    // Trailing stop activation (without TP2)
+    if (!p.trailActive && pnlPct >= EXIT_CONFIG.trailActivePct) {
+      p.trailActive = true;
+    }
+
+    // Trailing stop trigger
+    if (p.trailActive) {
+      const dropFromPeak = ((p.peakPrice - p.currentPrice) / p.peakPrice) * 100;
+      if (dropFromPeak >= EXIT_CONFIG.trailDropPct) {
+        closePartial(p, 100, `Trailing stop −${EXIT_CONFIG.trailDropPct}% from peak`);
+        changed = true;
+      }
+    }
+
+    // Hard stop loss
+    if (pnlPct <= EXIT_CONFIG.slPct) {
+      closePartial(p, 100, `Stop loss ${EXIT_CONFIG.slPct}%`);
+      changed = true;
+    }
+  }
+
+  if (changed) renderAll();
+}
+
+/**
+ * closePartial(position, sellPct, reason)
+ * Closes sellPct% of a position, books PnL, logs the event.
+ * Removes position if remaining value falls below EXIT_CONFIG.minValue.
+ * Does NOT call renderAll() — caller decides when to render.
+ */
+function closePartial(pos, sellPct, reason) {
+  const sellValue = pos.remainingValue * (sellPct / 100);
+  const pnl       = sellValue * ((pos.currentPrice / pos.entryPrice) - 1);
+
+  account.balance  += sellValue + pnl;
+  pos.remainingValue -= sellValue;
+
+  closedTrades.unshift({
+    date:   new Date().toLocaleDateString(),
+    chain:  pos.chain,
+    symbol: pos.symbol,
+    entry:  pos.entryPrice,
+    exit:   pos.currentPrice,
+    pnl,
+    pnlPct: ((pos.currentPrice / pos.entryPrice) - 1) * 100,
+    reason,
+  });
+
+  addLog(`${reason} → ${pos.symbol} | PnL $${pnl.toFixed(2)}`, pnl > 0 ? 'ok' : 'err');
+
+  if (pos.remainingValue < EXIT_CONFIG.minValue) {
+    positions = positions.filter(p => p !== pos);
+  }
+}
+
+
+// ── Price Updates ──────────────────────────────────────────────
+async function updateAllPrices() {
+  if (isUpdating || positions.length === 0) return;
+  isUpdating = true;
+  addLog(`🔄 Updating prices for ${positions.length} position${positions.length > 1 ? 's' : ''}...`, 'info');
+
+  for (let p of positions) {
+    if (!p.pairAddress || !p.chain) continue;
+    try {
+      const chain = p.chain.toLowerCase();
+      const res   = await fetch(`https://api.dexscreener.com/latest/dex/pairs/${chain}/${p.pairAddress}`);
+      if (res.status === 429) { addLog('⚠️ Rate limit — backing off', 'err'); break; }
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (data.pairs && data.pairs.length > 0) {
+        const price = parseFloat(data.pairs[0].priceUsd || 0);
+        if (price > 0) {
+          priceCache[p.pairAddress] = price;
+          p.currentPrice = price;
+          if (!p.peakPrice || price > p.peakPrice) p.peakPrice = price;
+        }
+      }
+    } catch(e) {}
+  }
+
+  document.getElementById('last-update').textContent = `Last price update: ${new Date().toLocaleTimeString()}`;
+  isUpdating = false;
+}
+
+
+// ── Scanner ────────────────────────────────────────────────────
+async function scanCycle() {
+  if (!scannerRunning || !account) return;
+
+  if (positions.length >= account.maxPositions) {
+    addLog(`⏸️ Max positions (${account.maxPositions}) reached — scanner paused`, 'info');
+    return;
+  }
+
+  addLog('🔍 Scanning DexScreener for new opportunities...', 'info');
+
+  try {
+    const res = await fetch('https://api.dexscreener.com/latest/dex/search?q=NEW');
+    if (!res.ok) return;
+    const data = await res.json();
+
+    for (let pair of (data.pairs || []).slice(0, 12)) {
+      if (!SUPPORTED_CHAINS.includes(pair.chainId)) continue;
+      if (positions.length >= account.maxPositions) break;
+
+      // Score the candidate using scoreCandidate() — #16
+      const { score, reasons } = scoreCandidate(pair, account);
+      if (score < SCORE_CONFIG.minScore) continue;
+
+      addLog(`📊 Candidate: ${pair.baseToken?.symbol} score ${score} — ${reasons.join(', ')}`, 'info');
+      await attemptAutoEntry(pair, pair.chainId, score, reasons);
+    }
+  } catch(e) {
+    addLog('⚠️ Scan error — ' + e.message, 'err');
+  }
+}
+
+async function attemptAutoEntry(pair, chain, score, reasons) {
+  if (positions.length >= account.maxPositions) return;
+
+  const reserved   = account.balance * (account.reservePct / 100);
+  const available  = Math.max(0, account.balance - reserved);
+  const entrySize  = Math.min(account.maxEntry, available * 0.6);
+  if (entrySize < EXIT_CONFIG.minValue) return;
+
+  const symbol = (pair.baseToken?.symbol || 'TOKEN').substring(0, 12);
+  const price  = parseFloat(pair.priceUsd) || 0.000001;
+  const liq    = parseFloat(pair.liquidity?.usd || 0);
+
+  account.balance -= entrySize;
+
+  positions.push({
+    chain:          chain.toUpperCase(),
+    symbol,
+    pairAddress:    pair.pairAddress,
+    entryPrice:     price,
+    currentPrice:   price,
+    peakPrice:      price,
+    size:           entrySize,
+    remainingValue: entrySize,
+    enteredAt:      Date.now(),
+    score,
+    entryReasons:   reasons,
+    tp1Hit:         false,
+    tp2Hit:         false,
+    trailActive:    false,
+  });
+
+  addLog(`🟢 ENTRY: ${symbol} (${chain.toUpperCase()}) | Score ${score} | Liq $${(liq/1000).toFixed(1)}K | Size $${entrySize.toFixed(2)}`, 'ok');
+  renderAll();
+}
+
+
+// ── Render Module ──────────────────────────────────────────────
+function renderAll() {
+  renderPortfolio();
+  renderPositions();
+  renderClosed();
+  renderLog();
+}
+
+function renderPortfolio() {
+  if (!account) return;
+  const realized = closedTrades.reduce((a, t) => a + (t.pnl || 0), 0);
+  const invested  = positions.reduce((a, p) => a + p.remainingValue, 0);
+  document.getElementById('total-balance').textContent  = '$' + (account.balance + realized).toFixed(2);
+  document.getElementById('available').textContent      = '$' + (account.balance - invested).toFixed(2);
+  document.getElementById('in-positions').textContent   = '$' + invested.toFixed(2);
+  document.getElementById('realized-pnl').textContent   = '$' + realized.toFixed(2);
+}
+
+function renderPositions() {
+  const tbody = document.getElementById('positions-body');
+  tbody.innerHTML = positions.map((p, i) => {
+    const pnlPct = ((p.currentPrice - p.entryPrice) / p.entryPrice) * 100;
+    const pnlUsd = (pnlPct / 100) * p.remainingValue;
+    const ageMin = Math.floor((Date.now() - p.enteredAt) / 60000);
+    return `<tr>
+      <td>${p.chain}</td>
+      <td title="Score: ${p.score} | ${(p.entryReasons||[]).join(', ')}">${p.symbol}</td>
+      <td>$${p.entryPrice.toFixed(6)}</td>
+      <td>$${p.currentPrice.toFixed(6)}</td>
+      <td>$${p.size.toFixed(2)}</td>
+      <td class="${pnlUsd >= 0 ? 'green' : 'red'}">$${pnlUsd.toFixed(2)}</td>
+      <td class="${pnlUsd >= 0 ? 'green' : 'red'}">${pnlPct.toFixed(1)}%</td>
+      <td>${ageMin}m</td>
+      <td><button class="btn-small" onclick="manualClose(${i})">Close</button></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="9" style="text-align:center;color:#666;padding:30px;">No open positions</td></tr>';
+}
+
+function manualClose(index) {
+  if (confirm('Close this position?')) {
+    closePartial(positions[index], 100, 'Manual close');
+    renderAll();
+  }
+}
+
+function renderClosed() {
+  const tbody = document.getElementById('closed-body');
+  tbody.innerHTML = closedTrades.slice(0, 10).map(t => `
+    <tr>
+      <td>${t.date}</td>
+      <td>${t.chain}</td>
+      <td>${t.symbol}</td>
+      <td>$${t.entry.toFixed(6)}</td>
+      <td>$${t.exit.toFixed(6)}</td>
+      <td class="${t.pnl >= 0 ? 'green' : 'red'}">$${t.pnl.toFixed(2)}</td>
+      <td class="${t.pnl >= 0 ? 'green' : 'red'}">${t.pnlPct.toFixed(1)}%</td>
+      <td style="font-size:11px;color:#666">${t.reason || '—'}</td>
+    </tr>`).join('');
+}
+
+function renderLog() {
+  document.getElementById('remi-log').innerHTML =
+    eventLog.map(l => `<div>[${l.time}] ${l.msg}</div>`).join('');
+}
+
+function addLog(msg, type = 'info') {
+  eventLog.unshift({ time: new Date().toLocaleTimeString(), msg });
+  if (eventLog.length > 120) eventLog.pop();
+  renderLog();
+}
+
+
+// ── Scanner toggle ─────────────────────────────────────────────
+function toggleScanner() {
+  scannerRunning = !scannerRunning;
+  const btn = document.getElementById('scanner-btn');
+  btn.textContent = scannerRunning ? '⏹ Stop Stormchaser' : '▶ Start Stormchaser';
+
+  if (scannerRunning) {
+    addLog('🚀 Stormchaser started — 45s refresh cycle', 'ok');
+    setInterval(async () => {
+      await updateAllPrices();
+      evaluatePositions();
+      await scanCycle();
+    }, REFRESH_SECONDS * 1000);
+    scanCycle();
+  } else {
+    addLog('⏹ Stormchaser stopped', 'err');
+  }
+}
+
+
+// ── Exports ────────────────────────────────────────────────────
+function exportCSV() {
+  let csv = 'date,chain,symbol,entry,exit,pnl,pnlPct,reason\n';
+  closedTrades.forEach(t => {
+    csv += `${t.date},${t.chain},${t.symbol},${t.entry},${t.exit},${t.pnl.toFixed(2)},${t.pnlPct.toFixed(2)},"${t.reason || ''}"\n`;
+  });
+  download('stormchaser_trades.csv', csv);
+}
+
+function exportJSON() {
+  const data = {
+    tool:    'Stormchaser',
+    suite:   'Remi — Rocking M Autonomous Investment Agent',
+    strategy: 'High Risk / High Reward — Lottery Ticket',
+    exported: new Date().toISOString(),
+    score_config: SCORE_CONFIG,
+    exit_config:  EXIT_CONFIG,
+    account,
+    positions,
+    closedTrades,
+  };
+  download('stormchaser_elizaos.json', JSON.stringify(data, null, 2));
+}
+
+function exportLog() {
+  const text = eventLog.map(l => `[${l.time}] ${l.msg}`).join('\n');
+  download('stormchaser_log.txt', text);
+}
+
+function download(filename, content) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content]));
+  a.download = filename;
+  a.click();
+}
+
+
+// ── Keyboard shortcut ──────────────────────────────────────────
+// Press R to manually trigger a price update
+document.addEventListener('keydown', e => {
+  if (e.key.toLowerCase() === 'r') updateAllPrices();
+});
+</script>
 </body>
 </html>
