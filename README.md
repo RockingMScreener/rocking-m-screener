@@ -10,8 +10,8 @@
 
 **No paywalls. No signups. No influencer noise.** Just honest, filterable on-chain data you control.
 
-**[🚀 Launch Cipher](https://rockingmscreener.com/screener.html)**  
-**[📊 Craftsman](https://rockingmscreener.com/papertrader.html)** · **[🤖 Trail Guide](https://rockingmscreener.com/remi.html)**
+**[🚀 Launch Cipher](https://rockingmscreener.com/cipher.html)**  
+**[📊 Craftsman](https://rockingmscreener.com/craftsman.html)** · **[🤖 Trail Guide](https://rockingmscreener.com/trailguide.html)**
 **[Stormchaser](https://rockingmscreener.com/ai-trader/index.html)**
 **[@Rockingmscreen on X](https://x.com/Rockingmscreen)** · **[Discord](https://discord.gg/aumVpSavB)**
 
