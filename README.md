@@ -237,7 +237,7 @@ This modular structure prepares the codebase for Phase 2 — Ranch House and `ag
 - Cipher refactor — modular filter, scoring, and render architecture (v1.6)
 
 ### ⬜ Near Term
-- **Leaderboard** — community paper trader leaderboard (built, launching June 1)
+- **Leaderboard** — community paper trader leaderboard (built, launching July 1)
 - **Solana UNSCORED tooltip** — UI note clarifying GoPlus data limitation vs token quality
 - **Craftsman refactor** — extract entry/exit logic, risk calculations, export functions
 - **Stormchaser refactor** — extract safety scoring, position/exit logic
