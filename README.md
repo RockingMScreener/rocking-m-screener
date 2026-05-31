@@ -164,7 +164,7 @@ See [ai-trader/README.md](ai-trader/README.md) for full documentation.
 
 No installation required. Open in any modern browser.
 
-1. **Visit** [rockingmscreener.com](https://rockingmscreener.com) or open `screener.html` locally
+1. **Visit** [rockingmscreener.com](https://rockingmscreener.com) or open [screener.html](https://rockingmscreener.com/screener.html)
 2. **Select chains** — up to 5 at a time
 3. **Adjust filters** or leave the presets:
    - **Min Liquidity** — filters out dust, focuses on established pools
