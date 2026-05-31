@@ -85,7 +85,7 @@ Auto-entry triggers when score >= 58 and available positions < max.
 
 ## Running It
 
-1. Open [rockingmscreener.com/ai-trader/](https://rockingmscreener.com/ai-trader/index.html) in your browser
+1. Open [Stormchaser](https://rockingmscreener.com/ai-trader/index.html) in your browser
 2. Set account parameters
 3. Click **Initialize Account**
 4. Click **Start Stormchaser Scanner**
