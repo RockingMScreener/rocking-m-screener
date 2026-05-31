@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rocking M Paper Trader</title>
+<title>Craftsman — Building with Precision · Rocking M</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Barlow+Condensed:wght@300;400;600;700;800&display=swap');
   :root {
@@ -179,13 +179,13 @@
       <span class="badge-sub">Crypto</span>
     </div>
     <div class="brand-text">
-      <div class="brand-title">ROCKING <span>M</span> PAPER TRADER</div>
-      <div class="brand-sub-text">Simulated trading &middot; AI training data &middot; No real money</div>
+      <div class="brand-title">ROCKING <span>M</span> CRAFTSMAN</div>
+      <div class="brand-sub-text">Building with Precision &middot; Simulated Trading &middot; AI Training Data</div>
     </div>
   </div>
   <div class="nav-links">
-    <a href="screener.html" class="nav-link">&#9672; Screener</a>
-    <a href="remi.html" class="nav-link">&#9672; Ask Remi</a>
+     <a href="screener.html" class="nav-link">&#9672; Cipher</a>
+    <a href="remi.html" class="nav-link">&#9672; Trail Guide</a>
     <a href="index.html" class="nav-link">&#9672; Home</a>
   </div>
 </div>
@@ -382,7 +382,7 @@
 
   <!-- Remi Event Log -->
   <div class="remi-log">
-    <div class="remi-log-hdr">&#9672; Remi Event Log</div>
+   <div class="remi-log-hdr">&#9672; Trail Guide Event Log</div>
     <div id="remi-log-body"></div>
   </div>
 
@@ -410,7 +410,7 @@
   </div>
 
   <footer>
-    <span>Rocking M Paper Trader &middot; Simulated only &middot; No real funds</span>
+    <span>Craftsman &middot; Rocking M &middot; Simulated only &middot; No real funds</span>
     <span>
       <span><a href="screener.html">Screener</a> &middot; <a href="remi.html">Ask Remi</a> &middot; <a href="https://github.com/RockingMScreener/rocking-m-screener">GitHub</a> &middot; <a href="https://x.com/Rockingmscreen" target="_blank" rel="noopener noreferrer">X</a> &middot; <a href="https://discord.gg/Z2VWxUcpy" target="_blank" rel="noopener noreferrer">Discord</a></span>
      </span>
@@ -1053,7 +1053,7 @@ function renderClosed() {
 function exportCSV() {
   const hdr  = 'date,chain,symbol,entry,exit,size,gas,pnl,pnl_pct,entry_reason,exit_reason,duration_hours,outcome,tier\n';
   const rows = closed.map(t => `${t.date},${t.chain},${t.symbol},${t.entryPrice},${t.exitPrice},${t.size},${t.gas},${t.pnl.toFixed(2)},${t.pnlPct.toFixed(2)},"${(t.entryReason||'').replace(/"/g,"'")}","${t.reason.replace(/"/g,"'")}",${t.durationMs?(t.durationMs/3600000).toFixed(2):''},${t.outcome},${t.tier||1}`).join('\n');
-  dl('rocking_m_paper_trades.csv', hdr + rows, 'text/csv');
+  dl('craftsman_trades.csv', hdr + rows, 'text/csv');
 }
 
 function exportJSON() {
@@ -1067,12 +1067,12 @@ function exportJSON() {
       exit_reason: t.reason, duration_hours: t.durationMs?(t.durationMs/3600000).toFixed(2):null, outcome: t.outcome
     }))
   };
-  dl('rocking_m_paper_elizaos.json', JSON.stringify(data, null, 2), 'application/json');
+  dl('craftsman_elizaos.json', JSON.stringify(data, null, 2), 'application/json');
 }
 
 function exportRemiLog() {
   const data = remiLog.map(e => `[${e.time}] [${e.type.toUpperCase()}] ${e.msg}`).join('\n');
-  dl('rocking_m_remi_log.txt', data, 'text/plain');
+  dl('craftsman_log.txt', data, 'text/plain');
 }
 
 function dl(name, content, type) {
