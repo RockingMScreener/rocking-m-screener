@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stormchaser — High Risk. High Reward. · Rocking M</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Barlow+Condensed:wght@300;400;600;700;800&display=swap');
+:root {
+  --bg:#e8eaed; --bg3:#ffffff; --bg-header:#0f1115;
+  --green:#00cc66; --red:#cc2200; --blue:#0055a5;
+}
+body {background:var(--bg); color:#1a1f26; font-family:'Barlow Condensed',sans-serif; margin:0; padding:0;}
+.top-bar {background:#0f1115; padding:12px 20px; color:white; display:flex; align-items:center; gap:20px; border-bottom:3px solid var(--green);}
+.logo {width:68px; height:76px; background:#111a24; border:2px solid var(--green); border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:32px; color:white; flex-shrink:0;}
+.shell {max-width:1400px; margin:auto; padding:20px;}
+.card {background:var(--bg3); border:1px solid #c4cad2; padding:16px; margin-bottom:16px;}
+.setup-grid {display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:12px;}
+.finput {width:100%; padding:8px; border:1px solid #c4cad2;}
+.btn {padding:10px 16px; background:var(--blue); color:white; border:none; cursor:pointer; font-weight:bold; margin:5px 0;}
+.btn-small {padding:6px 12px; font-size:13px;}
+.portfolio-row {display:flex; gap:10px; flex-wrap:wrap;}
+.pcard {background:var(--bg3); border:1px solid #c4cad2; padding:12px; flex:1; min-width:140px;}
+table {width:100%; border-collapse:collapse;}
+th {background:var(--bg-header); color:white; padding:10px; text-align:left;}
+td {padding:10px; border-bottom:1px solid #c4cad2;}
+.green {color:var(--green);} .red {color:var(--red);}
+.remi-log {background:#1a2330; color:#a0c0a0; padding:12px; max-height:380px; overflow-y:auto; font-family:'IBM Plex Mono',monospace; font-size:11px;}
+.last-updated {font-size:11px; color:#666;}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="logo">M</div>
+  <div>
+    <h1 style="margin:0; font-size:28px; letter-spacing:2px;">STORMCHASER</h1>
+    <p style="margin:0; font-size:12px; color:var(--green);">High Risk. High Reward. • Hybrid Scanner</p>
+    <p style="margin:4px 0 0 0; font-size:11px; color:#888;">Remi — Rocking M Autonomous Investment Agent</p>
+  </div>
+</div>
+
+<div class="shell">
+  <div class="card">
+    <h3>Account & Risk Settings</h3>
+    <div class="setup-grid">
+      <div><label>Starting Balance ($)</label><input class="finput" id="start-balance" type="number" value="1000"></div>
+      <div><label>Max Positions</label><input class="finput" id="max-positions" type="number" value="5"></div>
+      <div><label>Max Entry Size ($)</label><input class="finput" id="max-entry" type="number" value="5"></div>
+      <div><label>Capital Reserve (%)</label><input class="finput" id="reserve-pct" type="number" value="25"></div>
+      <div><label>Min Liquidity ($)</label><input class="finput" id="min-liq" type="number" value="5000"></div>
+      <div><label>Max Token Age (min)</label><input class="finput" id="max-age" type="number" value="180"></div>
+      <div><label>Min Score</label><input class="finput" id="min-score" type="number" value="45"></div>
+    </div>
+
+    <h3>Exit Strategy Settings</h3>
+    <div class="setup-grid">
+      <div><label>TP1 (% gain)</label><input class="finput" id="tp1-pct" type="number" value="30"></div>
+      <div><label>TP1 Sell %</label><input class="finput" id="tp1-sell" type="number" value="40"></div>
+      <div><label>TP2 (% gain)</label><input class="finput" id="tp2-pct" type="number" value="70"></div>
+      <div><label>TP2 Sell %</label><input class="finput" id="tp2-sell" type="number" value="80"></div>
+      <div><label>TP3 (% gain)</label><input class="finput" id="tp3-pct" type="number" value="150"></div>
+      <div><label>TP3 Sell %</label><input class="finput" id="tp3-sell" type="number" value="60"></div>
+      <div><label>Trail Activate (%)</label><input class="finput" id="trail-activate" type="number" value="40"></div>
+      <div><label>Trail Drop (%)</label><input class="finput" id="trail-drop" type="number" value="15"></div>
+      <div><label>Hard Stop Loss (%)</label><input class="finput" id="hard-stop" type="number" value="-25"></div>
+      <div><label>Max Hold Time (hours)</label><input class="finput" id="max-hold" type="number" value="12"></div>
+      <div><label>No-Momentum Timeout (hours)</label><input class="finput" id="no-momentum" type="number" value="4"></div>
+    </div>
+
+    <button class="btn" onclick="initAccount()">Initialize Account</button>
+    <button class="btn" id="scanner-btn" onclick="toggleScanner()">▶ Start Stormchaser</button>
+  </div>
+
+  <div class="portfolio-row">
+    <div class="pcard"><strong>Total Balance</strong><br><span id="total-balance">$0.00</span></div>
+    <div class="pcard"><strong>Available</strong><br><span id="available">$0.00</span></div>
+    <div class="pcard"><strong>In Positions</strong><br><span id="in-positions">$0.00</span></div>
+    <div class="pcard"><strong>Reserve Held</strong><br><span id="reserve-held" style="color:#c47a00">$0.00</span></div>
+    <div class="pcard"><strong>Realized PnL</strong><br><span id="realized-pnl">$0.00</span></div>
+  </div>
+
+  <h3>Open Positions <span class="last-updated" id="last-update">Last price update: never</span></h3>
+  <div class="card">
+    <table>
+      <thead><tr><th>Chain</th><th>Symbol</th><th>Entry</th><th>Current</th><th>Tokens</th><th>Value</th><th>PnL $</th><th>PnL %</th><th>Age</th><th>Actions</th></tr></thead>
+      <tbody id="positions-body"></tbody>
+    </table>
+  </div>
+
+  <h3>Stormchaser Event Log</h3>
+  <div class="remi-log" id="remi-log"></div>
+
+  <h3>Closed Trades</h3>
+  <div class="card">
+    <table>
+      <thead><tr><th>Date</th><th>Chain</th><th>Symbol</th><th>Entry</th><th>Exit</th><th>PnL $</th><th>PnL %</th><th>Reason</th></tr></thead>
+      <tbody id="closed-body"></tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:15px;">
+    <button class="btn btn-small" onclick="exportCSV()">Export CSV</button>
+    <button class="btn btn-small" onclick="exportJSON()">Export JSON (ElizaOS)</button>
+    <button class="btn btn-small" onclick="exportLog()">Export Event Log</button>
+  </div>
+</div>
+
+<script>
+// ====================== CONFIG ======================
+const SCORE_CONFIG = { minScore: 40, liqWeight: 40, ageWeight: 30, volWeight: 30, liqCap: 100000, volCap: 500000 };
+
+const EXIT_CONFIG = { 
+  tp1Pct: 30, tp1SellPct: 40,
+  tp2Pct: 70, tp2SellPct: 80,
+  tp3Pct: 150, tp3SellPct: 60,
+  trailActivePct: 40, trailDropPct: 15, 
+  slPct: -25, 
+  maxHoldHours: 12,
+  noMomentumHours: 4,
+  minValue: 2 
+};
+
+// ====================== STATE ======================
+let account = null;
+let positions = [];
+let closedTrades = [];
+let eventLog = [];
+let scannerRunning = false;
+let updateInterval = null;
+let isUpdating = false;
+
+const REFRESH_SECONDS = 45;
+const SUPPORTED_CHAINS = ["solana", "base", "bsc"];
+
+// ====================== FORMAT ======================
+const format = {
+  usd: (n) => '$' + (n || 0).toFixed(2),
+  price: (n) => '$' + (n || 0).toFixed(6),
+  pct: (n) => (n || 0).toFixed(1) + '%',
+  tokens: (n) => Number(n).toFixed(4)
+};
+
+// ====================== RENDER ======================
+const render = {
+  all() { this.portfolio(); this.positions(); this.closed(); this.log(); },
+  portfolio() {
+    if (!account) return;
+    const realized = closedTrades.reduce((a,t) => a + (t.pnl||0), 0);
+    const invested = positions.reduce((a,p) => a + (p.tokensHeld * p.currentPrice), 0);
+    const reserveHeld = account.startBalance * (account.reservePct / 100);
+
+    document.getElementById('total-balance').textContent = format.usd(account.balance + realized + invested);
+    document.getElementById('available').textContent = format.usd(Math.max(0, account.balance - reserveHeld));
+    document.getElementById('in-positions').textContent = format.usd(invested);
+    document.getElementById('reserve-held').textContent = format.usd(reserveHeld);
+    document.getElementById('realized-pnl').textContent = format.usd(realized);
+  },
+  positions() {
+    const tbody = document.getElementById('positions-body');
+    tbody.innerHTML = positions.map((p, i) => {
+      const currentValue = p.tokensHeld * p.currentPrice;
+      const pnlUsd = currentValue - (p.tokensHeld * p.entryPrice);
+      const pnlPct = p.entryPrice ? ((p.currentPrice - p.entryPrice) / p.entryPrice) * 100 : 0;
+      const ageMin = Math.floor((Date.now() - p.enteredAt) / 60000);
+
+      return `<tr>
+        <td>${p.chain}</td>
+        <td>${p.symbol}</td>
+        <td>${format.price(p.entryPrice)}</td>
+        <td>${format.price(p.currentPrice)}</td>
+        <td>${format.tokens(p.tokensHeld)}</td>
+        <td>${format.usd(currentValue)}</td>
+        <td class="${pnlUsd >= 0 ? 'green' : 'red'}">${format.usd(pnlUsd)}</td>
+        <td class="${pnlUsd >= 0 ? 'green' : 'red'}">${format.pct(pnlPct)}</td>
+        <td>${ageMin}m</td>
+        <td><button class="btn-small" onclick="manualClose(${i})">Close</button></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="10" style="text-align:center;color:#666;padding:40px;">No open positions</td></tr>';
+  },
+  closed() {
+    const tbody = document.getElementById('closed-body');
+    tbody.innerHTML = closedTrades.slice(0,12).map(t => `
+      <tr>
+        <td>${t.date}</td>
+        <td>${t.chain}</td>
+        <td>${t.symbol}</td>
+        <td>${format.price(t.entry)}</td>
+        <td>${format.price(t.exit)}</td>
+        <td class="${t.pnl >= 0 ? 'green' : 'red'}">${format.usd(t.pnl)}</td>
+        <td class="${t.pnl >= 0 ? 'green' : 'red'}">${format.pct(t.pnlPct)}</td>
+        <td>${t.reason || '—'}</td>
+      </tr>`).join('');
+  },
+  log() {
+    document.getElementById('remi-log').innerHTML = eventLog.map(l => `<div>[${l.time}] ${l.msg}</div>`).join('');
+  }
+};
+
+// ====================== LOGGING ======================
+function addLog(msg) {
+  eventLog.unshift({ time: new Date().toLocaleTimeString(), msg });
+  if (eventLog.length > 150) eventLog.pop();
+  render.log();
+}
+
+// ====================== INIT ======================
+function initAccount() {
+  const startBal = parseFloat(document.getElementById('start-balance').value) || 1000;
+  
+  account = {
+    balance: startBal,
+    startBalance: startBal,
+    maxPositions: parseInt(document.getElementById('max-positions').value) || 5,
+    maxEntry: parseFloat(document.getElementById('max-entry').value) || 5,
+    reservePct: parseFloat(document.getElementById('reserve-pct').value) || 25,
+    minLiq: parseFloat(document.getElementById('min-liq').value) || 5000,
+    maxAgeMin: parseFloat(document.getElementById('max-age').value) || 180,
+    minScore: parseInt(document.getElementById('min-score').value) || 45,
+  };
+
+  Object.assign(EXIT_CONFIG, {
+    tp1Pct: parseFloat(document.getElementById('tp1-pct').value) || 30,
+    tp1SellPct: parseFloat(document.getElementById('tp1-sell').value) || 40,
+    tp2Pct: parseFloat(document.getElementById('tp2-pct').value) || 70,
+    tp2SellPct: parseFloat(document.getElementById('tp2-sell').value) || 80,
+    tp3Pct: parseFloat(document.getElementById('tp3-pct').value) || 150,
+    tp3SellPct: parseFloat(document.getElementById('tp3-sell').value) || 60,
+    trailActivePct: parseFloat(document.getElementById('trail-activate').value) || 40,
+    trailDropPct: parseFloat(document.getElementById('trail-drop').value) || 15,
+    slPct: parseFloat(document.getElementById('hard-stop').value) || -25,
+    maxHoldHours: parseFloat(document.getElementById('max-hold').value) || 12,
+    noMomentumHours: parseFloat(document.getElementById('no-momentum').value) || 4,
+  });
+
+  positions = [];
+  closedTrades = [];
+  eventLog = [];
+  addLog('✅ Stormchaser Initialized Successfully — Token Tracking + Strict Reserve Active', 'ok');
+  render.all();
+}
+
+function getAvailableCapital() {
+  if (!account) return 0;
+  const reserve = account.startBalance * (account.reservePct / 100);
+  return Math.max(0, account.balance - reserve);
+}
+
+// ====================== PRICE UPDATES ======================
+async function updateAllPrices() {
+  if (!account) return;
+  addLog(`🔄 Fetching latest prices from DexScreener (${positions.length} positions)`);
+
+  if (positions.length === 0) return;
+  if (isUpdating) return;
+  isUpdating = true;
+
+  for (let p of positions) {
+    if (!p.pairAddress) continue;
+    try {
+      const res = await fetch(`https://api.dexscreener.com/latest/dex/pairs/${p.chain.toLowerCase()}/${p.pairAddress}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.pairs?.[0]?.priceUsd) {
+          const price = parseFloat(data.pairs[0].priceUsd);
+          if (price > 0) {
+            p.currentPrice = price;
+            if (!p.peakPrice || price > p.peakPrice) p.peakPrice = price;
+          }
+        }
+      }
+    } catch(e) {}
+  }
+  document.getElementById('last-update').textContent = `Last price update: ${new Date().toLocaleTimeString()}`;
+  render.all();
+  isUpdating = false;
+}
+
+// ====================== SCORING & DISCOVERY ======================
+function scoreCandidate(pool) {
+  const reasons = [];
+  let score = 0;
+  const liq = parseFloat(pool.reserve_in_usd || 0);
+  const vol = parseFloat(pool.volume_usd?.h24 || 0);
+  const ageMin = pool.pool_created_at ? (Date.now() - new Date(pool.pool_created_at).getTime()) / 60000 : 999;
+
+  if (liq >= account.minLiq) {
+    score += Math.min(liq, SCORE_CONFIG.liqCap) / SCORE_CONFIG.liqCap * SCORE_CONFIG.liqWeight;
+    reasons.push(`Liq $${(liq/1000).toFixed(1)}K`);
+  }
+  if (ageMin < account.maxAgeMin) {
+    score += (account.maxAgeMin - ageMin) / account.maxAgeMin * SCORE_CONFIG.ageWeight;
+    reasons.push(`Age ${Math.floor(ageMin)}m`);
+  }
+  if (vol > 1000) {
+    score += Math.min(vol, SCORE_CONFIG.volCap) / SCORE_CONFIG.volCap * SCORE_CONFIG.volWeight;
+    reasons.push(`Vol $${(vol/1000).toFixed(1)}K`);
+  }
+  return { score: Math.round(score), reasons };
+}
+
+async function scanCycle() {
+  if (!scannerRunning || !account) return;
+
+  if (positions.length >= account.maxPositions) {
+    addLog(`⏸️ Max positions (${account.maxPositions}) reached — Scanner paused`);
+    return;
+  }
+
+  addLog('🔍 Scanning for new pools via GeckoTerminal...');
+
+  for (let chain of SUPPORTED_CHAINS) {
+    try {
+      const res = await fetch(`https://api.geckoterminal.com/api/v2/networks/${chain}/new_pools?limit=8`);
+      if (!res.ok) continue;
+      const data = await res.json();
+
+      for (let pool of (data.data || [])) {
+        if (positions.length >= account.maxPositions) break;
+        const { score, reasons } = scoreCandidate(pool.attributes);
+        if (score >= account.minScore) {
+          attemptAutoEntry(pool.attributes, chain, score, reasons);
+        }
+      }
+    } catch(e) {}
+  }
+}
+
+async function attemptAutoEntry(pool, chain, score, reasons) {
+  const available = getAvailableCapital();
+  const entrySize = Math.min(account.maxEntry, available * 0.6);
+  if (entrySize < 2) return;
+
+  const symbol = (pool.name || "TOKEN").split("/")[0].substring(0,12);
+  const entryPrice = parseFloat(pool.base_token_price_usd) || 0.000001;
+  if (entryPrice <= 0) return;
+
+  const tokensBought = entrySize / entryPrice;
+  account.balance -= entrySize;
+
+  positions.push({
+    chain: chain.toUpperCase(),
+    symbol,
+    pairAddress: pool.address,
+    entryPrice,
+    currentPrice: entryPrice,
+    peakPrice: entryPrice,
+    tokensHeld: tokensBought,
+    enteredAt: Date.now(),
+    score,
+    entryReasons: reasons,
+    tp1Hit: false, tp2Hit: false, tp3Hit: false,
+    trailActive: false
+  });
+
+  addLog(`🟢 ENTRY: ${symbol} | ${format.tokens(tokensBought)} tokens @ ${format.price(entryPrice)} | Score ${score}`, 'ok');
+  render.all();
+}
+
+// ====================== POSITION MANAGEMENT ======================
+function checkTimeBasedExits() {
+  const now = Date.now();
+  for (let i = positions.length - 1; i >= 0; i--) {
+    let p = positions[i];
+    const holdHours = (now - p.enteredAt) / (1000 * 60 * 60);
+
+    if (holdHours >= EXIT_CONFIG.maxHoldHours) {
+      closePartial(p, 1, `MAX HOLD TIME (${EXIT_CONFIG.maxHoldHours}h)`);
+      continue;
+    }
+
+    const pnlPct = ((p.currentPrice - p.entryPrice) / p.entryPrice) * 100;
+    if (holdHours >= EXIT_CONFIG.noMomentumHours && Math.abs(pnlPct) < 10) {
+      closePartial(p, 1, `NO MOMENTUM after ${EXIT_CONFIG.noMomentumHours}h`);
+    }
+  }
+}
+
+function evaluatePositions() {
+  checkTimeBasedExits();
+
+  for (let i = positions.length - 1; i >= 0; i--) {
+    let p = positions[i];
+    const pnlPct = ((p.currentPrice - p.entryPrice) / p.entryPrice) * 100;
+
+    if (!p.tp1Hit && pnlPct >= EXIT_CONFIG.tp1Pct) {
+      closePartial(p, EXIT_CONFIG.tp1SellPct/100, `TP1 +${EXIT_CONFIG.tp1Pct}%`);
+      p.tp1Hit = true;
+    }
+    if (!p.tp2Hit && pnlPct >= EXIT_CONFIG.tp2Pct) {
+      closePartial(p, EXIT_CONFIG.tp2SellPct/100, `TP2 +${EXIT_CONFIG.tp2Pct}%`);
+      p.tp2Hit = true;
+      p.trailActive = true;
+    }
+    if (!p.tp3Hit && pnlPct >= EXIT_CONFIG.tp3Pct) {
+      closePartial(p, EXIT_CONFIG.tp3SellPct/100, `TP3 +${EXIT_CONFIG.tp3Pct}%`);
+      p.tp3Hit = true;
+    }
+
+    if (pnlPct > EXIT_CONFIG.trailActivePct) p.trailActive = true;
+
+    if (p.trailActive) {
+      const drop = ((p.peakPrice - p.currentPrice) / p.peakPrice) * 100;
+      if (drop >= EXIT_CONFIG.trailDropPct) {
+        closePartial(p, 1, `TRAILING STOP (-${EXIT_CONFIG.trailDropPct}%)`);
+        continue;
+      }
+    }
+
+    if (pnlPct <= EXIT_CONFIG.slPct) {
+      closePartial(p, 1, `STOP LOSS (${EXIT_CONFIG.slPct}%)`);
+    }
+  }
+}
+
+function closePartial(pos, sellFraction, reason) {
+  const tokensToSell = pos.tokensHeld * sellFraction;
+  const sellValue = tokensToSell * pos.currentPrice;
+  const pnl = sellValue - (tokensToSell * pos.entryPrice);
+
+  account.balance += sellValue;
+  pos.tokensHeld -= tokensToSell;
+
+  closedTrades.unshift({
+    date: new Date().toLocaleDateString(),
+    chain: pos.chain,
+    symbol: pos.symbol,
+    entry: pos.entryPrice,
+    exit: pos.currentPrice,
+    pnl,
+    pnlPct: ((pos.currentPrice / pos.entryPrice) - 1) * 100,
+    reason
+  });
+
+  addLog(`${reason} → ${pos.symbol} | ${format.usd(pnl)}`, pnl >= 0 ? 'ok' : 'err');
+
+  if (pos.tokensHeld < 0.0001) {
+    positions = positions.filter(p => p !== pos);
+  }
+  render.all();
+}
+
+function manualClose(index) {
+  if (confirm("Close entire position?")) closePartial(positions[index], 1, "MANUAL CLOSE");
+}
+
+// ====================== CONTROLS ======================
+function toggleScanner() {
+  if (!account) {
+    alert("Please initialize account first!");
+    return;
+  }
+  scannerRunning = !scannerRunning;
+  const btn = document.getElementById("scanner-btn");
+  btn.textContent = scannerRunning ? "⏹ Stop Stormchaser" : "▶ Start Stormchaser";
+
+  if (scannerRunning) {
+    addLog("🚀 Stormchaser Started — Monitoring Active", "ok");
+    updateAllPrices();
+    scanCycle();
+
+    if (updateInterval) clearInterval(updateInterval);
+    updateInterval = setInterval(async () => {
+      await updateAllPrices();
+      evaluatePositions();
+      await scanCycle();
+    }, REFRESH_SECONDS * 1000);
+  } else {
+    if (updateInterval) clearInterval(updateInterval);
+    addLog("⏹ Stormchaser Stopped", "err");
+  }
+}
+
+// ====================== EXPORTS ======================
+function exportCSV() {
+  let csv = "date,chain,symbol,entry,exit,pnl,pnlPct,reason\n";
+  closedTrades.forEach(t => csv += `${t.date},${t.chain},${t.symbol},${t.entry},${t.exit},${t.pnl.toFixed(2)},${t.pnlPct.toFixed(2)},"${(t.reason||'').replace(/"/g,'""')}"\n`);
+  download('stormchaser_trades.csv', csv);
+}
+
+function exportJSON() {
+  const data = { tool: "Stormchaser", exported: new Date().toISOString(), account, positions, closedTrades };
+  download('stormchaser_elizaos.json', JSON.stringify(data, null, 2));
+}
+
+function exportLog() {
+  const text = eventLog.map(l => `[${l.time}] ${l.msg}`).join("\n");
+  download('stormchaser_eventlog.txt', text);
+}
+
+function download(filename, content) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content]));
+  a.download = filename;
+  a.click();
+}
+
+document.addEventListener('keydown', e => { if (e.key.toLowerCase() === "r") updateAllPrices(); });
+</script>
+</body>
+</html>
