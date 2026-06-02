@@ -611,25 +611,79 @@ function simulateSlippage(chain, slippageTol, action) {
   return { success: true, type: 'clean', impact: 0, msg: action + ' executed cleanly on ' + getChain(chain).label };
 }
 
+function validateEntry({ addr, chain, symbol, size }) {
+  if (!account) return { ok: false, reason: 'Initialize account first' };
+  if (!addr) return { ok: false, reason: 'Enter a pool address' };
+  if (!size || size <= 0) return { ok: false, reason: 'Enter a position size' };
+  if (positions.length >= account.maxPositions) return { ok: false, reason: 'Max positions reached (' + account.maxPositions + ')' };
+
+  const reserved = account.balance * (account.reservePct / 100);
+  const available = Math.max(0, account.balance - reserved);
+  if (size > available) return { ok: false, reason: 'Insufficient available balance. Available: ' + fUsd(available) };
+
+  return {
+    ok: true,
+    available,
+    reserved,
+    chainMeta: getChain(chain),
+  };
+}
+
+function buildPosition(resolvedPoolAddress, chain, symbol, entryPrice, size, gas, entryReason, tier) {
+  return {
+    id: Date.now(),
+    chain,
+    symbol,
+    poolAddress: resolvedPoolAddress,
+    entryPrice,
+    currentPrice: entryPrice,
+    peakPrice: entryPrice,
+    size,
+    remainingPct: 100,
+    remainingValue: size,
+    gas,
+    enteredAt: Date.now(),
+    sl1: { pct: parseFloat(document.getElementById('sl1-pct').value)||15, sell: parseFloat(document.getElementById('sl1-sell').value)||50, on: document.getElementById('sl1-on').value==='1', triggered: false },
+    sl2: { pct: parseFloat(document.getElementById('sl2-pct').value)||30, sell: 100, on: document.getElementById('sl2-on').value==='1', triggered: false },
+    tp1: { pct: parseFloat(document.getElementById('tp1-pct').value)||25, sell: parseFloat(document.getElementById('tp1-sell').value)||25, on: document.getElementById('tp1-on').value==='1', triggered: false },
+    tp2: { pct: parseFloat(document.getElementById('tp2-pct').value)||50, sell: parseFloat(document.getElementById('tp2-sell').value)||25, on: document.getElementById('tp2-on').value==='1', triggered: false },
+    tp3: { pct: parseFloat(document.getElementById('tp3-pct').value)||100, sell: parseFloat(document.getElementById('tp3-sell').value)||25, on: document.getElementById('tp3-on').value==='1', triggered: false },
+    trail: { pct: parseFloat(document.getElementById('trail-pct').value)||15, on: document.getElementById('trail-on').value==='1', triggered: false, activatePct: parseFloat(document.getElementById('trail-activate-pct').value)||0, activateMins: parseFloat(document.getElementById('trail-activate-mins').value)||0 },
+    liqFloor: parseFloat(document.getElementById('entry-liq-floor').value)||0,
+    entryReason: entryReason || 'No reason recorded',
+    maxHoldHours: account.maxHoldHours,
+    tier,
+  };
+}
+
+function calculateExit(pos, sellPct, exitPrice, gasCost = 0) {
+  const sellFraction = sellPct / 100;
+  const sellValue = pos.remainingValue * sellFraction;
+  const priceRatio = exitPrice / pos.entryPrice;
+  const exitValue = sellValue * priceRatio;
+  const pnl = exitValue - sellValue - gasCost;
+  return {
+    sellValue,
+    exitValue,
+    pnl,
+    cashReturn: Math.max(0, exitValue - gasCost),
+    remainingPct: Math.max(0, pos.remainingPct - sellPct * (pos.remainingPct / 100)),
+    remainingValue: Math.max(0, pos.remainingValue - sellValue),
+  };
+}
+
 // ── Enter position ─────────────────────────────────────────────
 async function fetchAndEnter() {
-  if (!account) { toast('Initialize account first'); return; }
-
   const addr    = document.getElementById('entry-address').value.trim();
   const chain   = document.getElementById('entry-chain').value;
   const symbol  = document.getElementById('entry-symbol').value.trim().toUpperCase() || 'TOKEN';
   const size    = parseFloat(document.getElementById('entry-size').value) || 0;
   const slip    = parseInt(document.getElementById('entry-slippage').value) || 3;
 
-  if (!addr)  { toast('Enter a pool address'); return; }
-  if (!size)  { toast('Enter a position size'); return; }
-  if (positions.length >= account.maxPositions) { toast('Max positions reached (' + account.maxPositions + ')'); return; }
+  const validation = validateEntry({ addr, chain, symbol, size });
+  if (!validation.ok) { toast(validation.reason); return; }
 
-  const reserved   = account.balance * (account.reservePct / 100);
-  const available  = Math.max(0, account.balance - reserved);
-  if (size > available) { toast('Insufficient available balance. Available: ' + fUsd(available)); return; }
-
-  const chainMeta = getChain(chain);
+  const chainMeta = validation.chainMeta;
   const gas = chainMeta.gas;
 
   let price, resolvedPoolAddress = addr;
@@ -652,7 +706,6 @@ async function fetchAndEnter() {
     return;
   }
 
-  // Tier 2 warning in log
   if (chainMeta.tier === 2) {
     remiLog_add('WARNING: ' + chainMeta.label + ' is a Tier 2 chain — no GoPlus security data available. Verify token manually before trading.', 'warn');
   }
@@ -686,30 +739,7 @@ async function fetchAndEnter() {
   account.balance -= gas;
   account.balance -= size;
 
-  const pos = {
-    id:           Date.now(),
-    chain,
-    symbol,
-    poolAddress:  resolvedPoolAddress,
-    entryPrice:   entryPrice,
-    currentPrice: entryPrice,
-    peakPrice:    entryPrice,
-    size,
-    remainingPct: 100,
-    remainingValue: size,
-    gas,
-    enteredAt:    Date.now(),
-    sl1: { pct: parseFloat(document.getElementById('sl1-pct').value)||15, sell: parseFloat(document.getElementById('sl1-sell').value)||50, on: document.getElementById('sl1-on').value==='1', triggered: false },
-    sl2: { pct: parseFloat(document.getElementById('sl2-pct').value)||30, sell: 100, on: document.getElementById('sl2-on').value==='1', triggered: false },
-    tp1: { pct: parseFloat(document.getElementById('tp1-pct').value)||25, sell: parseFloat(document.getElementById('tp1-sell').value)||25, on: document.getElementById('tp1-on').value==='1', triggered: false },
-    tp2: { pct: parseFloat(document.getElementById('tp2-pct').value)||50, sell: parseFloat(document.getElementById('tp2-sell').value)||25, on: document.getElementById('tp2-on').value==='1', triggered: false },
-    tp3: { pct: parseFloat(document.getElementById('tp3-pct').value)||100, sell: parseFloat(document.getElementById('tp3-sell').value)||25, on: document.getElementById('tp3-on').value==='1', triggered: false },
-    trail: { pct: parseFloat(document.getElementById('trail-pct').value)||15, on: document.getElementById('trail-on').value==='1', triggered: false, activatePct: parseFloat(document.getElementById('trail-activate-pct').value)||0, activateMins: parseFloat(document.getElementById('trail-activate-mins').value)||0 },
-    liqFloor: parseFloat(document.getElementById('entry-liq-floor').value)||0,
-    entryReason: document.getElementById('entry-reason').value.trim() || 'No reason recorded',
-    maxHoldHours: account.maxHoldHours,
-    tier: chainMeta.tier,
-  };
+  const pos = buildPosition(resolvedPoolAddress, chain, symbol, entryPrice, size, gas, document.getElementById('entry-reason').value.trim() || 'No reason recorded', chainMeta.tier);
 
   positions.push(pos);
   save();
@@ -846,15 +876,11 @@ function checkHoldTimers() {
 }
 
 function closePartial(pos, sellPct, exitPrice, reason, gasCost) {
-  const sellFraction = sellPct / 100;
-  const sellValue    = pos.remainingValue * sellFraction;
-  const priceRatio   = exitPrice / pos.entryPrice;
-  const exitValue    = sellValue * priceRatio;
-  const pnl          = exitValue - sellValue - gasCost;
+  const result = calculateExit(pos, sellPct, exitPrice, gasCost);
 
-  account.balance    += Math.max(0, exitValue - gasCost);
-  pos.remainingPct   -= sellPct * (pos.remainingPct / 100);
-  pos.remainingValue -= sellValue;
+  account.balance    += result.cashReturn;
+  pos.remainingPct   = result.remainingPct;
+  pos.remainingValue = result.remainingValue;
 
   closed.unshift({
     id:          Date.now(),
@@ -863,18 +889,18 @@ function closePartial(pos, sellPct, exitPrice, reason, gasCost) {
     symbol:      pos.symbol,
     entryPrice:  pos.entryPrice,
     exitPrice,
-    size:        sellValue,
+    size:        result.sellValue,
     gas:         gasCost,
-    pnl,
-    pnlPct:      (pnl / sellValue) * 100,
+    pnl:         result.pnl,
+    pnlPct:      result.sellValue ? (result.pnl / result.sellValue) * 100 : 0,
     reason,
     entryReason: pos.entryReason || 'No reason recorded',
     durationMs:  Date.now() - pos.enteredAt,
-    outcome:     pnl >= 0 ? 'win' : 'loss',
+    outcome:     result.pnl >= 0 ? 'win' : 'loss',
     tier:        pos.tier || 1,
   });
 
-  remiLog_add(reason, pnl >= 0 ? 'ok' : 'err');
+  remiLog_add(reason, result.pnl >= 0 ? 'ok' : 'err');
   if (pos.remainingPct <= 0.5) positions = positions.filter(p => p.id !== pos.id);
 }
 
