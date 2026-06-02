@@ -226,14 +226,14 @@ const render = {
     if (!account) return;
     const realized    = closedTrades.reduce((a, t) => a + (t.pnl || 0), 0);
     const invested    = positions.reduce((a, p) => a + (p.tokensHeld * p.currentPrice), 0);
-    const reserveHeld = account.startBalance * (account.reservePct / 100);
-    const available   = Math.max(0, account.balance - reserveHeld - invested);
+    const reserveFloor = getReserveFloor();
+    const available   = getAvailableCapital();
     const total       = account.balance + invested;
 
     document.getElementById('total-balance').textContent  = format.usd(total);
     document.getElementById('available').textContent      = format.usd(available);
     document.getElementById('in-positions').textContent   = format.usd(invested);
-    document.getElementById('reserve-held').textContent   = format.usd(reserveHeld);
+    document.getElementById('reserve-held').textContent   = format.usd(reserveFloor);
     document.getElementById('realized-pnl').textContent   = format.usd(realized);
   },
 
@@ -306,15 +306,16 @@ function initAccount() {
   const startBal = parseFloat(document.getElementById('start-balance').value) || 1000;
 
   account = {
-    balance:      startBal,
-    startBalance: startBal,
-    maxPositions: parseInt(document.getElementById('max-positions').value)  || 5,
-    maxEntry:     parseFloat(document.getElementById('max-entry').value)    || 5,
-    reservePct:   parseFloat(document.getElementById('reserve-pct').value)  || 25,
-    minLiq:       parseFloat(document.getElementById('min-liq').value)      || 5000,
-    maxAgeMin:    parseFloat(document.getElementById('max-age').value)      || 180,
-    minScore:     parseInt(document.getElementById('min-score').value)      || 45,
-    cooldownMins: parseFloat(document.getElementById('cooldown-mins').value) || 30,
+    balance:           startBal,
+    startBalance:      startBal,
+    reserveHighWater:  startBal,  // grows with portfolio, never shrinks
+    maxPositions:      parseInt(document.getElementById('max-positions').value)   || 5,
+    maxEntry:          parseFloat(document.getElementById('max-entry').value)     || 5,
+    reservePct:        parseFloat(document.getElementById('reserve-pct').value)   || 25,
+    minLiq:            parseFloat(document.getElementById('min-liq').value)       || 5000,
+    maxAgeMin:         parseFloat(document.getElementById('max-age').value)       || 180,
+    minScore:          parseInt(document.getElementById('min-score').value)       || 45,
+    cooldownMins:      parseFloat(document.getElementById('cooldown-mins').value) || 30,
   };
 
   // Read exit config from UI
@@ -343,12 +344,16 @@ function initAccount() {
 
 
 // ── Capital helper ─────────────────────────────────────────────
-// Returns tradeable capital after reserve and current positions are subtracted
+// account.balance is uninvested cash — entry costs already deducted on open.
+// Reserve floor is based on high water mark — grows but never shrinks.
+function getReserveFloor() {
+  if (!account) return 0;
+  return account.reserveHighWater * (account.reservePct / 100);
+}
+
 function getAvailableCapital() {
   if (!account) return 0;
-  const reserve  = account.startBalance * (account.reservePct / 100);
-  const invested = positions.reduce((a, p) => a + (p.tokensHeld * p.currentPrice), 0);
-  return Math.max(0, account.balance - reserve - invested);
+  return Math.max(0, account.balance - getReserveFloor());
 }
 
 
@@ -418,6 +423,15 @@ async function updateAllPrices() {
   }
 
   document.getElementById('last-update').textContent = `Last update: ${new Date().toLocaleTimeString()}`;
+
+  // Update reserve high water mark — grows with portfolio, never shrinks
+  const invested   = positions.reduce((a, p) => a + (p.tokensHeld * p.currentPrice), 0);
+  const totalValue = account.balance + invested;
+  if (totalValue > account.reserveHighWater) {
+    account.reserveHighWater = totalValue;
+    addLog(`📈 New portfolio high: ${format.usd(totalValue)} — reserve floor updated to ${format.usd(totalValue * account.reservePct / 100)}`, 'ok');
+  }
+
   render.all();
   isUpdating = false;
 }
