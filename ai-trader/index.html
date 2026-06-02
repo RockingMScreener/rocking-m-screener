@@ -116,7 +116,7 @@ td {padding:10px; border-bottom:1px solid #c4cad2; font-family:'IBM Plex Mono',m
 
   <!-- ── Portfolio Stats ── -->
   <div class="portfolio-row">
-    <div class="pcard"><strong>Net Asset Value</strong><span id="total-balance">$0.00</span></div>
+    <div class="pcard"><strong>Account Value</strong><span id="total-balance">$0.00</span></div>
     <div class="pcard"><strong>Available</strong><span id="available">$0.00</span></div>
     <div class="pcard"><strong>In Positions</strong><span id="in-positions">$0.00</span></div>
     <div class="pcard"><strong>Reserve Held</strong><span id="reserve-held" style="color:var(--amber)">$0.00</span></div>
@@ -226,9 +226,10 @@ const render = {
     if (!account) return;
     const realized    = closedTrades.reduce((a, t) => a + (t.pnl || 0), 0);
     const invested    = positions.reduce((a, p) => a + (p.tokensHeld * p.currentPrice), 0);
+    const costBasis   = positions.reduce((a, p) => a + (p.tokensHeld * p.entryPrice), 0);
     const reserveFloor = getReserveFloor();
     const available   = getAvailableCapital();
-    const total       = account.balance + invested;
+    const total       = account.balance + costBasis;
 
     document.getElementById('total-balance').textContent  = format.usd(total);
     document.getElementById('available').textContent      = format.usd(available);
@@ -358,8 +359,9 @@ function getAvailableCapital() {
 
 function updateReserveHighWater() {
   if (!account) return;
-  if (account.balance > account.reserveHighWater) {
-    account.reserveHighWater = account.balance;
+const totalDeployed = account.balance + positions.reduce((a, p) => a + (p.tokensHeld * p.entryPrice), 0);
+if (totalDeployed > account.reserveHighWater) {
+    account.reserveHighWater = totalDeployed;  
     addLog(`📈 New realized balance high: ${format.usd(account.balance)} — reserve floor updated to ${format.usd(getReserveFloor())}`, 'ok');
   }
 }
@@ -431,9 +433,6 @@ async function updateAllPrices() {
   }
 
   document.getElementById('last-update').textContent = `Last update: ${new Date().toLocaleTimeString()}`;
-
-  // Update reserve high water mark only from realized account cash, not unrealized PnL.
-  updateReserveHighWater();
 
   render.all();
   isUpdating = false;
@@ -620,9 +619,9 @@ function closePartial(pos, sellFraction, reason) {
   const costBasis    = tokensToSell * pos.entryPrice;
   const pnl          = sellValue - costBasis;
 
+  pos.tokensHeld   -= tokensToSell;
   account.balance  += sellValue;
   updateReserveHighWater();
-  pos.tokensHeld   -= tokensToSell;
 
   closedTrades.unshift({
     date:   new Date().toLocaleDateString(),
