@@ -824,22 +824,18 @@ function closePartial(pos, sellFraction, reason) {
 
   // Fire real sell if wallet connected and we have the mint
   if (wallet.connected && pos.tokenMint) {
-    // Convert tokens to lamports equivalent — Jupiter needs input in token's smallest unit
-    // We pass sellFraction as a note; actual amount comes from wallet token balance
-    // Use async IIFE so closePartial stays sync for paper tracking
     (async () => {
       try {
-        // Get actual token balance from wallet for this mint
-        const tokenAccounts = await wallet.provider.connection.getParsedTokenAccountsByOwner(
+        const conn = wallet.provider.connection || connection;
+        const tokenAccounts = await conn.getParsedTokenAccountsByOwner(
           wallet.publicKey,
           { mint: new solanaWeb3.PublicKey(pos.tokenMint) }
         );
         if (!tokenAccounts.value.length) {
-          addLog(`⚠️ No token account found for ${pos.symbol} — sell not fired`, 'warn');
+          addLog(`⚠️ No token account found for ${pos.symbol} — may not have been bought on-chain`, 'warn');
           return;
         }
         const tokenBalance = tokenAccounts.value[0].account.data.parsed.info.tokenAmount;
-        const decimals = tokenBalance.decimals;
         const rawBalance = parseInt(tokenBalance.amount);
         const sellAmount = Math.floor(rawBalance * sellFraction);
 
@@ -858,11 +854,8 @@ function closePartial(pos, sellFraction, reason) {
 
   // --- PAPER TRACKING ---
   account.realizedPnl = (account.realizedPnl || 0) + pnl;
-
-  // Return cost basis to tradeable balance
   account.balance += costBasis;
 
-  // Add profit to profit reserve, or deduct loss from balance
   if (pnl > 0) {
     account.profitReserve = (account.profitReserve || 0) + pnl;
   } else {
