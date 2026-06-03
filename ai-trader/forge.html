@@ -103,6 +103,19 @@ td {padding:10px; border-bottom:1px solid #c4cad2;}
     </div>
   </div>
 
+  <div class="card">
+    <h3>Transaction Settings</h3>
+    <div class="setup-grid">
+      <div><label>Priority Fee (microlamports)</label><input class="finput" id="priority-fee" type="number" value="10000"></div>
+      <div><label>Buy Slippage (%)</label><input class="finput" id="buy-slippage" type="number" value="10"></div>
+      <div><label>Sell Slippage (%)</label><input class="finput" id="sell-slippage" type="number" value="15"></div>
+      <div><label>Max Fee Cap (SOL)</label><input class="finput" id="max-fee-sol" type="number" value="0.005" step="0.001"></div>
+    </div>
+    <div style="margin-top:10px; font-size:12px; color:#666;">
+      ⚡ Hybrid mode: scanner tracks positions in USD · real swaps fire via Jupiter · wallet reflects actual trades
+    </div>
+  </div>
+
   <button class="btn" onclick="initAccount()">Initialize Account</button>
   <button class="btn" id="scanner-btn" onclick="toggleScanner()">▶ Start Forge</button>
 
@@ -154,9 +167,9 @@ let wallet = {
   provider: null,   // backpack or phantom
 };
 const connection = new solanaWeb3.Connection(
-  'https://solana-mainnet.publicnode.com',
+  solanaWeb3.clusterApiUrl('mainnet-beta'),
   'confirmed'
-)
+);
 async function connectWallet() {
   try {
     let provider = null;
@@ -199,18 +212,123 @@ async function disconnectWallet() {
   addLog('🔌 Wallet disconnected', 'err');
 }
 async function updateSOLBalance() {
-  if (!wallet.publicKey) return;
+  if (!wallet.publicKey || !wallet.provider) return;
   try {
     const balance = await wallet.provider.connection.getBalance(wallet.publicKey);
     const sol = (balance / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
     document.getElementById('sol-balance').textContent = sol;
-  } catch(e) {
-    addLog('❌ Balance fetch failed: ' + e.message, 'err');
-  }
+  } catch(e) {}
 }
 setInterval(() => {
   if (wallet.connected) updateSOLBalance();
 }, 30000);
+
+// ====================== TX CONFIG ======================
+const TX_CONFIG = {
+  priorityFee: 10000,    // microlamports
+  slippageBps: 1000,     // 10% buy slippage in basis points
+  sellSlippageBps: 1500, // 15% sell slippage
+  maxFeeSOL: 0.005,      // safety cap per tx
+};
+
+// SOL/USD price cache
+let solPrice = 0;
+let solPriceLastFetch = 0;
+
+async function getSOLPrice() {
+  const now = Date.now();
+  if (solPrice > 0 && now - solPriceLastFetch < 60000) return solPrice;
+  try {
+    const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
+    const data = await res.json();
+    solPrice = data?.solana?.usd || 0;
+    solPriceLastFetch = now;
+    addLog(`💲 SOL price: $${solPrice.toFixed(2)}`, 'info');
+  } catch(e) {
+    addLog('⚠️ SOL price fetch failed — using cached $' + solPrice.toFixed(2), 'warn');
+  }
+  return solPrice;
+}
+
+// ====================== JUPITER SWAP ======================
+async function jupiterSwap(inputMint, outputMint, amountLamports, slippageBps, label) {
+  if (!wallet.connected || !wallet.publicKey) {
+    addLog('❌ Wallet not connected — cannot execute swap', 'err');
+    return null;
+  }
+
+  try {
+    addLog(`🔄 Getting Jupiter quote: ${label}...`, 'info');
+
+    // 1. Get quote
+    const quoteUrl = `https://quote-api.jup.ag/v6/quote?inputMint=${inputMint}&outputMint=${outputMint}&amount=${amountLamports}&slippageBps=${slippageBps}&onlyDirectRoutes=false`;
+    const quoteRes = await fetch(quoteUrl);
+    if (!quoteRes.ok) {
+      addLog(`❌ Jupiter quote failed: ${quoteRes.status}`, 'err');
+      return null;
+    }
+    const quote = await quoteRes.json();
+    if (quote.error) {
+      addLog(`❌ Jupiter quote error: ${quote.error}`, 'err');
+      return null;
+    }
+
+    addLog(`✅ Quote: ${label} | in: ${quote.inAmount} → out: ${quote.outAmount}`, 'info');
+
+    // 2. Get swap transaction
+    const swapRes = await fetch('https://quote-api.jup.ag/v6/swap', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        quoteResponse: quote,
+        userPublicKey: wallet.publicKey.toString(),
+        wrapAndUnwrapSol: true,
+        prioritizationFeeLamports: TX_CONFIG.priorityFee,
+      }),
+    });
+
+    if (!swapRes.ok) {
+      addLog(`❌ Jupiter swap build failed: ${swapRes.status}`, 'err');
+      return null;
+    }
+
+    const { swapTransaction } = await swapRes.json();
+
+    // 3. Deserialize, sign, send via wallet provider
+    addLog(`✍️ Sending to wallet for signing...`, 'info');
+    const txBuffer = Uint8Array.from(atob(swapTransaction), c => c.charCodeAt(0));
+    const tx = solanaWeb3.VersionedTransaction.deserialize(txBuffer);
+
+    const signedTx = await wallet.provider.signTransaction(tx);
+
+    // 4. Submit
+    const rawTx = signedTx.serialize();
+    const sig = await wallet.provider.connection.sendRawTransaction(rawTx, {
+      skipPreflight: false,
+      maxRetries: 3,
+    });
+
+    addLog(`📡 TX submitted: ${sig.slice(0,12)}...`, 'info');
+
+    // 5. Confirm
+    const confirmation = await wallet.provider.connection.confirmTransaction(sig, 'confirmed');
+    if (confirmation.value.err) {
+      addLog(`❌ TX failed on-chain: ${JSON.stringify(confirmation.value.err)}`, 'err');
+      return null;
+    }
+
+    addLog(`✅ TX confirmed: https://solscan.io/tx/${sig}`, 'ok');
+    await updateSOLBalance();
+    return { sig, quote };
+
+  } catch(e) {
+    addLog(`❌ Swap error: ${e.message}`, 'err');
+    return null;
+  }
+}
+
+// SOL mint address constant
+const SOL_MINT = 'So11111111111111111111111111111111111111112';
 
 const EXIT_CONFIG = {
   tp1Pct: 30,  tp1SellPct: 40,
@@ -361,6 +479,13 @@ function initAccount() {
     slPct: parseFloat(document.getElementById('hard-stop').value) || -25,
     maxHoldHours: parseFloat(document.getElementById('max-hold').value) || 12,
     noMomentumHours: parseFloat(document.getElementById('no-momentum').value) || 4,
+  });
+
+  Object.assign(TX_CONFIG, {
+    priorityFee: parseInt(document.getElementById('priority-fee').value) || 10000,
+    slippageBps: Math.round((parseFloat(document.getElementById('buy-slippage').value) || 10) * 100),
+    sellSlippageBps: Math.round((parseFloat(document.getElementById('sell-slippage').value) || 15) * 100),
+    maxFeeSOL: parseFloat(document.getElementById('max-fee-sol').value) || 0.005,
   });
 
   positions = [];
@@ -567,12 +692,44 @@ async function attemptAutoEntry(pool, chain, score, reasons) {
   const entryPrice = parseFloat(pool.base_token_price_usd) || 0;
   if (entryPrice <= 0) return;
 
+  // --- REAL EXECUTION ---
+  // Get token mint address from pool relationships
+  const tokenMint = pool.relationships?.base_token?.data?.id?.split('_')[1] || null;
+
+  if (wallet.connected && tokenMint) {
+    const currentSOLPrice = await getSOLPrice();
+    if (currentSOLPrice <= 0) {
+      addLog(`⚠️ Cannot get SOL price — skipping real swap for ${symbol}`, 'warn');
+    } else {
+      const solAmount = entrySize / currentSOLPrice;
+      const lamports = Math.floor(solAmount * solanaWeb3.LAMPORTS_PER_SOL);
+
+      // Safety check: don't spend more than maxFeeSOL equivalent on a tiny trade
+      if (lamports < 1000) {
+        addLog(`⚠️ Entry size too small for swap (${lamports} lamports) — paper only`, 'warn');
+      } else {
+        addLog(`🚀 Firing real swap: $${entrySize.toFixed(2)} (${solAmount.toFixed(4)} SOL) → ${symbol}`, 'info');
+        const result = await jupiterSwap(SOL_MINT, tokenMint, lamports, TX_CONFIG.slippageBps, `BUY ${symbol}`);
+        if (!result) {
+          addLog(`❌ Real swap failed for ${symbol} — position NOT opened`, 'err');
+          return; // Don't paper track if real swap failed
+        }
+      }
+    }
+  } else if (!wallet.connected) {
+    addLog(`📋 Wallet not connected — paper tracking ${symbol} only`, 'warn');
+  } else {
+    addLog(`⚠️ No token mint for ${symbol} — paper tracking only`, 'warn');
+  }
+
+  // --- PAPER TRACKING (always runs if we reach here) ---
   const tokensBought = entrySize / entryPrice;
   account.balance -= entrySize;
 
   positions.push({
     symbol,
     pairAddress: pool.address,
+    tokenMint: tokenMint || null,
     entryPrice,
     currentPrice: entryPrice,
     peakPrice: entryPrice,
@@ -652,16 +809,51 @@ function closePartial(pos, sellFraction, reason) {
   const costBasis = tokensToSell * pos.entryPrice;
   const pnl = sellValue - costBasis;
 
+  // Fire real sell if wallet connected and we have the mint
+  if (wallet.connected && pos.tokenMint) {
+    // Convert tokens to lamports equivalent — Jupiter needs input in token's smallest unit
+    // We pass sellFraction as a note; actual amount comes from wallet token balance
+    // Use async IIFE so closePartial stays sync for paper tracking
+    (async () => {
+      try {
+        // Get actual token balance from wallet for this mint
+        const tokenAccounts = await wallet.provider.connection.getParsedTokenAccountsByOwner(
+          wallet.publicKey,
+          { mint: new solanaWeb3.PublicKey(pos.tokenMint) }
+        );
+        if (!tokenAccounts.value.length) {
+          addLog(`⚠️ No token account found for ${pos.symbol} — sell not fired`, 'warn');
+          return;
+        }
+        const tokenBalance = tokenAccounts.value[0].account.data.parsed.info.tokenAmount;
+        const decimals = tokenBalance.decimals;
+        const rawBalance = parseInt(tokenBalance.amount);
+        const sellAmount = Math.floor(rawBalance * sellFraction);
+
+        if (sellAmount < 1) {
+          addLog(`⚠️ Sell amount too small for ${pos.symbol}`, 'warn');
+          return;
+        }
+
+        addLog(`🔴 Firing real sell: ${(sellFraction * 100).toFixed(0)}% of ${pos.symbol} (${sellAmount} raw tokens)`, 'info');
+        await jupiterSwap(pos.tokenMint, SOL_MINT, sellAmount, TX_CONFIG.sellSlippageBps, `SELL ${pos.symbol} — ${reason}`);
+      } catch(e) {
+        addLog(`❌ Real sell error for ${pos.symbol}: ${e.message}`, 'err');
+      }
+    })();
+  }
+
+  // --- PAPER TRACKING ---
   // Return cost basis to tradeable balance
   account.balance += costBasis;
-  
+
   // Add profit to profit reserve, or deduct loss from balance
   if (pnl > 0) {
     account.profitReserve = (account.profitReserve || 0) + pnl;
   } else {
-    account.balance += pnl; // pnl is negative, so this reduces balance
+    account.balance += pnl;
   }
-  
+
   pos.tokensHeld -= tokensToSell;
 
   closedTrades.unshift({
