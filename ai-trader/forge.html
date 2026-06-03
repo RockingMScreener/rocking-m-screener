@@ -63,8 +63,10 @@ td {padding:10px; border-bottom:1px solid #c4cad2;}
       <strong>Status:</strong> <span id="wallet-status">Not connected</span>
     </div>
     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
-      <button class="btn btn-small" id="connect-wallet-btn" onclick="connectWallet()">Connect Backpack / Phantom</button>
-      <button class="btn btn-small" id="disconnect-wallet-btn" onclick="disconnectWallet()">Disconnect</button>
+      <button class="btn btn-small" onclick="connectWallet('backpack')">Connect Backpack</button>
+      <button class="btn btn-small" onclick="connectWallet('solflare')">Connect Solflare</button>
+      <button class="btn btn-small" onclick="connectWallet('phantom')">Connect Phantom</button>
+      <button class="btn btn-small" onclick="disconnectWallet()">Disconnect</button>
     </div>
     <div id="wallet-info" style="font-size:13px; color:#333; line-height:1.6; display:none;">
       <div><strong>Address:</strong> <span id="wallet-address">—</span></div>
@@ -170,20 +172,20 @@ const connection = new solanaWeb3.Connection(
   solanaWeb3.clusterApiUrl('mainnet-beta'),
   'confirmed'
 );
-async function connectWallet() {
+async function connectWallet(preference) {
   try {
     let provider = null;
-    if (window.backpack) {
+    if (preference === 'backpack' && window.backpack) {
       provider = window.backpack;
       addLog('🔌 Using Backpack wallet', 'ok');
-    } else if (window.phantom?.solana) {
-      provider = window.phantom.solana;
-      addLog('🔌 Using Phantom wallet', 'ok');
-    } else if (window.solflare) {
+    } else if (preference === 'solflare' && window.solflare) {
       provider = window.solflare;
       addLog('🔌 Using Solflare wallet', 'ok');
+    } else if (preference === 'phantom' && window.phantom?.solana) {
+      provider = window.phantom.solana;
+      addLog('🔌 Using Phantom wallet', 'ok');
     } else {
-      alert("No Solana wallet found. Please install Backpack or Phantom.");
+      alert(`${preference} wallet not found. Make sure the extension is installed and enabled in Chrome.`);
       return;
     }
     const response = await provider.connect();
