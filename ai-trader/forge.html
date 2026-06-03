@@ -189,7 +189,8 @@ async function connectWallet(preference) {
       return;
     }
     const response = await provider.connect();
-    wallet.publicKey = response.publicKey;
+    // Solflare returns publicKey on provider directly, others return it in response
+    wallet.publicKey = response?.publicKey || provider.publicKey;
     wallet.connected = true;
     wallet.provider = provider;
     document.getElementById('wallet-status').innerHTML =
