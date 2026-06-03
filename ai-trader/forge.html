@@ -267,7 +267,8 @@ async function jupiterSwap(inputMint, outputMint, amountLamports, slippageBps, l
     const quoteUrl = `https://jupiter-proxy.ermccabee1.workers.dev/swap/v1/quote?inputMint=${inputMint}&outputMint=${outputMint}&amount=${amountLamports}&slippageBps=${slippageBps}&onlyDirectRoutes=false`;
     const quoteRes = await fetch(quoteUrl);
     if (!quoteRes.ok) {
-      addLog(`❌ Jupiter quote failed: ${quoteRes.status}`, 'err');
+      const errText = await quoteRes.text();
+      addLog(`❌ Jupiter quote failed (${quoteRes.status}): ${errText.slice(0,120)}`, 'err');
       return null;
     }
     const quote = await quoteRes.json();
@@ -718,8 +719,8 @@ async function attemptAutoEntry(pool, chain, score, reasons) {
         addLog(`🚀 Firing real swap: $${entrySize.toFixed(2)} (${solAmount.toFixed(4)} SOL) → ${symbol}`, 'info');
         const result = await jupiterSwap(SOL_MINT, tokenMint, lamports, TX_CONFIG.slippageBps, `BUY ${symbol}`);
         if (!result) {
-          addLog(`❌ Real swap failed for ${symbol} — position NOT opened`, 'err');
-          return;
+          addLog(`⚠️ Real swap failed for ${symbol} — paper tracking only`, 'warn');
+          // fall through to paper tracking
         }
       }
     }
