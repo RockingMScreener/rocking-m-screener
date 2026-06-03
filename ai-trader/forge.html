@@ -154,9 +154,9 @@ let wallet = {
   provider: null,   // backpack or phantom
 };
 const connection = new solanaWeb3.Connection(
-  'https://mainnet.helius-rpc.com/?api-key=YOUR_KEY_HERE',
+  'https://rpc.ankr.com/solana',
   'confirmed'
-);
+)
 async function connectWallet() {
   try {
     let provider = null;
