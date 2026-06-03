@@ -388,7 +388,7 @@ const render = {
     document.getElementById('available').textContent = format.usd(available);
     document.getElementById('in-positions').textContent = format.usd(invested);
     document.getElementById('reserve-held').textContent = format.usd(totalReserve);
-    document.getElementById('realized-pnl').textContent = format.usd(account.profitReserve || 0);
+    document.getElementById('realized-pnl').textContent = format.usd(account.realizedPnl || 0);
   },
 
   positions() {
@@ -458,6 +458,7 @@ function initAccount() {
     balance: startBal,
     startBalance: startBal,
     profitReserve: 0,
+    realizedPnl: 0,
     maxPositions: parseInt(document.getElementById('max-positions').value) || 5,
     maxEntry: parseFloat(document.getElementById('max-entry').value) || 20,
     minEntry: parseFloat(document.getElementById('min-entry').value) || 2,
@@ -844,6 +845,8 @@ function closePartial(pos, sellFraction, reason) {
   }
 
   // --- PAPER TRACKING ---
+  account.realizedPnl = (account.realizedPnl || 0) + pnl;
+
   // Return cost basis to tradeable balance
   account.balance += costBasis;
 
