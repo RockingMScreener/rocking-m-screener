@@ -201,10 +201,12 @@ async function disconnectWallet() {
 async function updateSOLBalance() {
   if (!wallet.publicKey) return;
   try {
-    const balance = await connection.getBalance(wallet.publicKey);
+    const balance = await wallet.provider.connection.getBalance(wallet.publicKey);
     const sol = (balance / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
     document.getElementById('sol-balance').textContent = sol;
-  } catch(e) {}
+  } catch(e) {
+    addLog('❌ Balance fetch failed: ' + e.message, 'err');
+  }
 }
 setInterval(() => {
   if (wallet.connected) updateSOLBalance();
