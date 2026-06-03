@@ -661,7 +661,7 @@ async function scanCycle() {
 
         const candidateSymbol = normalizeSymbol(pool.attributes?.name);
         addLog(`📊 Candidate: ${candidateSymbol} (${chain}) score ${score} — ${reasons.join(', ')}`, 'info');
-        await attemptAutoEntry(pool.attributes, chain, score, reasons);
+        await attemptAutoEntry(pool, chain, score, reasons);
       }
 
     } catch(e) {
@@ -674,10 +674,11 @@ async function scanCycle() {
 
 // ====================== ENTRY ======================
 async function attemptAutoEntry(pool, chain, score, reasons) {
+  const attrs = pool.attributes || pool; // handle both full pool object and raw attributes
   if (positions.length >= account.maxPositions) return;
 
-  const symbol = normalizeSymbol(pool.name);
-  const duplicate = positions.some(p => p.pairAddress === pool.address || p.symbol === symbol);
+  const symbol = normalizeSymbol(attrs.name);
+  const duplicate = positions.some(p => p.pairAddress === attrs.address || p.symbol === symbol);
   if (duplicate) {
     addLog(`⚠️ Duplicate candidate skipped (${symbol})`, 'warn');
     return;
@@ -690,12 +691,16 @@ async function attemptAutoEntry(pool, chain, score, reasons) {
     return;
   }
 
-  const entryPrice = parseFloat(pool.base_token_price_usd) || 0;
+  const entryPrice = parseFloat(attrs.base_token_price_usd) || 0;
   if (entryPrice <= 0) return;
 
-  // --- REAL EXECUTION ---
-  // Get token mint address from pool relationships
-  const tokenMint = pool.relationships?.base_token?.data?.id?.split('_')[1] || null;
+  // Extract token mint — GeckoTerminal id format is "solana_MINTADDRESS"
+  const baseTokenId = pool.relationships?.base_token?.data?.id || '';
+  const tokenMint = baseTokenId.includes('_')
+    ? baseTokenId.substring(baseTokenId.indexOf('_') + 1)
+    : null;
+
+  addLog(`🔍 Token mint: ${tokenMint ? tokenMint.slice(0,8)+'...' : 'NOT FOUND'}`, 'info');
 
   if (wallet.connected && tokenMint) {
     const currentSOLPrice = await getSOLPrice();
@@ -704,16 +709,14 @@ async function attemptAutoEntry(pool, chain, score, reasons) {
     } else {
       const solAmount = entrySize / currentSOLPrice;
       const lamports = Math.floor(solAmount * solanaWeb3.LAMPORTS_PER_SOL);
-
-      // Safety check: don't spend more than maxFeeSOL equivalent on a tiny trade
       if (lamports < 1000) {
-        addLog(`⚠️ Entry size too small for swap (${lamports} lamports) — paper only`, 'warn');
+        addLog(`⚠️ Entry too small for swap (${lamports} lamports) — paper only`, 'warn');
       } else {
         addLog(`🚀 Firing real swap: $${entrySize.toFixed(2)} (${solAmount.toFixed(4)} SOL) → ${symbol}`, 'info');
         const result = await jupiterSwap(SOL_MINT, tokenMint, lamports, TX_CONFIG.slippageBps, `BUY ${symbol}`);
         if (!result) {
           addLog(`❌ Real swap failed for ${symbol} — position NOT opened`, 'err');
-          return; // Don't paper track if real swap failed
+          return;
         }
       }
     }
@@ -723,13 +726,13 @@ async function attemptAutoEntry(pool, chain, score, reasons) {
     addLog(`⚠️ No token mint for ${symbol} — paper tracking only`, 'warn');
   }
 
-  // --- PAPER TRACKING (always runs if we reach here) ---
+  // --- PAPER TRACKING ---
   const tokensBought = entrySize / entryPrice;
   account.balance -= entrySize;
 
   positions.push({
     symbol,
-    pairAddress: pool.address,
+    pairAddress: attrs.address,
     tokenMint: tokenMint || null,
     entryPrice,
     currentPrice: entryPrice,
