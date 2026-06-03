@@ -169,7 +169,7 @@ let wallet = {
   provider: null,   // backpack or phantom
 };
 const connection = new solanaWeb3.Connection(
-  solanaWeb3.clusterApiUrl('mainnet-beta'),
+  'https://solana-rpc.publicnode.com',
   'confirmed'
 );
 async function connectWallet(preference) {
@@ -217,10 +217,14 @@ async function disconnectWallet() {
 async function updateSOLBalance() {
   if (!wallet.publicKey || !wallet.provider) return;
   try {
-    const balance = await wallet.provider.connection.getBalance(wallet.publicKey);
+    // Backpack exposes provider.connection, Solflare does not
+    const conn = wallet.provider.connection || connection;
+    const balance = await conn.getBalance(wallet.publicKey);
     const sol = (balance / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
     document.getElementById('sol-balance').textContent = sol;
-  } catch(e) {}
+  } catch(e) {
+    addLog('⚠️ Balance fetch failed: ' + e.message, 'warn');
+  }
 }
 setInterval(() => {
   if (wallet.connected) updateSOLBalance();
@@ -306,8 +310,9 @@ async function jupiterSwap(inputMint, outputMint, amountLamports, slippageBps, l
     const signedTx = await wallet.provider.signTransaction(tx);
 
     // 4. Submit
+    const conn = wallet.provider.connection || connection;
     const rawTx = signedTx.serialize();
-    const sig = await wallet.provider.connection.sendRawTransaction(rawTx, {
+    const sig = await conn.sendRawTransaction(rawTx, {
       skipPreflight: false,
       maxRetries: 3,
     });
@@ -315,7 +320,7 @@ async function jupiterSwap(inputMint, outputMint, amountLamports, slippageBps, l
     addLog(`📡 TX submitted: ${sig.slice(0,12)}...`, 'info');
 
     // 5. Confirm
-    const confirmation = await wallet.provider.connection.confirmTransaction(sig, 'confirmed');
+    const confirmation = await conn.confirmTransaction(sig, 'confirmed');
     if (confirmation.value.err) {
       addLog(`❌ TX failed on-chain: ${JSON.stringify(confirmation.value.err)}`, 'err');
       return null;
