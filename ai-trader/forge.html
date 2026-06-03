@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forge — Solana Real Money Testing</title>
+<script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Barlow+Condensed:wght@300;400;600;700;800&display=swap');
+:root {
+  --bg:#e8eaed; --bg3:#ffffff; --bg-header:#0f1115;
+  --green:#00cc66; --red:#cc2200; --blue:#0055a5;
+}
+body {background:var(--bg); color:#1a1f26; font-family:'Barlow Condensed',sans-serif; margin:0; padding:0;}
+.top-bar {background:#0f1115; padding:12px 20px; color:white; display:flex; align-items:center; gap:20px; border-bottom:3px solid var(--green);}
+.logo {width:68px; height:76px; background:#111a24; border:2px solid var(--green); border-radius:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; padding:4px 0;}
+.logo-top {font-size:7px; font-weight:700; letter-spacing:2.5px; color:var(--green); font-family:'Barlow Condensed',sans-serif; line-height:1; margin-bottom:2px;}
+.logo-arc {width:38px; height:12px; border-top:2px solid var(--green); border-radius:50% 50% 0 0; margin-bottom:-4px;}
+.logo-m {font-size:36px; font-weight:900; color:white; font-family:'Barlow Condensed',sans-serif; line-height:1;}
+.logo-bottom {font-size:6px; font-weight:600; letter-spacing:2px; color:#8a9ab0; font-family:'Barlow Condensed',sans-serif; line-height:1; margin-top:2px;}
+.shell {max-width:1400px; margin:auto; padding:20px;}
+.card {background:var(--bg3); border:1px solid #c4cad2; padding:16px; margin-bottom:16px;}
+.setup-grid {display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:12px;}
+.finput {width:100%; padding:8px; border:1px solid #c4cad2;}
+.btn {padding:10px 16px; background:var(--blue); color:white; border:none; cursor:pointer; font-weight:bold; margin:5px 0;}
+.btn-small {padding:6px 12px; font-size:13px;}
+.portfolio-row {display:flex; gap:10px; flex-wrap:wrap;}
+.pcard {background:var(--bg3); border:1px solid #c4cad2; padding:12px; flex:1; min-width:140px;}
+table {width:100%; border-collapse:collapse;}
+th {background:var(--bg-header); color:white; padding:10px; text-align:left;}
+td {padding:10px; border-bottom:1px solid #c4cad2;}
+.green {color:var(--green);} .red {color:var(--red);}
+.remi-log {background:#1a2330; color:#a0c0a0; padding:12px; max-height:380px; overflow-y:auto; font-family:'IBM Plex Mono',monospace; font-size:11px;}
+.last-updated {font-size:11px; color:#666;}
+.warning {background:#fff3f3; border:1px solid #cc2200; padding:12px; margin-bottom:16px; border-radius:4px;}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="logo">
+    <span class="logo-top">ROCKING</span>
+    <div class="logo-arc"></div>
+    <span class="logo-m">M</span>
+    <span class="logo-bottom">CRYPTO</span>
+  </div>
+  <div>
+    <h1 style="margin:0; font-size:28px; letter-spacing:2px;">FORGE</h1>
+    <p style="margin:0; font-size:12px; color:var(--green);">Real Money Testing • Solana Only</p>
+  </div>
+</div>
+
+<div class="shell">
+  <div class="warning">
+    <strong>⚠️ REAL MONEY TESTING MODE</strong>
+    <div style="margin-top:8px;">Use only funds you are fully prepared to lose.</div>
+    <div style="margin-top:6px;"><strong>Connect a dedicated wallet with small SOL only.</strong></div>
+  </div>
+
+  <div class="card">
+    <h3>Wallet Connection</h3>
+    <div style="margin-bottom:12px; color:#333;">
+      <strong>Status:</strong> <span id="wallet-status">Not connected</span>
+    </div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
+      <button class="btn btn-small" id="connect-wallet-btn" onclick="connectWallet()">Connect Backpack / Phantom</button>
+      <button class="btn btn-small" id="disconnect-wallet-btn" onclick="disconnectWallet()">Disconnect</button>
+    </div>
+    <div id="wallet-info" style="font-size:13px; color:#333; line-height:1.6; display:none;">
+      <div><strong>Address:</strong> <span id="wallet-address">—</span></div>
+      <div><strong>SOL Balance:</strong> <span id="sol-balance">0.0000</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Trading Settings</h3>
+    <div class="setup-grid">
+      <div><label>Starting Balance ($)</label><input class="finput" id="start-balance" type="number" value="500"></div>
+      <div><label>Max Positions</label><input class="finput" id="max-positions" type="number" value="5"></div>
+      <div><label>Max Entry Size ($)</label><input class="finput" id="max-entry" type="number" value="20"></div>
+      <div><label>Min Entry Size ($)</label><input class="finput" id="min-entry" type="number" value="2"></div>
+      <div><label>Capital Reserve (%)</label><input class="finput" id="reserve-pct" type="number" value="30"></div>
+      <div><label>Min Liquidity ($)</label><input class="finput" id="min-liq" type="number" value="8000"></div>
+      <div><label>Max Token Age (min)</label><input class="finput" id="max-age" type="number" value="180"></div>
+      <div><label>Min Score</label><input class="finput" id="min-score" type="number" value="52"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Exit Strategy Settings</h3>
+    <div class="setup-grid">
+      <div><label>TP1 (% gain)</label><input class="finput" id="tp1-pct" type="number" value="30"></div>
+      <div><label>TP1 Sell %</label><input class="finput" id="tp1-sell" type="number" value="40"></div>
+      <div><label>TP2 (% gain)</label><input class="finput" id="tp2-pct" type="number" value="70"></div>
+      <div><label>TP2 Sell %</label><input class="finput" id="tp2-sell" type="number" value="80"></div>
+      <div><label>TP3 (% gain)</label><input class="finput" id="tp3-pct" type="number" value="150"></div>
+      <div><label>TP3 Sell %</label><input class="finput" id="tp3-sell" type="number" value="60"></div>
+      <div><label>Trail Activate (%)</label><input class="finput" id="trail-activate" type="number" value="40"></div>
+      <div><label>Trail Drop (%)</label><input class="finput" id="trail-drop" type="number" value="15"></div>
+      <div><label>Hard Stop Loss (%)</label><input class="finput" id="hard-stop" type="number" value="-25"></div>
+      <div><label>Max Hold Time (hours)</label><input class="finput" id="max-hold" type="number" value="12"></div>
+      <div><label>No-Momentum Timeout (hours)</label><input class="finput" id="no-momentum" type="number" value="4"></div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="initAccount()">Initialize Account</button>
+  <button class="btn" id="scanner-btn" onclick="toggleScanner()">▶ Start Forge</button>
+
+  <div class="portfolio-row">
+    <div class="pcard"><strong>Total Balance</strong><br><span id="total-balance">$0.00</span></div>
+    <div class="pcard"><strong>Available</strong><br><span id="available">$0.00</span></div>
+    <div class="pcard"><strong>In Positions</strong><br><span id="in-positions">$0.00</span></div>
+    <div class="pcard"><strong>Reserve Held</strong><br><span id="reserve-held" style="color:#c47a00">$0.00</span></div>
+    <div class="pcard"><strong>Realized PnL</strong><br><span id="realized-pnl">$0.00</span></div>
+  </div>
+
+  <h3>Open Positions <span class="last-updated" id="last-update">Last price update: never</span></h3>
+  <div class="card">
+    <table>
+      <thead><tr><th>Symbol</th><th>Entry</th><th>Current</th><th>Size</th><th>Value</th><th>PnL $</th><th>PnL %</th><th>Age</th><th title="Score (0-100)">Score</th><th>Actions</th></tr></thead>
+      <tbody id="positions-body"></tbody>
+    </table>
+  </div>
+
+  <h3>Forge Event Log</h3>
+  <div class="remi-log" id="remi-log"></div>
+
+  <h3>Closed Trades</h3>
+  <div class="card">
+    <table>
+      <thead><tr><th>Date</th><th>Symbol</th><th>Entry</th><th>Exit</th><th>PnL $</th><th>PnL %</th><th>Reason</th></tr></thead>
+      <tbody id="closed-body"></tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:15px;">
+    <button class="btn btn-small" onclick="exportCSV()">Export CSV</button>
+    <button class="btn btn-small" onclick="exportJSON()">Export JSON (ElizaOS)</button>
+    <button class="btn btn-small" onclick="exportLog()">Export Event Log</button>
+  </div>
+</div>
+
+<script>
+// ====================== STATE & CONFIG ======================
+const SCORE_CONFIG = {
+  liqWeight: 40, ageWeight: 30, volWeight: 30,
+  liqCap: 100000, volCap: 500000,
+};
+
+// ====================== WALLET INTEGRATION ======================
+let wallet = {
+  publicKey: null,
+  connected: false,
+  provider: null,   // backpack or phantom
+};
+const connection = new solanaWeb3.Connection(
+  solanaWeb3.clusterApiUrl('mainnet-beta'),
+  'confirmed'
+);
+async function connectWallet() {
+  try {
+    let provider = null;
+    if (window.backpack) {
+      provider = window.backpack;
+      addLog('🔌 Using Backpack wallet', 'ok');
+    } else if (window.phantom?.solana) {
+      provider = window.phantom.solana;
+      addLog('🔌 Using Phantom wallet', 'ok');
+    } else if (window.solflare) {
+      provider = window.solflare;
+      addLog('🔌 Using Solflare wallet', 'ok');
+    } else {
+      alert("No Solana wallet found. Please install Backpack or Phantom.");
+      return;
+    }
+    const response = await provider.connect();
+    wallet.publicKey = response.publicKey;
+    wallet.connected = true;
+    wallet.provider = provider;
+    document.getElementById('wallet-status').innerHTML =
+      `✅ Connected <span style="color:var(--green)">(${provider.name || 'Wallet'})</span>`;
+    document.getElementById('wallet-info').style.display = 'block';
+    document.getElementById('wallet-address').textContent =
+      wallet.publicKey.toString().slice(0,8) + '...' + wallet.publicKey.toString().slice(-6);
+    await updateSOLBalance();
+    addLog(`✅ Wallet connected: ${wallet.publicKey.toString().slice(0,8)}...`, 'ok');
+  } catch (err) {
+    console.error(err);
+    addLog('❌ Wallet connection failed: ' + err.message, 'err');
+  }
+}
+async function disconnectWallet() {
+  if (wallet.provider) {
+    try { await wallet.provider.disconnect(); } catch(e) {}
+  }
+  wallet = { publicKey: null, connected: false, provider: null };
+  document.getElementById('wallet-status').innerHTML = 'Not connected';
+  document.getElementById('wallet-info').style.display = 'none';
+  addLog('🔌 Wallet disconnected', 'err');
+}
+async function updateSOLBalance() {
+  if (!wallet.publicKey) return;
+  try {
+    const balance = await connection.getBalance(wallet.publicKey);
+    const sol = (balance / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
+    document.getElementById('sol-balance').textContent = sol;
+  } catch(e) {}
+}
+setInterval(() => {
+  if (wallet.connected) updateSOLBalance();
+}, 30000);
+
+const EXIT_CONFIG = {
+  tp1Pct: 30,  tp1SellPct: 40,
+  tp2Pct: 70,  tp2SellPct: 80,
+  tp3Pct: 150, tp3SellPct: 60,
+  trailActivePct: 40, trailDropPct: 15,
+  slPct: -25,
+  maxHoldHours: 12,
+  noMomentumHours: 4,
+  minValue: 2,
+};
+
+const REFRESH_SECONDS = 45;
+const SUPPORTED_CHAINS = ["solana"];
+const GECKO_CHAINS = { solana: 'solana' };
+
+let account = null;
+let positions = [];
+let closedTrades = [];
+let eventLog = [];
+let scannerRunning = false;
+let updateInterval = null;
+let isUpdating = false;
+
+// ====================== FORMAT ======================
+const format = {
+  usd: (n) => {
+    const v = Math.abs(n || 0);
+    const s = v >= 1e6 ? '$'+(v/1e6).toFixed(2)+'M' : v >= 1e3 ? '$'+(v/1e3).toFixed(1)+'K' : '$'+v.toFixed(2);
+    return (n || 0) < 0 ? '-'+s : s;
+  },
+  price: (n) => {
+    if (!n || n === 0) return '$0';
+    if (n < 0.000001)  return '$' + n.toExponential(2);
+    if (n < 0.0001)    return '$' + n.toFixed(8);
+    if (n < 0.01)      return '$' + n.toFixed(6);
+    if (n < 1)         return '$' + n.toFixed(4);
+    return '$' + n.toFixed(2);
+  },
+  pct: (n) => (n >= 0 ? '+' : '') + (n || 0).toFixed(1) + '%',
+  tokens: (n) => Number(n || 0).toFixed(4),
+};
+
+// ====================== RENDER ======================
+const render = {
+  all() { this.portfolio(); this.positions(); this.closed(); this.log(); },
+  
+  portfolio() {
+    if (!account) return;
+    const invested = positions.reduce((a, p) => a + (p.tokensHeld * p.currentPrice), 0);
+    const mandatoryReserve = account.startBalance * (account.reservePct / 100);
+    const totalReserve = mandatoryReserve + (account.profitReserve || 0);
+    const available = Math.max(0, account.balance - mandatoryReserve);
+    const total = account.balance + invested + (account.profitReserve || 0);
+
+    document.getElementById('total-balance').textContent = format.usd(total);
+    document.getElementById('available').textContent = format.usd(available);
+    document.getElementById('in-positions').textContent = format.usd(invested);
+    document.getElementById('reserve-held').textContent = format.usd(totalReserve);
+    document.getElementById('realized-pnl').textContent = format.usd(account.profitReserve || 0);
+  },
+
+  positions() {
+    const tbody = document.getElementById('positions-body');
+    if (!positions.length) {
+      tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:#666;padding:40px;">No open positions</td></tr>';
+      return;
+    }
+    tbody.innerHTML = positions.map((p, i) => {
+      const currentValue = p.tokensHeld * p.currentPrice;
+      const pnlUsd = currentValue - (p.tokensHeld * p.entryPrice);
+      const pnlPct = p.entryPrice ? ((p.currentPrice - p.entryPrice) / p.entryPrice) * 100 : 0;
+      const ageMin = Math.floor((Date.now() - p.enteredAt) / 60000);
+      const cls = pnlUsd >= 0 ? 'green' : 'red';
+      return `<tr>
+        <td>${p.symbol}</td>
+        <td>${format.price(p.entryPrice)}</td>
+        <td>${format.price(p.currentPrice)}</td>
+        <td>${format.tokens(p.tokensHeld)}</td>
+        <td>${format.usd(currentValue)}</td>
+        <td class="${cls}">${format.usd(pnlUsd)}</td>
+        <td class="${cls}">${format.pct(pnlPct)}</td>
+        <td>${ageMin}m</td>
+        <td style="color:#8fa0b0">${p.score || '—'}</td>
+        <td><button class="btn-small" onclick="manualClose(${i})">Close</button></td>
+      </tr>`;
+    }).join('');
+  },
+
+  closed() {
+    const tbody = document.getElementById('closed-body');
+    if (!closedTrades.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#666;padding:20px;">No closed trades yet</td></tr>';
+      return;
+    }
+    tbody.innerHTML = closedTrades.slice(0, 15).map(t => `
+      <tr>
+        <td>${t.date}</td>
+        <td>${t.symbol}</td>
+        <td>${format.price(t.entry)}</td>
+        <td>${format.price(t.exit)}</td>
+        <td class="${t.pnl >= 0 ? 'green' : 'red'}">${format.usd(t.pnl)}</td>
+        <td class="${t.pnl >= 0 ? 'green' : 'red'}">${format.pct(t.pnlPct)}</td>
+        <td style="font-size:10px;color:#6b7a8a">${t.reason || '—'}</td>
+      </tr>`).join('');
+  },
+
+  log() {
+    document.getElementById('remi-log').innerHTML = eventLog.map(l =>
+      `<div>[${l.time}] <span class="log-${l.type || 'info'}">${l.msg}</span></div>`
+    ).join('');
+  }
+};
+
+// ====================== LOG ======================
+function addLog(msg, type = 'info') {
+  eventLog.unshift({ time: new Date().toLocaleTimeString(), msg, type });
+  if (eventLog.length > 150) eventLog.pop();
+  render.log();
+}
+
+// ====================== INIT ======================
+function initAccount() {
+  const startBal = parseFloat(document.getElementById('start-balance').value) || 500;
+
+  account = {
+    balance: startBal,
+    startBalance: startBal,
+    profitReserve: 0,
+    maxPositions: parseInt(document.getElementById('max-positions').value) || 5,
+    maxEntry: parseFloat(document.getElementById('max-entry').value) || 20,
+    minEntry: parseFloat(document.getElementById('min-entry').value) || 2,
+    reservePct: parseFloat(document.getElementById('reserve-pct').value) || 30,
+    minLiq: parseFloat(document.getElementById('min-liq').value) || 8000,
+    maxAgeMin: parseFloat(document.getElementById('max-age').value) || 180,
+    minScore: parseInt(document.getElementById('min-score').value) || 52,
+  };
+
+  Object.assign(EXIT_CONFIG, {
+    tp1Pct: parseFloat(document.getElementById('tp1-pct').value) || 30,
+    tp1SellPct: parseFloat(document.getElementById('tp1-sell').value) || 40,
+    tp2Pct: parseFloat(document.getElementById('tp2-pct').value) || 70,
+    tp2SellPct: parseFloat(document.getElementById('tp2-sell').value) || 80,
+    tp3Pct: parseFloat(document.getElementById('tp3-pct').value) || 150,
+    tp3SellPct: parseFloat(document.getElementById('tp3-sell').value) || 60,
+    trailActivePct: parseFloat(document.getElementById('trail-activate').value) || 40,
+    trailDropPct: parseFloat(document.getElementById('trail-drop').value) || 15,
+    slPct: parseFloat(document.getElementById('hard-stop').value) || -25,
+    maxHoldHours: parseFloat(document.getElementById('max-hold').value) || 12,
+    noMomentumHours: parseFloat(document.getElementById('no-momentum').value) || 4,
+  });
+
+  positions = [];
+  closedTrades = [];
+  eventLog = [];
+
+  addLog('✅ Forge initialized — Real Money Testing Mode', 'ok');
+  render.all();
+}
+
+// ====================== HELPER ======================
+function getAvailableCapital() {
+  if (!account) return 0;
+  const mandatoryReserve = account.startBalance * (account.reservePct / 100);
+  return Math.max(0, account.balance - mandatoryReserve);
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function normalizeSymbol(name) {
+  if (!name) return 'UNKNOWN';
+  let symbol = String(name);
+
+  // Take the left-most token around common separators
+  symbol = symbol.split(/[\/\-\—–_]/)[0].trim();
+
+  // Remove parenthetical or bracketed suffixes, collapse spaces
+  symbol = symbol.replace(/\s*(\(|\[).*?(\)|\])\s*/g, ' ').replace(/\s+/g, ' ').trim();
+
+  // Keep only alphanumerics and dot, limit length, uppercase
+  symbol = symbol.replace(/[^A-Za-z0-9.]/g, '').toUpperCase().substring(0, 14);
+
+  return symbol || 'UNKNOWN';
+}
+
+// ====================== SCORING ======================
+function scoreCandidate(pool) {
+  if (!account) return { score: 0, reasons: ['No account'] };
+  const reasons = [];
+  let score = 0;
+
+  const liq = parseFloat(pool.reserve_in_usd || 0);
+  const fdv = parseFloat(pool.fdv_usd || 0);
+  const vol = parseFloat(pool.volume_usd?.h24 || 0);
+
+  const ageMin = pool.pool_created_at
+    ? (Date.now() - new Date(pool.pool_created_at).getTime()) / 60000
+    : 999;
+
+  // Basic filters
+  if (liq < account.minLiq) return { score: 0, reasons: [`Liq $${liq.toFixed(0)} below min`] };
+  if (ageMin > account.maxAgeMin) return { score: 0, reasons: [`Age ${Math.floor(ageMin)}m > max`] };
+  if (fdv > 500000) return { score: 0, reasons: [`FDV $${(fdv / 1000).toFixed(0)}K too high`] };
+
+  // Liquidity Score (strong weight)
+  const liqScore = Math.min(liq / 15000, 1) * 35;
+  score += liqScore;
+  reasons.push(`Liq $${(liq / 1000).toFixed(1)}K`);
+
+  // Age Score (fresher = better)
+  const ageScore = Math.max(0, (account.maxAgeMin - ageMin) / account.maxAgeMin) * 25;
+  score += ageScore;
+  reasons.push(`Age ${Math.floor(ageMin)}m`);
+
+  // Volume Score
+  const volScore = Math.min(vol / 80000, 1) * 20;
+  score += volScore;
+  if (vol > 5000) reasons.push(`Vol $${(vol / 1000).toFixed(1)}K`);
+
+  // Buy pressure (hourly)
+  const txns = pool.transactions?.h1 || {};
+  const buys = txns.buys || 0;
+  const sells = txns.sells || 0;
+  const buyRatio = (buys + sells) > 0 ? buys / (buys + sells) : 0.5;
+  if (buyRatio > 0.65) {
+    score += 15;
+    reasons.push(`Buy pressure ${Math.round(buyRatio * 100)}%`);
+  }
+
+  // FDV sweet-spot bonus
+  if (fdv > 0) {
+    if (fdv <= 100000) { score += 5; reasons.push(`FDV ${(fdv/1000).toFixed(1)}K (small)`); }
+    else if (fdv <= 300000) { score += 2; reasons.push(`FDV ${(fdv/1000).toFixed(1)}K`); }
+  }
+
+  score = Math.min(100, score);
+  return { score: Math.round(score), reasons };
+}
+
+// ====================== PRICE UPDATES ======================
+async function updateAllPrices() {
+  if (!account || isUpdating) return;
+  if (positions.length === 0) return;
+
+  isUpdating = true;
+  addLog(`🔄 Updating prices for ${positions.length} position${positions.length > 1 ? 's' : ''}...`, 'info');
+
+  for (let p of positions) {
+    if (!p.pairAddress) continue;
+    try {
+      const res = await fetch(`https://api.dexscreener.com/latest/dex/pairs/solana/${p.pairAddress}`);
+      if (res.status === 429) {
+        addLog('⚠️ DexScreener rate limit — backing off', 'warn');
+        break;
+      }
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (data.pairs?.[0]?.priceUsd) {
+        const price = parseFloat(data.pairs[0].priceUsd);
+        if (price > 0) {
+          p.currentPrice = price;
+          if (!p.peakPrice || price > p.peakPrice) p.peakPrice = price;
+        }
+      }
+    } catch(e) {}
+  }
+
+  document.getElementById('last-update').textContent = `Last update: ${new Date().toLocaleTimeString()}`;
+  render.all();
+  isUpdating = false;
+}
+
+// ====================== SCANNER ======================
+async function scanCycle() {
+  if (!scannerRunning || !account) return;
+
+  if (positions.length >= account.maxPositions) {
+    addLog(`⏸️ Max positions (${account.maxPositions}) reached — scanner paused`, 'info');
+    return;
+  }
+
+  addLog('🔍 Scanning GeckoTerminal new pools...', 'info');
+
+  const seenThisScan = new Set(positions.map(p => p.pairAddress));
+
+  for (let i = 0; i < SUPPORTED_CHAINS.length; i++) {
+    if (!scannerRunning) break;
+    if (positions.length >= account.maxPositions) break;
+
+    const chain = SUPPORTED_CHAINS[i];
+    const geckoNet = GECKO_CHAINS[chain];
+
+    try {
+      const res = await fetch(
+        `https://api.geckoterminal.com/api/v2/networks/${geckoNet}/new_pools?limit=10`,
+        { headers: { Accept: 'application/json;version=20230302' } }
+      );
+
+      if (res.status === 429) {
+        addLog(`⚠️ GeckoTerminal rate limit on ${chain} — waiting 15s`, 'warn');
+        await sleep(15000);
+        i--;
+        continue;
+      }
+
+      if (!res.ok) continue;
+
+      const data = await res.json();
+      const pools = data.data || [];
+
+      for (const pool of pools) {
+        if (positions.length >= account.maxPositions) break;
+
+        const addr = pool.attributes?.address;
+        if (!addr) continue;
+
+        if (seenThisScan.has(addr)) continue;
+        seenThisScan.add(addr);
+
+        const { score, reasons } = scoreCandidate(pool.attributes);
+        if (score < account.minScore) continue;
+
+        const candidateSymbol = normalizeSymbol(pool.attributes?.name);
+        addLog(`📊 Candidate: ${candidateSymbol} (${chain}) score ${score} — ${reasons.join(', ')}`, 'info');
+        await attemptAutoEntry(pool.attributes, chain, score, reasons);
+      }
+
+    } catch(e) {
+      addLog(`⚠️ Scan error on ${chain} — ${e.message}`, 'warn');
+    }
+
+    if (i < SUPPORTED_CHAINS.length - 1) await sleep(2500);
+  }
+}
+
+// ====================== ENTRY ======================
+async function attemptAutoEntry(pool, chain, score, reasons) {
+  if (positions.length >= account.maxPositions) return;
+
+  const symbol = normalizeSymbol(pool.name);
+  const duplicate = positions.some(p => p.pairAddress === pool.address || p.symbol === symbol);
+  if (duplicate) {
+    addLog(`⚠️ Duplicate candidate skipped (${symbol})`, 'warn');
+    return;
+  }
+
+  const available = getAvailableCapital();
+  const entrySize = Math.min(account.maxEntry, available * 0.6);
+  if (entrySize < EXIT_CONFIG.minValue) {
+    if (available <= 0) addLog('⏸️ Reserve floor reached — no capital available', 'warn');
+    return;
+  }
+
+  const entryPrice = parseFloat(pool.base_token_price_usd) || 0;
+  if (entryPrice <= 0) return;
+
+  const tokensBought = entrySize / entryPrice;
+  account.balance -= entrySize;
+
+  positions.push({
+    symbol,
+    pairAddress: pool.address,
+    entryPrice,
+    currentPrice: entryPrice,
+    peakPrice: entryPrice,
+    tokensHeld: tokensBought,
+    enteredAt: Date.now(),
+    score,
+    entryReasons: reasons,
+    tp1Hit: false, tp2Hit: false, tp3Hit: false,
+    trailActive: false,
+  });
+
+  addLog(`🟢 ENTRY: ${symbol} | ${format.tokens(tokensBought)} tokens @ ${format.price(entryPrice)} | Score ${score}`, 'ok');
+  render.all();
+}
+
+// ====================== POSITION MANAGEMENT ======================
+function evaluatePositions() {
+  checkTimeBasedExits();
+
+  for (let i = positions.length - 1; i >= 0; i--) {
+    const p = positions[i];
+    const pnlPct = ((p.currentPrice - p.entryPrice) / p.entryPrice) * 100;
+
+    if (!p.tp1Hit && pnlPct >= EXIT_CONFIG.tp1Pct) {
+      closePartial(p, EXIT_CONFIG.tp1SellPct / 100, `TP1 +${EXIT_CONFIG.tp1Pct}%`);
+      p.tp1Hit = true;
+    }
+    if (!p.tp2Hit && pnlPct >= EXIT_CONFIG.tp2Pct) {
+      closePartial(p, EXIT_CONFIG.tp2SellPct / 100, `TP2 +${EXIT_CONFIG.tp2Pct}%`);
+      p.tp2Hit = true;
+      p.trailActive = true;
+    }
+    if (!p.tp3Hit && pnlPct >= EXIT_CONFIG.tp3Pct) {
+      closePartial(p, EXIT_CONFIG.tp3SellPct / 100, `TP3 +${EXIT_CONFIG.tp3Pct}%`);
+      p.tp3Hit = true;
+    }
+
+    if (pnlPct > EXIT_CONFIG.trailActivePct) p.trailActive = true;
+
+    if (p.trailActive) {
+      const drop = ((p.peakPrice - p.currentPrice) / p.peakPrice) * 100;
+      if (drop >= EXIT_CONFIG.trailDropPct) {
+        closePartial(p, 1, `Trailing stop −${EXIT_CONFIG.trailDropPct}% from peak`);
+        continue;
+      }
+    }
+
+    if (pnlPct <= EXIT_CONFIG.slPct) {
+      closePartial(p, 1, `Stop loss ${EXIT_CONFIG.slPct}%`);
+    }
+  }
+
+  render.all();
+}
+
+function checkTimeBasedExits() {
+  const now = Date.now();
+  for (let i = positions.length - 1; i >= 0; i--) {
+    const p = positions[i];
+    const holdHours = (now - p.enteredAt) / 3600000;
+    const pnlPct = ((p.currentPrice - p.entryPrice) / p.entryPrice) * 100;
+
+    if (holdHours >= EXIT_CONFIG.maxHoldHours) {
+      closePartial(p, 1, `Max hold time ${EXIT_CONFIG.maxHoldHours}h reached`);
+      continue;
+    }
+
+    if (holdHours >= EXIT_CONFIG.noMomentumHours && Math.abs(pnlPct) < 10) {
+      closePartial(p, 1, `No momentum after ${EXIT_CONFIG.noMomentumHours}h (${format.pct(pnlPct)})`);
+    }
+  }
+}
+
+function closePartial(pos, sellFraction, reason) {
+  const tokensToSell = pos.tokensHeld * sellFraction;
+  const sellValue = tokensToSell * pos.currentPrice;
+  const costBasis = tokensToSell * pos.entryPrice;
+  const pnl = sellValue - costBasis;
+
+  // Return cost basis to tradeable balance
+  account.balance += costBasis;
+  
+  // Add profit to profit reserve, or deduct loss from balance
+  if (pnl > 0) {
+    account.profitReserve = (account.profitReserve || 0) + pnl;
+  } else {
+    account.balance += pnl; // pnl is negative, so this reduces balance
+  }
+  
+  pos.tokensHeld -= tokensToSell;
+
+  closedTrades.unshift({
+    date: new Date().toLocaleDateString(),
+    symbol: pos.symbol,
+    entry: pos.entryPrice,
+    exit: pos.currentPrice,
+    pnl,
+    pnlPct: ((pos.currentPrice / pos.entryPrice) - 1) * 100,
+    reason,
+  });
+
+  addLog(`${reason} → ${pos.symbol} | ${format.usd(pnl)}`, pnl >= 0 ? 'ok' : 'err');
+
+  if (pos.tokensHeld < 0.0001) {
+    positions = positions.filter(p => p !== pos);
+  }
+}
+
+function manualClose(index) {
+  if (confirm('Close entire position?')) {
+    closePartial(positions[index], 1, 'Manual close');
+    render.all();
+  }
+}
+
+// ====================== SCANNER TOGGLE ======================
+function toggleScanner() {
+  if (!account) { alert('Initialize account first.'); return; }
+
+  scannerRunning = !scannerRunning;
+  const btn = document.getElementById('scanner-btn');
+  btn.textContent = scannerRunning ? '⏹ Stop Forge' : '▶ Start Forge';
+
+  if (scannerRunning) {
+    addLog('🚀 Forge started — GeckoTerminal discovery · DexScreener monitoring', 'ok');
+    updateAllPrices().then(() => scanCycle());
+
+    if (updateInterval) clearInterval(updateInterval);
+    updateInterval = setInterval(async () => {
+      await updateAllPrices();
+      evaluatePositions();
+      await scanCycle();
+    }, REFRESH_SECONDS * 1000);
+
+  } else {
+    if (updateInterval) clearInterval(updateInterval);
+    addLog('⏹ Forge stopped', 'err');
+  }
+}
+
+// ====================== EXPORTS ======================
+function exportCSV() {
+  let csv = 'date,symbol,entry,exit,pnl,pnlPct,reason\n';
+  closedTrades.forEach(t => {
+    csv += `${t.date},${t.symbol},${t.entry},${t.exit},${t.pnl.toFixed(2)},${t.pnlPct.toFixed(2)},"${(t.reason||'').replace(/"/g,'""')}"\n`;
+  });
+  download('forge_trades.csv', csv);
+}
+
+function exportJSON() {
+  const data = {
+    tool: 'Forge',
+    suite: 'Remi — Rocking M Autonomous Investment Agent',
+    strategy: 'High Risk / High Reward',
+    exported: new Date().toISOString(),
+    score_config: SCORE_CONFIG,
+    exit_config: EXIT_CONFIG,
+    account,
+    positions,
+    closedTrades,
+  };
+  download('forge_elizaos.json', JSON.stringify(data, null, 2));
+}
+
+function exportLog() {
+  const text = eventLog.map(l => `[${l.time}] ${l.msg}`).join('\n');
+  download('forge_eventlog.txt', text);
+}
+
+function download(filename, content) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content]));
+  a.download = filename;
+  a.click();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key.toLowerCase() === 'r') updateAllPrices();
+});
+</script>
+</body>
+</html>
