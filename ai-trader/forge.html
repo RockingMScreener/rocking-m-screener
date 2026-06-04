@@ -297,6 +297,10 @@ async function jupiterSwap(inputMint, outputMint, amountLamports, slippageBps, l
         if (slip !== slippageBps) addLog(`⚠️ Retried quote with ${slip/100}% slippage`, 'warn');
         break;
       }
+      if (result.errorCode === 'TOKEN_NOT_TRADABLE') {
+        addLog(`⛔ ${label} — token not tradable on Jupiter, skipping`, 'err');
+        return null;
+      }
       if (result.errorCode === 'NO_ROUTES_FOUND') {
         addLog(`⚠️ No route at ${slip/100}% slippage — retrying...`, 'warn');
         await new Promise(r => setTimeout(r, 1500));
