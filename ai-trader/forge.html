@@ -169,8 +169,8 @@ let wallet = {
   provider: null,   // backpack or phantom
 };
 const connection = new solanaWeb3.Connection(
-  'https://api.mainnet-beta.solana.com',
-  { commitment: 'confirmed', wsEndpoint: 'wss://api.mainnet-beta.solana.com' }
+  'https://jupiter-proxy.ermccabee1.workers.dev/rpc',
+  'confirmed'
 );
 async function connectWallet(preference) {
   try {
