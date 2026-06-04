@@ -83,6 +83,7 @@ td {padding:10px; border-bottom:1px solid #c4cad2;}
       <div><label>Min Entry Size ($)</label><input class="finput" id="min-entry" type="number" value="2"></div>
       <div><label>Capital Reserve (%)</label><input class="finput" id="reserve-pct" type="number" value="30"></div>
       <div><label>Min Liquidity ($)</label><input class="finput" id="min-liq" type="number" value="8000"></div>
+      <div><label>Min Token Age (min)</label><input class="finput" id="min-age" type="number" value="2"></div>
       <div><label>Max Token Age (min)</label><input class="finput" id="max-age" type="number" value="180"></div>
       <div><label>Min Score</label><input class="finput" id="min-score" type="number" value="52"></div>
     </div>
@@ -109,8 +110,8 @@ td {padding:10px; border-bottom:1px solid #c4cad2;}
     <h3>Transaction Settings</h3>
     <div class="setup-grid">
       <div><label>Priority Fee (microlamports)</label><input class="finput" id="priority-fee" type="number" value="10000"></div>
-      <div><label>Buy Slippage (%)</label><input class="finput" id="buy-slippage" type="number" value="10"></div>
-      <div><label>Sell Slippage (%)</label><input class="finput" id="sell-slippage" type="number" value="15"></div>
+      <div><label>Buy Slippage (%)</label><input class="finput" id="buy-slippage" type="number" value="25"></div>
+      <div><label>Sell Slippage (%)</label><input class="finput" id="sell-slippage" type="number" value="30"></div>
       <div><label>Max Fee Cap (SOL)</label><input class="finput" id="max-fee-sol" type="number" value="0.005" step="0.001"></div>
     </div>
     <div style="margin-top:10px; font-size:12px; color:#666;">
@@ -236,8 +237,8 @@ setInterval(() => {
 // ====================== TX CONFIG ======================
 const TX_CONFIG = {
   priorityFee: 10000,    // microlamports
-  slippageBps: 1000,     // 10% buy slippage in basis points
-  sellSlippageBps: 1500, // 15% sell slippage
+  slippageBps: 2500,     // 25% buy slippage in basis points
+  sellSlippageBps: 3000, // 30% sell slippage
   maxFeeSOL: 0.005,      // safety cap per tx
 };
 
@@ -287,8 +288,8 @@ async function jupiterSwap(inputMint, outputMint, amountLamports, slippageBps, l
     // 1. Get quote — retry with higher slippage if no route found
     let quote = null;
     const slippageAttempts = isSell
-      ? [slippageBps, 2000, 3000, 5000]   // sells: escalate slippage aggressively
-      : [slippageBps, 1500, 2000];          // buys: moderate escalation
+      ? [slippageBps, 3000, 4000, 5000]   // sells: escalate slippage aggressively
+      : [slippageBps, 3000, 5000];          // buys: start at 25%, escalate to 50%
 
     for (const slip of slippageAttempts) {
       const result = await getJupiterQuote(inputMint, outputMint, amountLamports, slip);
@@ -379,14 +380,15 @@ async function jupiterSwap(inputMint, outputMint, amountLamports, slippageBps, l
       await new Promise(r => setTimeout(r, 2000));
       try {
         const status = await conn.getSignatureStatus(sig);
-        const conf = status?.value?.confirmationStatus;
-        if (conf === 'confirmed' || conf === 'finalized') {
+        const val = status?.value;
+        // Check for on-chain error FIRST — even confirmed TXs can have errors (e.g. slippage 6001)
+        if (val?.err) {
+          addLog(`❌ TX failed on-chain (slippage or program error): https://solscan.io/tx/${sig}`, 'err');
+          return null;
+        }
+        if (val?.confirmationStatus === 'confirmed' || val?.confirmationStatus === 'finalized') {
           confirmed = true;
           break;
-        }
-        if (status?.value?.err) {
-          addLog(`❌ TX failed on-chain: ${JSON.stringify(status.value.err)}`, 'err');
-          return null;
         }
       } catch(e) {}
     }
@@ -543,6 +545,7 @@ function initAccount() {
     minEntry: parseFloat(document.getElementById('min-entry').value) || 2,
     reservePct: parseFloat(document.getElementById('reserve-pct').value) || 30,
     minLiq: parseFloat(document.getElementById('min-liq').value) || 8000,
+    minAgeMin: parseFloat(document.getElementById('min-age').value) || 2,
     maxAgeMin: parseFloat(document.getElementById('max-age').value) || 180,
     minScore: parseInt(document.getElementById('min-score').value) || 52,
   };
@@ -618,6 +621,7 @@ function scoreCandidate(pool) {
   // Basic filters
   if (liq < account.minLiq) return { score: 0, reasons: [`Liq $${liq.toFixed(0)} below min`] };
   if (ageMin > account.maxAgeMin) return { score: 0, reasons: [`Age ${Math.floor(ageMin)}m > max`] };
+  if (ageMin < account.minAgeMin) return { score: 0, reasons: [`Age ${Math.floor(ageMin)}m < min ${account.minAgeMin}m`] };
   if (fdv > 500000) return { score: 0, reasons: [`FDV $${(fdv / 1000).toFixed(0)}K too high`] };
 
   // Liquidity Score (strong weight)
