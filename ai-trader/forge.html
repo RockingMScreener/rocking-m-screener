@@ -258,55 +258,101 @@ async function getSOLPrice() {
 }
 
 // ====================== JUPITER SWAP ======================
+async function getJupiterQuote(inputMint, outputMint, amountLamports, slippageBps) {
+  const url = `https://jupiter-proxy.ermccabee1.workers.dev/swap/v1/quote?inputMint=${inputMint}&outputMint=${outputMint}&amount=${amountLamports}&slippageBps=${slippageBps}&onlyDirectRoutes=false&swapMode=ExactIn`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    const errText = await res.text();
+    return { error: errText, status: res.status };
+  }
+  const data = await res.json();
+  if (data.error) return { error: data.error, errorCode: data.errorCode };
+  return { quote: data };
+}
+
 async function jupiterSwap(inputMint, outputMint, amountLamports, slippageBps, label) {
   if (!wallet.connected || !wallet.publicKey) {
     addLog('❌ Wallet not connected — cannot execute swap', 'err');
     return null;
   }
 
+  const isSell = outputMint === SOL_MINT;
+
   try {
     addLog(`🔄 Getting Jupiter quote: ${label}...`, 'info');
 
-    // 1. Get quote
-    const quoteUrl = `https://jupiter-proxy.ermccabee1.workers.dev/swap/v1/quote?inputMint=${inputMint}&outputMint=${outputMint}&amount=${amountLamports}&slippageBps=${slippageBps}&onlyDirectRoutes=false`;
-    const quoteRes = await fetch(quoteUrl);
-    if (!quoteRes.ok) {
-      const errText = await quoteRes.text();
-      addLog(`❌ Jupiter quote failed (${quoteRes.status}): ${errText.slice(0,120)}`, 'err');
+    // 1. Get quote — retry with higher slippage if no route found
+    let quote = null;
+    const slippageAttempts = isSell
+      ? [slippageBps, 2000, 3000, 5000]   // sells: escalate slippage aggressively
+      : [slippageBps, 1500, 2000];          // buys: moderate escalation
+
+    for (const slip of slippageAttempts) {
+      const result = await getJupiterQuote(inputMint, outputMint, amountLamports, slip);
+      if (result.quote) {
+        quote = result.quote;
+        if (slip !== slippageBps) addLog(`⚠️ Retried quote with ${slip/100}% slippage`, 'warn');
+        break;
+      }
+      if (result.errorCode === 'NO_ROUTES_FOUND') {
+        addLog(`⚠️ No route at ${slip/100}% slippage — retrying...`, 'warn');
+        await new Promise(r => setTimeout(r, 1500));
+        continue;
+      }
+      // Other error — log and bail
+      addLog(`❌ Jupiter quote failed (${result.status || 400}): ${String(result.error).slice(0,120)}`, 'err');
       return null;
     }
-    const quote = await quoteRes.json();
-    if (quote.error) {
-      addLog(`❌ Jupiter quote error: ${quote.error}`, 'err');
+
+    if (!quote) {
+      addLog(`❌ No route found for ${label} after all slippage attempts`, 'err');
       return null;
     }
 
     addLog(`✅ Quote: ${label} | in: ${quote.inAmount} → out: ${quote.outAmount}`, 'info');
 
-    // 2. Get swap transaction
-    const swapRes = await fetch('https://jupiter-proxy.ermccabee1.workers.dev/swap/v1/swap', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        quoteResponse: quote,
-        userPublicKey: wallet.publicKey.toString(),
-        wrapAndUnwrapSol: true,
-        prioritizationFeeLamports: TX_CONFIG.priorityFee,
-      }),
-    });
+    // 2. Build swap transaction — retry once on 500
+    let swapTransaction = null;
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      const swapRes = await fetch('https://jupiter-proxy.ermccabee1.workers.dev/swap/v1/swap', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          quoteResponse: quote,
+          userPublicKey: wallet.publicKey.toString(),
+          wrapAndUnwrapSol: true,
+          prioritizationFeeLamports: TX_CONFIG.priorityFee,
+          dynamicSlippage: true,
+        }),
+      });
 
-    if (!swapRes.ok) {
-      addLog(`❌ Jupiter swap build failed: ${swapRes.status}`, 'err');
+      if (swapRes.ok) {
+        const swapData = await swapRes.json();
+        swapTransaction = swapData.swapTransaction;
+        break;
+      }
+
+      if (attempt === 1) {
+        addLog(`⚠️ Swap build failed (${swapRes.status}) — retrying in 2s...`, 'warn');
+        await new Promise(r => setTimeout(r, 2000));
+        // Re-fetch quote before retry — quote may have expired
+        const reQuote = await getJupiterQuote(inputMint, outputMint, amountLamports, quote.slippageBps || slippageBps);
+        if (reQuote.quote) quote = reQuote.quote;
+      } else {
+        addLog(`❌ Jupiter swap build failed after retry: ${swapRes.status}`, 'err');
+        return null;
+      }
+    }
+
+    if (!swapTransaction) {
+      addLog(`❌ Could not build swap transaction for ${label}`, 'err');
       return null;
     }
 
-    const { swapTransaction } = await swapRes.json();
-
-    // 3. Deserialize, sign, send via wallet provider
+    // 3. Deserialize, sign
     addLog(`✍️ Sending to wallet for signing...`, 'info');
     const txBuffer = Uint8Array.from(atob(swapTransaction), c => c.charCodeAt(0));
     const tx = solanaWeb3.VersionedTransaction.deserialize(txBuffer);
-
     const signedTx = await wallet.provider.signTransaction(tx);
 
     // 4. Submit
@@ -319,8 +365,7 @@ async function jupiterSwap(inputMint, outputMint, amountLamports, slippageBps, l
 
     addLog(`📡 TX submitted: ${sig.slice(0,12)}...`, 'info');
 
-    // 5. Confirm
-    // Poll for confirmation instead of WebSocket subscription
+    // 5. Poll for confirmation
     let confirmed = false;
     for (let i = 0; i < 30; i++) {
       await new Promise(r => setTimeout(r, 2000));
@@ -337,11 +382,15 @@ async function jupiterSwap(inputMint, outputMint, amountLamports, slippageBps, l
         }
       } catch(e) {}
     }
+
     if (!confirmed) {
       addLog(`⚠️ Confirmation timeout — check Solscan: https://solscan.io/tx/${sig}`, 'warn');
-      // Return sig anyway — transaction likely went through
       return { sig, quote };
     }
+
+    addLog(`✅ TX confirmed: https://solscan.io/tx/${sig}`, 'ok');
+    await updateSOLBalance();
+    return { sig, quote };
 
     addLog(`✅ TX confirmed: https://solscan.io/tx/${sig}`, 'ok');
     await updateSOLBalance();
