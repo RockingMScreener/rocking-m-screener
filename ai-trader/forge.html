@@ -169,8 +169,8 @@ let wallet = {
   provider: null,   // backpack or phantom
 };
 const connection = new solanaWeb3.Connection(
-  'https://solana-rpc.publicnode.com',
-  'confirmed'
+  'https://api.mainnet-beta.solana.com',
+  { commitment: 'confirmed', wsEndpoint: 'wss://api.mainnet-beta.solana.com' }
 );
 async function connectWallet(preference) {
   try {
@@ -681,9 +681,47 @@ async function scanCycle() {
   }
 }
 
+// ====================== SAFETY CHECKS ======================
+async function checkMintAuthority(tokenMint) {
+  try {
+    const conn = wallet.provider?.connection || connection;
+    const mintPubkey = new solanaWeb3.PublicKey(tokenMint);
+    const mintInfo = await conn.getParsedAccountInfo(mintPubkey);
+    const data = mintInfo?.value?.data?.parsed?.info;
+    if (!data) return { safe: true, warnings: [] };
+
+    const warnings = [];
+    if (data.mintAuthority) warnings.push('⚠️ Mint authority active — devs can print tokens');
+    if (data.freezeAuthority) warnings.push('⚠️ Freeze authority active — devs can freeze wallets');
+    return { safe: warnings.length === 0, warnings };
+  } catch(e) {
+    addLog(`⚠️ Mint check failed: ${e.message}`, 'warn');
+    return { safe: true, warnings: [] }; // don't block on check failure
+  }
+}
+
+async function checkDexScreener(tokenMint) {
+  try {
+    const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${tokenMint}`);
+    if (!res.ok) return { safe: true, warnings: [] };
+    const data = await res.json();
+    const pair = data?.pairs?.[0];
+    if (!pair) return { safe: true, warnings: [] };
+
+    const warnings = [];
+    const top10 = pair?.info?.holders?.top10Pct;
+    if (top10 && top10 > 50) warnings.push(`⚠️ Top 10 holders own ${top10.toFixed(0)}% — high concentration`);
+    if (!pair?.liquidity?.locked) warnings.push('⚠️ Liquidity not locked');
+
+    return { safe: warnings.length === 0, warnings, pair };
+  } catch(e) {
+    return { safe: true, warnings: [] }; // don't block on check failure
+  }
+}
+
 // ====================== ENTRY ======================
 async function attemptAutoEntry(pool, chain, score, reasons) {
-  const attrs = pool.attributes || pool; // handle both full pool object and raw attributes
+  const attrs = pool.attributes || pool;
   if (positions.length >= account.maxPositions) return;
 
   const symbol = normalizeSymbol(attrs.name);
@@ -703,46 +741,69 @@ async function attemptAutoEntry(pool, chain, score, reasons) {
   const entryPrice = parseFloat(attrs.base_token_price_usd) || 0;
   if (entryPrice <= 0) return;
 
-  // Extract token mint — GeckoTerminal id format is "solana_MINTADDRESS"
+  // Extract token mint
   const baseTokenId = pool.relationships?.base_token?.data?.id || '';
   const tokenMint = baseTokenId.includes('_')
     ? baseTokenId.substring(baseTokenId.indexOf('_') + 1)
     : null;
 
-  addLog(`🔍 Token mint: ${tokenMint ? tokenMint.slice(0,8)+'...' : 'NOT FOUND'}`, 'info');
-
-  if (wallet.connected && tokenMint) {
-    const currentSOLPrice = await getSOLPrice();
-    if (currentSOLPrice <= 0) {
-      addLog(`⚠️ Cannot get SOL price — skipping real swap for ${symbol}`, 'warn');
-    } else {
-      const solAmount = entrySize / currentSOLPrice;
-      const lamports = Math.floor(solAmount * solanaWeb3.LAMPORTS_PER_SOL);
-      if (lamports < 1000) {
-        addLog(`⚠️ Entry too small for swap (${lamports} lamports) — paper only`, 'warn');
-      } else {
-        addLog(`🚀 Firing real swap: $${entrySize.toFixed(2)} (${solAmount.toFixed(4)} SOL) → ${symbol}`, 'info');
-        const result = await jupiterSwap(SOL_MINT, tokenMint, lamports, TX_CONFIG.slippageBps, `BUY ${symbol}`);
-        if (!result) {
-          addLog(`⚠️ Real swap failed for ${symbol} — paper tracking only`, 'warn');
-          // fall through to paper tracking
-        }
-      }
-    }
-  } else if (!wallet.connected) {
-    addLog(`📋 Wallet not connected — paper tracking ${symbol} only`, 'warn');
-  } else {
-    addLog(`⚠️ No token mint for ${symbol} — paper tracking only`, 'warn');
+  if (!tokenMint) {
+    addLog(`⛔ No token mint for ${symbol} — skipped`, 'err');
+    return;
   }
 
-  // --- PAPER TRACKING ---
+  addLog(`🔍 Token mint: ${tokenMint.slice(0,8)}...`, 'info');
+
+  // --- SAFETY CHECKS ---
+  addLog(`🛡️ Running safety checks on ${symbol}...`, 'info');
+
+  const mintCheck = await checkMintAuthority(tokenMint);
+  for (const w of mintCheck.warnings) addLog(w, 'warn');
+  if (!mintCheck.safe) {
+    addLog(`⛔ ${symbol} blocked — mint/freeze authority risk`, 'err');
+    return;
+  }
+
+  const dexCheck = await checkDexScreener(tokenMint);
+  for (const w of dexCheck.warnings) addLog(w, 'warn');
+  // DexScreener warnings are logged but don't hard block — just inform
+
+  addLog(`✅ Safety checks passed for ${symbol}`, 'ok');
+
+  // --- REAL SWAP (wallet must be connected) ---
+  if (!wallet.connected) {
+    addLog(`⛔ Wallet not connected — ${symbol} skipped`, 'err');
+    return;
+  }
+
+  const currentSOLPrice = await getSOLPrice();
+  if (currentSOLPrice <= 0) {
+    addLog(`⛔ Cannot get SOL price — ${symbol} skipped`, 'err');
+    return;
+  }
+
+  const solAmount = entrySize / currentSOLPrice;
+  const lamports = Math.floor(solAmount * solanaWeb3.LAMPORTS_PER_SOL);
+  if (lamports < 1000) {
+    addLog(`⛔ Entry size too small (${lamports} lamports) — ${symbol} skipped`, 'err');
+    return;
+  }
+
+  addLog(`🚀 Firing real swap: $${entrySize.toFixed(2)} (${solAmount.toFixed(4)} SOL) → ${symbol}`, 'info');
+  const result = await jupiterSwap(SOL_MINT, tokenMint, lamports, TX_CONFIG.slippageBps, `BUY ${symbol}`);
+  if (!result) {
+    addLog(`⛔ Real swap failed — ${symbol} position NOT opened`, 'err');
+    return;
+  }
+
+  // --- PAPER TRACKING (only after confirmed real swap) ---
   const tokensBought = entrySize / entryPrice;
   account.balance -= entrySize;
 
   positions.push({
     symbol,
     pairAddress: attrs.address,
-    tokenMint: tokenMint || null,
+    tokenMint,
     entryPrice,
     currentPrice: entryPrice,
     peakPrice: entryPrice,
