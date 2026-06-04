@@ -217,13 +217,16 @@ async function disconnectWallet() {
 async function updateSOLBalance() {
   if (!wallet.publicKey || !wallet.provider) return;
   try {
-    // Backpack exposes provider.connection, Solflare does not
     const conn = wallet.provider.connection || connection;
     const balance = await conn.getBalance(wallet.publicKey);
     const sol = (balance / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
     document.getElementById('sol-balance').textContent = sol;
   } catch(e) {
-    addLog('⚠️ Balance fetch failed: ' + e.message, 'warn');
+    // Suppress internal web3/wallet errors not related to our wallet address
+    const ourAddr = wallet.publicKey?.toString()?.slice(0, 8) || '';
+    if (ourAddr && e.message?.includes(ourAddr)) {
+      addLog('⚠️ Balance fetch failed: ' + e.message, 'warn');
+    }
   }
 }
 setInterval(() => {
@@ -359,8 +362,9 @@ async function jupiterSwap(inputMint, outputMint, amountLamports, slippageBps, l
     const conn = wallet.provider.connection || connection;
     const rawTx = signedTx.serialize();
     const sig = await conn.sendRawTransaction(rawTx, {
-      skipPreflight: false,
+      skipPreflight: true,
       maxRetries: 3,
+      preflightCommitment: 'confirmed',
     });
 
     addLog(`📡 TX submitted: ${sig.slice(0,12)}...`, 'info');
