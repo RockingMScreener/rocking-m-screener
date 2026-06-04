@@ -392,13 +392,9 @@ async function jupiterSwap(inputMint, outputMint, amountLamports, slippageBps, l
     }
 
     if (!confirmed) {
-      addLog(`⚠️ Confirmation timeout — check Solscan: https://solscan.io/tx/${sig}`, 'warn');
-      return { sig, quote };
+      addLog(`⚠️ Confirmation timeout — TX may still land. Check: https://solscan.io/tx/${sig}`, 'warn');
+      return null;
     }
-
-    addLog(`✅ TX confirmed: https://solscan.io/tx/${sig}`, 'ok');
-    await updateSOLBalance();
-    return { sig, quote };
 
     addLog(`✅ TX confirmed: https://solscan.io/tx/${sig}`, 'ok');
     await updateSOLBalance();
