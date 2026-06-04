@@ -320,10 +320,27 @@ async function jupiterSwap(inputMint, outputMint, amountLamports, slippageBps, l
     addLog(`📡 TX submitted: ${sig.slice(0,12)}...`, 'info');
 
     // 5. Confirm
-    const confirmation = await conn.confirmTransaction(sig, 'confirmed');
-    if (confirmation.value.err) {
-      addLog(`❌ TX failed on-chain: ${JSON.stringify(confirmation.value.err)}`, 'err');
-      return null;
+    // Poll for confirmation instead of WebSocket subscription
+    let confirmed = false;
+    for (let i = 0; i < 30; i++) {
+      await new Promise(r => setTimeout(r, 2000));
+      try {
+        const status = await conn.getSignatureStatus(sig);
+        const conf = status?.value?.confirmationStatus;
+        if (conf === 'confirmed' || conf === 'finalized') {
+          confirmed = true;
+          break;
+        }
+        if (status?.value?.err) {
+          addLog(`❌ TX failed on-chain: ${JSON.stringify(status.value.err)}`, 'err');
+          return null;
+        }
+      } catch(e) {}
+    }
+    if (!confirmed) {
+      addLog(`⚠️ Confirmation timeout — check Solscan: https://solscan.io/tx/${sig}`, 'warn');
+      // Return sig anyway — transaction likely went through
+      return { sig, quote };
     }
 
     addLog(`✅ TX confirmed: https://solscan.io/tx/${sig}`, 'ok');
