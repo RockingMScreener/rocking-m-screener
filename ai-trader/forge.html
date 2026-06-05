@@ -109,7 +109,7 @@ td {padding:10px; border-bottom:1px solid #c4cad2;}
   <div class="card">
     <h3>Transaction Settings</h3>
     <div class="setup-grid">
-      <div><label>Priority Fee (microlamports)</label><input class="finput" id="priority-fee" type="number" value="25000"></div>
+      <div><label>Priority Fee (microlamports)</label><input class="finput" id="priority-fee" type="number" value="10000"></div>
       <div><label>Buy Slippage (%)</label><input class="finput" id="buy-slippage" type="number" value="25"></div>
       <div><label>Sell Slippage (%)</label><input class="finput" id="sell-slippage" type="number" value="30"></div>
       <div><label>Max Fee Cap (SOL)</label><input class="finput" id="max-fee-sol" type="number" value="0.005" step="0.001"></div>
@@ -236,7 +236,7 @@ setInterval(() => {
 
 // ====================== TX CONFIG ======================
 const TX_CONFIG = {
-  priorityFee: 25000,    // microlamports
+  priorityFee: 10000,    // microlamports
   slippageBps: 2500,     // 25% buy slippage in basis points
   sellSlippageBps: 3000, // 30% sell slippage
   maxFeeSOL: 0.005,      // safety cap per tx
@@ -374,9 +374,9 @@ async function jupiterSwap(inputMint, outputMint, amountLamports, slippageBps, l
 
     addLog(`📡 TX submitted: ${sig.slice(0,12)}...`, 'info');
 
-    // 5. Poll for confirmation — 45 attempts × 2s = 90 second window
+    // 5. Poll for confirmation
     let confirmed = false;
-    for (let i = 0; i < 45; i++) {
+    for (let i = 0; i < 30; i++) {
       await new Promise(r => setTimeout(r, 2000));
       try {
         const status = await conn.getSignatureStatus(sig);
@@ -619,6 +619,8 @@ function scoreCandidate(pool) {
     : 999;
 
   // Basic filters
+  const symbol = normalizeSymbol(pool.name);
+  if (symbol.length < 3) return { score: 0, reasons: [`Symbol "${symbol}" too short`] };
   if (liq < account.minLiq) return { score: 0, reasons: [`Liq $${liq.toFixed(0)} below min`] };
   if (ageMin > account.maxAgeMin) return { score: 0, reasons: [`Age ${Math.floor(ageMin)}m > max`] };
   if (ageMin < account.minAgeMin) return { score: 0, reasons: [`Age ${Math.floor(ageMin)}m < min ${account.minAgeMin}m`] };
