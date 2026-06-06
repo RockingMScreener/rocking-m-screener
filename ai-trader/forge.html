@@ -83,12 +83,6 @@ td {padding:10px; border-bottom:1px solid #c4cad2;}
       <div><label>Min Entry Size ($)</label><input class="finput" id="min-entry" type="number" value="2"></div>
       <div><label>Capital Reserve (%)</label><input class="finput" id="reserve-pct" type="number" value="30"></div>
       <div><label>Min Liquidity ($)</label><input class="finput" id="min-liq" type="number" value="8000"></div>
-      <div><label>Require Locked Liquidity</label>
-        <select class="finput" id="require-locked-liq">
-          <option value="false">No — warn only</option>
-          <option value="true">Yes — block unlocked</option>
-        </select>
-      </div>
       <div><label>Min Token Age (min)</label><input class="finput" id="min-age" type="number" value="2"></div>
       <div><label>Max Token Age (min)</label><input class="finput" id="max-age" type="number" value="180"></div>
       <div><label>Min Score</label><input class="finput" id="min-score" type="number" value="52"></div>
@@ -170,6 +164,7 @@ const SCORE_CONFIG = {
 };
 
 // ====================== WALLET INTEGRATION ======================
+let entryLock = false; // prevents simultaneous swap signing requests
 let wallet = {
   publicKey: null,
   connected: false,
@@ -551,7 +546,6 @@ function initAccount() {
     minEntry: parseFloat(document.getElementById('min-entry').value) || 2,
     reservePct: parseFloat(document.getElementById('reserve-pct').value) || 30,
     minLiq: parseFloat(document.getElementById('min-liq').value) || 8000,
-    requireLockedLiq: document.getElementById('require-locked-liq').value === 'true',
     minAgeMin: parseFloat(document.getElementById('min-age').value) || 2,
     maxAgeMin: parseFloat(document.getElementById('max-age').value) || 180,
     minScore: parseInt(document.getElementById('min-score').value) || 52,
@@ -802,6 +796,20 @@ async function checkDexScreener(tokenMint) {
 
 // ====================== ENTRY ======================
 async function attemptAutoEntry(pool, chain, score, reasons) {
+  // Prevent simultaneous wallet signing requests
+  if (entryLock) {
+    addLog(`⏳ Entry locked — waiting for previous swap to complete`, 'warn');
+    return;
+  }
+  entryLock = true;
+  try {
+    await _attemptAutoEntry(pool, chain, score, reasons);
+  } finally {
+    entryLock = false;
+  }
+}
+
+async function _attemptAutoEntry(pool, chain, score, reasons) {
   const attrs = pool.attributes || pool;
   if (positions.length >= account.maxPositions) return;
 
@@ -847,10 +855,7 @@ async function attemptAutoEntry(pool, chain, score, reasons) {
 
   const dexCheck = await checkDexScreener(tokenMint);
   for (const w of dexCheck.warnings) addLog(w, 'warn');
-  if (account.requireLockedLiq && dexCheck.warnings.some(w => w.includes('not locked'))) {
-    addLog(`⛔ ${symbol} blocked — liquidity not locked`, 'err');
-    return;
-  }
+  // DexScreener warnings are logged but don't hard block — just inform
 
   addLog(`✅ Safety checks passed for ${symbol}`, 'ok');
 
@@ -1055,6 +1060,7 @@ function toggleScanner() {
   } else {
     if (updateInterval) clearInterval(updateInterval);
     addLog('⏹ Forge stopped', 'err');
+    entryLock = false;
   }
 }
 
