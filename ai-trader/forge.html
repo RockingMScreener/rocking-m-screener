@@ -170,7 +170,17 @@ const SCORE_CONFIG = {
 };
 
 // ====================== WALLET INTEGRATION ======================
-let entryLock = false; // prevents simultaneous swap signing requests
+let entryLock = false;
+
+// Shared fallback RPC for wallets that don't expose their own connection (Solflare, Phantom)
+const heliusConn = new solanaWeb3.Connection(
+  'https://jupiter-proxy.ermccabee1.workers.dev/rpc',
+  'confirmed'
+);
+
+function getConn() {
+  return wallet.provider?.connection || heliusConn;
+} // prevents simultaneous swap signing requests
 let wallet = {
   publicKey: null,
   connected: false,
@@ -224,11 +234,8 @@ async function disconnectWallet() {
 }
 async function updateSOLBalance() {
   if (!wallet.publicKey || !wallet.provider) return;
+  const conn = getConn();
   try {
-    // Backpack exposes connection directly — use it
-    // Solflare and Phantom don't, so use Helius proxy for balance reads only
-    const conn = wallet.provider.connection || 
-      new solanaWeb3.Connection('https://jupiter-proxy.ermccabee1.workers.dev/rpc', 'confirmed');
     const balance = await conn.getBalance(wallet.publicKey);
     const sol = (balance / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
     document.getElementById('sol-balance').textContent = sol;
@@ -370,8 +377,7 @@ async function jupiterSwap(inputMint, outputMint, amountLamports, slippageBps, l
     const signedTx = await wallet.provider.signTransaction(tx);
 
     // 4. Submit
-    const conn = wallet.provider.connection;
-    if (!conn) { addLog('❌ Wallet RPC not available for TX submission', 'err'); return null; }
+    const conn = getConn();
     const rawTx = signedTx.serialize();
     const sig = await conn.sendRawTransaction(rawTx, {
       skipPreflight: true,
@@ -987,8 +993,7 @@ function closePartial(pos, sellFraction, reason) {
   if (wallet.connected && pos.tokenMint) {
     (async () => {
       try {
-        const conn = wallet.provider.connection ||
-          new solanaWeb3.Connection('https://jupiter-proxy.ermccabee1.workers.dev/rpc', 'confirmed');
+        const conn = getConn();
         const tokenAccounts = await conn.getParsedTokenAccountsByOwner(
           wallet.publicKey,
           { mint: new solanaWeb3.PublicKey(pos.tokenMint) }
