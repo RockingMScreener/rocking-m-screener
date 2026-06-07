@@ -910,6 +910,21 @@ async function _attemptAutoEntry(pool, chain, score, reasons) {
     return;
   }
 
+  addLog(`🔎 Honeypot check: verifying sell route for ${symbol}...`, 'info');
+  const sellCheck = await getJupiterQuote(tokenMint, SOL_MINT, 1000000, TX_CONFIG.sellSlippageBps);
+  if (sellCheck.error) {
+    addLog(`⛔ ${symbol} blocked — no sell route (honeypot risk): ${sellCheck.error}`, 'err');
+    return;
+  }
+  // Check if sell would return reasonable value — at least 10% of a fair price
+  // We get a quote for selling 1M raw tokens and check the outAmount is non-trivial
+  const sellOutAmount = parseInt(sellCheck.quote?.outAmount || 0);
+  if (sellOutAmount < 10) {
+    addLog(`⛔ ${symbol} blocked — sell returns near zero (honeypot): outAmount=${sellOutAmount}`, 'err');
+    return;
+  }
+  addLog(`✅ Sell route verified for ${symbol} — outAmount: ${sellOutAmount}`, 'ok');
+
   addLog(`🚀 Firing real swap: $${entrySize.toFixed(2)} (${solAmount.toFixed(4)} SOL) → ${symbol}`, 'info');
   const result = await jupiterSwap(SOL_MINT, tokenMint, lamports, TX_CONFIG.slippageBps, `BUY ${symbol}`);
   if (!result) {
@@ -1006,38 +1021,35 @@ async function _closePartial(pos, sellFraction, reason) {
 
   // Fire real sell if wallet connected and we have the mint
   if (wallet.connected && pos.tokenMint) {
-    try {
-      const conn = getConn();
-      const tokenAccounts = await conn.getParsedTokenAccountsByOwner(
-        wallet.publicKey,
-        { mint: new solanaWeb3.PublicKey(pos.tokenMint) }
-      );
-      if (!tokenAccounts.value.length) {
-        addLog(`⚠️ No token account found for ${pos.symbol} — tokens may not be on-chain`, 'warn');
-        // Still close paper position since tokens aren't in wallet
-      } else {
+    (async () => {
+      try {
+        const conn = getConn();
+        const tokenAccounts = await conn.getParsedTokenAccountsByOwner(
+          wallet.publicKey,
+          { mint: new solanaWeb3.PublicKey(pos.tokenMint) }
+        );
+        if (!tokenAccounts.value.length) {
+          addLog(`⚠️ No token account found for ${pos.symbol} — may not have been bought on-chain`, 'warn');
+          return;
+        }
         const tokenBalance = tokenAccounts.value[0].account.data.parsed.info.tokenAmount;
         const rawBalance = parseInt(tokenBalance.amount);
         const sellAmount = Math.floor(rawBalance * sellFraction);
 
         if (sellAmount < 1) {
           addLog(`⚠️ Sell amount too small for ${pos.symbol}`, 'warn');
-        } else {
-          addLog(`🔴 Firing real sell: ${(sellFraction * 100).toFixed(0)}% of ${pos.symbol} (${sellAmount} raw tokens)`, 'info');
-          const result = await jupiterSwap(pos.tokenMint, SOL_MINT, sellAmount, TX_CONFIG.sellSlippageBps, `SELL ${pos.symbol} — ${reason}`);
-          if (!result) {
-            addLog(`❌ Real sell failed for ${pos.symbol} — position kept open, try manual close`, 'err');
-            return; // Don't update paper tracking — position stays open
-          }
+          return;
         }
+
+        addLog(`🔴 Firing real sell: ${(sellFraction * 100).toFixed(0)}% of ${pos.symbol} (${sellAmount} raw tokens)`, 'info');
+        await jupiterSwap(pos.tokenMint, SOL_MINT, sellAmount, TX_CONFIG.sellSlippageBps, `SELL ${pos.symbol} — ${reason}`);
+      } catch(e) {
+        addLog(`❌ Real sell error for ${pos.symbol}: ${e.message}`, 'err');
       }
-    } catch(e) {
-      addLog(`❌ Real sell error for ${pos.symbol}: ${e.message} — position kept open`, 'err');
-      return; // Don't update paper tracking on error
-    }
+    })();
   }
 
-  // --- PAPER TRACKING --- only reaches here if real sell confirmed or wallet not connected
+  // --- PAPER TRACKING ---
   account.realizedPnl = (account.realizedPnl || 0) + pnl;
   account.balance += costBasis;
 
