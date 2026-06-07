@@ -170,17 +170,24 @@ const SCORE_CONFIG = {
 };
 
 // ====================== WALLET INTEGRATION ======================
-let entryLock = false;
+let entryLock = false; // prevents simultaneous buy signing requests
+let sellQueue = [];    // queues sell requests to prevent simultaneous sell signing
+let sellProcessing = false;
 
-// Shared fallback RPC for wallets that don't expose their own connection (Solflare, Phantom)
-const heliusConn = new solanaWeb3.Connection(
-  'https://jupiter-proxy.ermccabee1.workers.dev/rpc',
-  'confirmed'
-);
+async function processSellQueue() {
+  if (sellProcessing) return;
+  sellProcessing = true;
+  while (sellQueue.length > 0) {
+    const { pos, sellFraction, reason } = sellQueue.shift();
+    await _closePartial(pos, sellFraction, reason);
+  }
+  sellProcessing = false;
+}
 
-function getConn() {
-  return wallet.provider?.connection || heliusConn;
-} // prevents simultaneous swap signing requests
+function closePartial(pos, sellFraction, reason) {
+  sellQueue.push({ pos, sellFraction, reason });
+  processSellQueue();
+}
 let wallet = {
   publicKey: null,
   connected: false,
@@ -234,7 +241,8 @@ async function disconnectWallet() {
 }
 async function updateSOLBalance() {
   if (!wallet.publicKey || !wallet.provider) return;
-  const conn = getConn();
+  const conn = wallet.provider.connection;
+  if (!conn) return; // wallet doesn't expose connection — skip silently
   try {
     const balance = await conn.getBalance(wallet.publicKey);
     const sol = (balance / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
@@ -377,7 +385,8 @@ async function jupiterSwap(inputMint, outputMint, amountLamports, slippageBps, l
     const signedTx = await wallet.provider.signTransaction(tx);
 
     // 4. Submit
-    const conn = getConn();
+    const conn = wallet.provider.connection;
+    if (!conn) { addLog('❌ Wallet RPC not available for TX submission', 'err'); return null; }
     const rawTx = signedTx.serialize();
     const sig = await conn.sendRawTransaction(rawTx, {
       skipPreflight: true,
@@ -934,17 +943,17 @@ function evaluatePositions() {
     const pnlPct = ((p.currentPrice - p.entryPrice) / p.entryPrice) * 100;
 
     if (!p.tp1Hit && pnlPct >= EXIT_CONFIG.tp1Pct) {
-      closePartial(p, EXIT_CONFIG.tp1SellPct / 100, `TP1 +${EXIT_CONFIG.tp1Pct}%`);
       p.tp1Hit = true;
+      closePartial(p, EXIT_CONFIG.tp1SellPct / 100, `TP1 +${EXIT_CONFIG.tp1Pct}%`);
     }
     if (!p.tp2Hit && pnlPct >= EXIT_CONFIG.tp2Pct) {
-      closePartial(p, EXIT_CONFIG.tp2SellPct / 100, `TP2 +${EXIT_CONFIG.tp2Pct}%`);
       p.tp2Hit = true;
       p.trailActive = true;
+      closePartial(p, EXIT_CONFIG.tp2SellPct / 100, `TP2 +${EXIT_CONFIG.tp2Pct}%`);
     }
     if (!p.tp3Hit && pnlPct >= EXIT_CONFIG.tp3Pct) {
-      closePartial(p, EXIT_CONFIG.tp3SellPct / 100, `TP3 +${EXIT_CONFIG.tp3Pct}%`);
       p.tp3Hit = true;
+      closePartial(p, EXIT_CONFIG.tp3SellPct / 100, `TP3 +${EXIT_CONFIG.tp3Pct}%`);
     }
 
     if (pnlPct > EXIT_CONFIG.trailActivePct) p.trailActive = true;
@@ -983,7 +992,7 @@ function checkTimeBasedExits() {
   }
 }
 
-function closePartial(pos, sellFraction, reason) {
+async function _closePartial(pos, sellFraction, reason) {
   const tokensToSell = pos.tokensHeld * sellFraction;
   const sellValue = tokensToSell * pos.currentPrice;
   const costBasis = tokensToSell * pos.entryPrice;
@@ -993,7 +1002,7 @@ function closePartial(pos, sellFraction, reason) {
   if (wallet.connected && pos.tokenMint) {
     (async () => {
       try {
-        const conn = getConn();
+        const conn = wallet.provider.connection;
         const tokenAccounts = await conn.getParsedTokenAccountsByOwner(
           wallet.publicKey,
           { mint: new solanaWeb3.PublicKey(pos.tokenMint) }
@@ -1078,6 +1087,8 @@ function toggleScanner() {
     if (updateInterval) clearInterval(updateInterval);
     addLog('⏹ Forge stopped', 'err');
     entryLock = false;
+    sellQueue = [];
+    sellProcessing = false;
   }
 }
 
