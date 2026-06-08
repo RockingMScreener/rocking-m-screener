@@ -227,9 +227,7 @@ async function connectWallet(preference) {
     addLog(`✅ Wallet connected: ${wallet.publicKey.toString().slice(0,8)}...`, 'ok');
   } catch (err) {
     console.error(err);
-    const message = err?.message || 'Unknown wallet connection error';
-    addLog('❌ Wallet connection failed: ' + message, 'err');
-    alert('Wallet connection failed. Check the browser wallet extension and try again.\n\nDetails: ' + message);
+    addLog('❌ Wallet connection failed: ' + err.message, 'err');
   }
 }
 async function disconnectWallet() {
@@ -1049,6 +1047,31 @@ async function _closePartial(pos, sellFraction, reason) {
   // --- PAPER TRACKING --- only reaches here if real sell confirmed or wallet not connected
   account.realizedPnl = (account.realizedPnl || 0) + pnl;
   account.balance += costBasis;
+
+  if (pnl > 0) {
+    account.profitReserve = (account.profitReserve || 0) + pnl;
+  } else {
+    account.balance += pnl;
+  }
+
+  pos.tokensHeld -= tokensToSell;
+
+  closedTrades.unshift({
+    date: new Date().toLocaleDateString(),
+    symbol: pos.symbol,
+    entry: pos.entryPrice,
+    exit: pos.currentPrice,
+    pnl,
+    pnlPct: ((pos.currentPrice / pos.entryPrice) - 1) * 100,
+    reason,
+  });
+
+  addLog(`${reason} → ${pos.symbol} | ${format.usd(pnl)}`, pnl >= 0 ? 'ok' : 'err');
+
+  if (pos.tokensHeld < 0.0001) {
+    positions = positions.filter(p => p !== pos);
+  }
+}
 
   if (pnl > 0) {
     account.profitReserve = (account.profitReserve || 0) + pnl;
