@@ -227,9 +227,7 @@ async function connectWallet(preference) {
     addLog(`✅ Wallet connected: ${wallet.publicKey.toString().slice(0,8)}...`, 'ok');
   } catch (err) {
     console.error(err);
-    const message = err?.message || 'Unknown wallet connection error';
-    addLog('❌ Wallet connection failed: ' + message, 'err');
-    alert('Wallet connection failed. Check the browser wallet extension and try again.\n\nDetails: ' + message);
+    addLog('❌ Wallet connection failed: ' + err.message, 'err');
   }
 }
 async function disconnectWallet() {
@@ -657,6 +655,8 @@ function scoreCandidate(pool) {
     : 999;
 
   // Basic filters
+  const symbol = normalizeSymbol(pool.name);
+  if (symbol.length < 3) return { score: 0, reasons: [`Symbol "${symbol}" too short`] };
   if (liq < account.minLiq) return { score: 0, reasons: [`Liq $${liq.toFixed(0)} below min`] };
   if (ageMin > account.maxAgeMin) return { score: 0, reasons: [`Age ${Math.floor(ageMin)}m > max`] };
   if (ageMin < account.minAgeMin) return { score: 0, reasons: [`Age ${Math.floor(ageMin)}m < min ${account.minAgeMin}m`] };
@@ -918,6 +918,19 @@ async function _attemptAutoEntry(pool, chain, score, reasons) {
     addLog(`⛔ Entry size too small (${lamports} lamports) — ${symbol} skipped`, 'err');
     return;
   }
+
+  addLog(`🔎 Honeypot check: verifying sell route for ${symbol}...`, 'info');
+  const sellCheck = await getJupiterQuote(tokenMint, SOL_MINT, 1000000, TX_CONFIG.sellSlippageBps);
+  if (sellCheck.error) {
+    addLog(`⛔ ${symbol} blocked — no sell route (honeypot risk): ${JSON.stringify(sellCheck.error)}`, 'err');
+    return;
+  }
+  const sellOutAmount = parseInt(sellCheck.quote?.outAmount || 0);
+  if (sellOutAmount < 10) {
+    addLog(`⛔ ${symbol} blocked — sell returns near zero (honeypot): outAmount=${sellOutAmount}`, 'err');
+    return;
+  }
+  addLog(`✅ Sell route verified for ${symbol} — outAmount: ${sellOutAmount}`, 'ok');
 
   addLog(`🚀 Firing real swap: $${entrySize.toFixed(2)} (${solAmount.toFixed(4)} SOL) → ${symbol}`, 'info');
   const result = await jupiterSwap(SOL_MINT, tokenMint, lamports, TX_CONFIG.slippageBps, `BUY ${symbol}`);
