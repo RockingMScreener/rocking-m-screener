@@ -431,7 +431,14 @@ async function jupiterSwap(inputMint, outputMint, amountLamports, slippageBps, l
     return { sig, quote };
 
   } catch(e) {
-    addLog(`❌ Swap error: ${e.message}`, 'err');
+    const msg = e.message || '';
+    if (msg.includes('Approval Denied') || msg.includes('Transaction blocked')) {
+      addLog(`⛔ BUY denied by wallet — flagged as spam/malicious (${label})`, 'err');
+    } else if (msg.includes('User rejected') || msg.includes('user rejected') || msg.includes('Cancelled') || msg.includes('cancelled')) {
+      addLog(`⛔ BUY cancelled by user (${label})`, 'warn');
+    } else {
+      addLog(`❌ Swap error: ${msg} (${label})`, 'err');
+    }
     return null;
   }
 }
@@ -909,21 +916,6 @@ async function _attemptAutoEntry(pool, chain, score, reasons) {
     addLog(`⛔ Entry size too small (${lamports} lamports) — ${symbol} skipped`, 'err');
     return;
   }
-
-  addLog(`🔎 Honeypot check: verifying sell route for ${symbol}...`, 'info');
-  const sellCheck = await getJupiterQuote(tokenMint, SOL_MINT, 1000000, TX_CONFIG.sellSlippageBps);
-  if (sellCheck.error) {
-    addLog(`⛔ ${symbol} blocked — no sell route (honeypot risk): ${sellCheck.error}`, 'err');
-    return;
-  }
-  // Check if sell would return reasonable value — at least 10% of a fair price
-  // We get a quote for selling 1M raw tokens and check the outAmount is non-trivial
-  const sellOutAmount = parseInt(sellCheck.quote?.outAmount || 0);
-  if (sellOutAmount < 10) {
-    addLog(`⛔ ${symbol} blocked — sell returns near zero (honeypot): outAmount=${sellOutAmount}`, 'err');
-    return;
-  }
-  addLog(`✅ Sell route verified for ${symbol} — outAmount: ${sellOutAmount}`, 'ok');
 
   addLog(`🚀 Firing real swap: $${entrySize.toFixed(2)} (${solAmount.toFixed(4)} SOL) → ${symbol}`, 'info');
   const result = await jupiterSwap(SOL_MINT, tokenMint, lamports, TX_CONFIG.slippageBps, `BUY ${symbol}`);
