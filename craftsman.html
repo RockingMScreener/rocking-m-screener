@@ -406,7 +406,7 @@
   <div class="export-row">
     <button class="btn-sm" onclick="exportCSV()">&#8595; Export CSV</button>
     <button class="btn-sm" onclick="exportJSON()">&#8595; Export JSON (ElizaOS)</button>
-    <button class="btn-sm" onclick="exportRemiLog()">&#8595; Export Remi Log</button>
+    <button class="btn-sm" onclick="exportLog()">&#8595; Export Event Log</button>
   </div>
 
   <footer>
@@ -1096,9 +1096,9 @@ function exportJSON() {
   dl('craftsman_elizaos.json', JSON.stringify(data, null, 2), 'application/json');
 }
 
-function exportRemiLog() {
-  const data = remiLog.map(e => `[${e.time}] [${e.type.toUpperCase()}] ${e.msg}`).join('\n');
-  dl('craftsman_log.txt', data, 'text/plain');
+function exportLog() {
+  const data = remiLog.map(e => `[${e.time}] ${e.msg}`).join('\n');
+  dl('craftsman_eventlog.txt', data, 'text/plain');
 }
 
 function dl(name, content, type) {
