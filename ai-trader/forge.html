@@ -172,6 +172,24 @@ const SCORE_CONFIG = {
 // ====================== WALLET INTEGRATION ======================
 let entryLock = false; // prevents simultaneous buy signing requests
 let sellQueue = [];    // queues sell requests to prevent simultaneous sell signing
+const tokenCooldown = new Map(); // token mint → timestamp of last failure
+const COOLDOWN_MS = 10 * 60 * 1000; // 10 minute cooldown after any failure
+
+function isOnCooldown(tokenMint, symbol) {
+  const lastFail = tokenCooldown.get(tokenMint);
+  if (!lastFail) return false;
+  const remaining = Math.ceil((COOLDOWN_MS - (Date.now() - lastFail)) / 60000);
+  if (remaining > 0) {
+    addLog(`⏱️ ${symbol} on cooldown — ${remaining}m remaining`, 'warn');
+    return true;
+  }
+  tokenCooldown.delete(tokenMint);
+  return false;
+}
+
+function addCooldown(tokenMint) {
+  tokenCooldown.set(tokenMint, Date.now());
+}
 let sellProcessing = false;
 
 async function processSellQueue() {
@@ -529,7 +547,12 @@ const render = {
         <td class="${cls}">${format.pct(pnlPct)}</td>
         <td>${ageMin}m</td>
         <td style="color:#8fa0b0">${p.score || '—'}</td>
-        <td><button class="btn-small" onclick="manualClose(${i})">Close</button></td>
+        <td>
+          <button class="btn-small" onclick="manualClose(${i}, 25)" style="margin:1px">25%</button>
+          <button class="btn-small" onclick="manualClose(${i}, 50)" style="margin:1px">50%</button>
+          <button class="btn-small" onclick="manualClose(${i}, 75)" style="margin:1px">75%</button>
+          <button class="btn-small" onclick="manualClose(${i}, 100)" style="margin:1px">100%</button>
+        </td>
       </tr>`;
     }).join('');
   },
@@ -655,8 +678,6 @@ function scoreCandidate(pool) {
     : 999;
 
   // Basic filters
-  const symbol = normalizeSymbol(pool.name);
-  if (symbol.length < 3) return { score: 0, reasons: [`Symbol "${symbol}" too short`] };
   if (liq < account.minLiq) return { score: 0, reasons: [`Liq $${liq.toFixed(0)} below min`] };
   if (ageMin > account.maxAgeMin) return { score: 0, reasons: [`Age ${Math.floor(ageMin)}m > max`] };
   if (ageMin < account.minAgeMin) return { score: 0, reasons: [`Age ${Math.floor(ageMin)}m < min ${account.minAgeMin}m`] };
@@ -878,6 +899,9 @@ async function _attemptAutoEntry(pool, chain, score, reasons) {
     return;
   }
 
+  // Check cooldown blacklist
+  if (isOnCooldown(tokenMint, symbol)) return;
+
   addLog(`🔍 Token mint: ${tokenMint.slice(0,8)}...`, 'info');
 
   // --- SAFETY CHECKS ---
@@ -887,14 +911,15 @@ async function _attemptAutoEntry(pool, chain, score, reasons) {
   for (const w of mintCheck.warnings) addLog(w, 'warn');
   if (!mintCheck.safe) {
     addLog(`⛔ ${symbol} blocked — mint/freeze authority risk`, 'err');
+    addCooldown(tokenMint);
     return;
   }
 
   const dexCheck = await checkDexScreener(tokenMint);
   for (const w of dexCheck.warnings) addLog(w, 'warn');
-  // DexScreener warnings are logged but don't hard block — just inform
   if (account.requireLockedLiq && dexCheck.warnings.some(w => w.includes('not locked'))) {
     addLog(`⛔ ${symbol} blocked — liquidity not locked`, 'err');
+    addCooldown(tokenMint);
     return;
   }
 
@@ -919,15 +944,18 @@ async function _attemptAutoEntry(pool, chain, score, reasons) {
     return;
   }
 
+  // --- HONEYPOT CHECK ---
   addLog(`🔎 Honeypot check: verifying sell route for ${symbol}...`, 'info');
   const sellCheck = await getJupiterQuote(tokenMint, SOL_MINT, 1000000, TX_CONFIG.sellSlippageBps);
   if (sellCheck.error) {
     addLog(`⛔ ${symbol} blocked — no sell route (honeypot risk): ${JSON.stringify(sellCheck.error)}`, 'err');
+    addCooldown(tokenMint);
     return;
   }
   const sellOutAmount = parseInt(sellCheck.quote?.outAmount || 0);
   if (sellOutAmount < 10) {
     addLog(`⛔ ${symbol} blocked — sell returns near zero (honeypot): outAmount=${sellOutAmount}`, 'err');
+    addCooldown(tokenMint);
     return;
   }
   addLog(`✅ Sell route verified for ${symbol} — outAmount: ${sellOutAmount}`, 'ok');
@@ -936,6 +964,7 @@ async function _attemptAutoEntry(pool, chain, score, reasons) {
   const result = await jupiterSwap(SOL_MINT, tokenMint, lamports, TX_CONFIG.slippageBps, `BUY ${symbol}`);
   if (!result) {
     addLog(`⛔ Real swap failed — ${symbol} position NOT opened`, 'err');
+    addCooldown(tokenMint);
     return;
   }
 
@@ -1088,9 +1117,13 @@ async function _closePartial(pos, sellFraction, reason) {
   }
 }
 
-function manualClose(index) {
-  if (confirm('Close entire position?')) {
-    closePartial(positions[index], 1, 'Manual close');
+function manualClose(index, pct = 100) {
+  const pos = positions[index];
+  if (!pos) return;
+  const fraction = pct / 100;
+  const label = pct === 100 ? 'entire position' : `${pct}% of position`;
+  if (confirm(`Close ${label} for ${pos.symbol}?`)) {
+    closePartial(pos, fraction, 'Manual close');
     render.all();
   }
 }
@@ -1120,6 +1153,7 @@ function toggleScanner() {
     entryLock = false;
     sellQueue = [];
     sellProcessing = false;
+    tokenCooldown.clear();
   }
 }
 
