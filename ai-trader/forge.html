@@ -420,15 +420,24 @@ async function jupiterSwap(inputMint, outputMint, amountLamports, slippageBps, l
 
     addLog(`📡 TX submitted: ${sig.slice(0,12)}...`, 'info');
 
-    // 5. Poll for confirmation
+    // 5. Poll for confirmation — with slippage retry on 6001
     let confirmed = false;
-    for (let i = 0; i < 30; i++) {
+    let slippageRetried = false;
+    for (let i = 0; i < 45; i++) {
       await new Promise(r => setTimeout(r, 2000));
       try {
         const status = await conn.getSignatureStatus(sig);
         const val = status?.value;
-        // Check for on-chain error FIRST — even confirmed TXs can have errors (e.g. slippage 6001)
+        // Check for on-chain error FIRST
         if (val?.err) {
+          const errStr = JSON.stringify(val.err);
+          // 6001 = slippage exceeded — retry once with higher slippage
+          if (errStr.includes('6001') && !slippageRetried && !isSell) {
+            slippageRetried = true;
+            const higherSlip = Math.min(slippageBps * 2, 5000);
+            addLog(`⚠️ Slippage error 6001 — retrying BUY with ${higherSlip/100}% slippage...`, 'warn');
+            return await jupiterSwap(inputMint, outputMint, amountLamports, higherSlip, label + ' [retry]');
+          }
           addLog(`❌ TX failed on-chain (slippage or program error): https://solscan.io/tx/${sig}`, 'err');
           return null;
         }
@@ -945,6 +954,7 @@ async function _attemptAutoEntry(pool, chain, score, reasons) {
   }
 
   // --- HONEYPOT CHECK ---
+  // --- HONEYPOT CHECK ---
   // Get buy quote first so we can compare sell return proportionally
   addLog(`🔎 Honeypot check: verifying sell route for ${symbol}...`, 'info');
   const buyPreCheck = await getJupiterQuote(SOL_MINT, tokenMint, lamports, TX_CONFIG.slippageBps);
@@ -961,12 +971,12 @@ async function _attemptAutoEntry(pool, chain, score, reasons) {
   }
 
   const sellOutAmount = parseInt(sellCheck.quote?.outAmount || 0);
-  // Proportional check: sell return should be at least 20% of buy cost (in lamports)
-  // This catches near-zero routes like BTCPAY where outAmount=85 on a $3 buy
+  // Proportional check: sell return should be at least 20% of buy cost
+  // Catches near-zero routes like BTCPAY where outAmount=85 on a $3 buy
   const minAcceptableReturn = lamports * 0.20;
   if (sellOutAmount < minAcceptableReturn) {
     const returnPct = ((sellOutAmount / lamports) * 100).toFixed(1);
-    addLog(`⛔ ${symbol} blocked — sell returns only ${returnPct}% of buy cost (min 20%): ${sellOutAmount} lamports`, 'err');
+    addLog(`⛔ ${symbol} blocked — sell returns only ${returnPct}% of buy cost (min 20%)`, 'err');
     addCooldown(tokenMint);
     return;
   }
@@ -983,7 +993,25 @@ async function _attemptAutoEntry(pool, chain, score, reasons) {
   }
 
   // --- PAPER TRACKING (only after confirmed real swap) ---
-  const tokensBought = entrySize / entryPrice;
+  // Reconcile actual token balance from wallet
+  let actualTokensHeld = entrySize / entryPrice; // fallback to calculated
+  try {
+    const conn = getConn();
+    const tokenAccounts = await conn.getParsedTokenAccountsByOwner(
+      wallet.publicKey,
+      { mint: new solanaWeb3.PublicKey(tokenMint) }
+    );
+    if (tokenAccounts.value.length > 0) {
+      const tokenBalance = tokenAccounts.value[0].account.data.parsed.info.tokenAmount;
+      const decimals = tokenBalance.decimals;
+      actualTokensHeld = parseInt(tokenBalance.amount) / Math.pow(10, decimals);
+      addLog(`📊 Wallet reconciled: ${format.tokens(actualTokensHeld)} tokens (calculated: ${format.tokens(entrySize / entryPrice)})`, 'info');
+    }
+  } catch(e) {
+    addLog(`⚠️ Wallet reconciliation failed — using calculated amount`, 'warn');
+  }
+
+  const tokensBought = actualTokensHeld;
   account.balance -= entrySize;
 
   positions.push({
@@ -1122,6 +1150,15 @@ async function _closePartial(pos, sellFraction, reason) {
     pnl,
     pnlPct: ((pos.currentPrice / pos.entryPrice) - 1) * 100,
     reason,
+    // ElizaOS training fields
+    entryScore: pos.score || null,
+    entryReasons: pos.entryReasons || [],
+    holdTimeMinutes: pos.enteredAt ? Math.round((Date.now() - pos.enteredAt) / 60000) : null,
+    tokenMint: pos.tokenMint || null,
+    tp1Hit: pos.tp1Hit || false,
+    tp2Hit: pos.tp2Hit || false,
+    tp3Hit: pos.tp3Hit || false,
+    trailActive: pos.trailActive || false,
   });
 
   addLog(`${reason} → ${pos.symbol} | ${format.usd(pnl)}`, pnl >= 0 ? 'ok' : 'err');
