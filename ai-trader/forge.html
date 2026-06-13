@@ -960,19 +960,27 @@ async function _attemptAutoEntry(pool, chain, score, reasons) {
   const buyPreCheck = await getJupiterQuote(SOL_MINT, tokenMint, lamports, TX_CONFIG.slippageBps);
   const expectedTokens = parseInt(buyPreCheck.quote?.outAmount || 0);
 
+  // Small delay to avoid hammering Jupiter API with rapid successive calls
+  await new Promise(r => setTimeout(r, 600));
+
   // Test sell route using expected token amount (or 1M as fallback)
   const testSellAmount = expectedTokens > 0 ? expectedTokens : 1000000;
   const sellCheck = await getJupiterQuote(tokenMint, SOL_MINT, testSellAmount, TX_CONFIG.sellSlippageBps);
 
   if (sellCheck.error) {
-    addLog(`⛔ ${symbol} blocked — no sell route (honeypot risk): ${JSON.stringify(sellCheck.error)}`, 'err');
+    const errStr = JSON.stringify(sellCheck.error);
+    // Don't cooldown on rate limit errors — not the token's fault
+    if (errStr.includes('429') || errStr.includes('Too many requests')) {
+      addLog(`⚠️ ${symbol} honeypot check rate limited — skipping this cycle`, 'warn');
+      return;
+    }
+    addLog(`⛔ ${symbol} blocked — no sell route (honeypot risk): ${errStr}`, 'err');
     addCooldown(tokenMint);
     return;
   }
 
   const sellOutAmount = parseInt(sellCheck.quote?.outAmount || 0);
   // Proportional check: sell return should be at least 20% of buy cost
-  // Catches near-zero routes like BTCPAY where outAmount=85 on a $3 buy
   const minAcceptableReturn = lamports * 0.20;
   if (sellOutAmount < minAcceptableReturn) {
     const returnPct = ((sellOutAmount / lamports) * 100).toFixed(1);
