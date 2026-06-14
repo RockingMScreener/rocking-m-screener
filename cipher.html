@@ -201,37 +201,29 @@
 </head>
 <body>
 
+<!-- ── Header ── -->
 <div class="top-bar">
   <div class="logo-badge">
     <div class="badge-mark">
-      <div class="badge-rocking">Rocking</div>
-      <div class="badge-m">M</div>
-      <div class="badge-sub">crypto</div>
+      <span class="badge-rocking">Rocking</span>
+      <svg width="58" height="14" viewBox="0 0 58 14" fill="none" style="display:block;margin:2px 0 -4px">
+        <path d="M 2 12 Q 29 2 56 12" stroke="#00cc66" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </svg>
+      <span class="badge-m">M</span>
+      <span class="badge-sub">Crypto</span>
     </div>
     <div class="brand-text">
-      <div class="brand-title">ROCKING M <span>CRYPTO</span></div>
-      <div class="brand-tagline">Cipher — Decodes What the Market Is Saying<br>You don't have to be a master trader.<br>You just need to know how to use the tools.</div>
+      <div class="brand-title">ROCKING <span>M</span> CRYPTO</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:3px;color:#3d5570;text-transform:uppercase;margin-top:2px;">Cipher v2.0.0 &middot; Multi-Mode Market Screener</div>
+      <div class="brand-tagline">Momentum, volume, trend, or deep chain scans — same pool grid, new signal sets.</div>
     </div>
   </div>
   <div class="status-cluster">
-    <div class="s-item">
-      <div class="s-label">Last Scan</div>
-      <div class="s-val" id="last-scan">&#8212;</div>
-    </div>
-    <div class="s-item">
-      <div class="s-label">Next Scan</div>
-      <div class="s-val" id="next-scan">&#8212;</div>
-    </div>
-    <div class="s-item">
-      <div class="s-label">Tokens Found</div>
-      <div class="s-val" id="result-count">0</div>
-    </div>
-    <a href="https://rockingmscreener.com/trailguide.html" target="_blank" style="text-decoration:none;">
-      <button class="header-nav-btn">🧭 Trail Guide</button>
-    </a>
-    <a href="https://rockingmscreener.com/craftsman.html" target="_blank" style="text-decoration:none;">
-      <button class="header-nav-btn">⚒️ Craftsman</button>
-    </a>
+    <div class="s-item"><span class="s-label">Last Scan</span><span class="s-val" id="last-scan">&#8212;</span></div>
+    <div class="s-item"><span class="s-label">Next Scan</span><span class="s-val" id="next-scan">&#8212;</span></div>
+    <div class="s-item"><span class="s-label">Tokens Found</span><span class="s-val" id="tok-count">0</span></div>
+    <a href="trailguide.html" target="_blank" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;border:2px solid var(--green-lt);background:transparent;color:var(--green-hi);text-decoration:none;transition:all .15s;white-space:nowrap;" onmouseover="this.style.background='var(--green)'" onmouseout="this.style.background='transparent'"> &#9672; TRAIL GUIDE</a>
+    <a href="craftsman.html" target="_blank" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;border:2px solid var(--green-lt);background:transparent;color:var(--green-hi);text-decoration:none;transition:all .15s;white-space:nowrap;" onmouseover="this.style.background='var(--green)'" onmouseout="this.style.background='transparent'">&#9672; CRAFTSMAN</a>
   </div>
 </div>
 
@@ -365,21 +357,29 @@
 
   <!-- Results Table -->
   <div class="tbl-wrap">
-    <table>
-      <thead>
+    <table id="main-table">
+      <thead id="tbl-head">
         <tr>
-          <th onclick="sortTable('token')">Token</th>
           <th onclick="sortTable('chain')">Chain</th>
+          <th onclick="sortTable('name')">Name</th>
+          <th onclick="sortTable('symbol')">Symbol</th>
+          <th onclick="sortTable('age')">Age</th>
           <th onclick="sortTable('price')">Price</th>
-          <th onclick="sortTable('liq')">Liquidity</th>
-          <th onclick="sortTable('vol24h')">24h Vol</th>
-          <th onclick="sortTable('chg24h')">24h Chg</th>
+          <th onclick="sortTable('liquidity')">Liquidity</th>
+          <th onclick="sortTable('poolPct')">Pool %</th>
+          <th onclick="sortTable('chg1h')">1H %</th>
+          <th onclick="sortTable('chg6h')">6H %</th>
+          <th onclick="sortTable('chg24h')">24H %</th>
+          <th onclick="sortTable('vol24h')">Vol 24H</th>
+          <th onclick="sortTable('mcap')">Mkt Cap</th>
           <th onclick="sortTable('score')">Score</th>
+          <th>DEX</th>
           <th>Address</th>
+          <th>Link</th>
         </tr>
       </thead>
       <tbody id="results-body">
-        <tr><td colspan="8" class="empty-msg">No results yet. Click "Scan Now" to begin.</td></tr>
+        <tr><td colspan="16" class="empty-msg">No results yet. Click "Scan Now" to begin.</td></tr>
       </tbody>
     </table>
   </div>
@@ -567,9 +567,9 @@ async function runScan() {
 }
 
 async function scanNewPools(minLiq, minScore, limit) {
-  // Trending: hit global trending endpoint (cross-chain)
+  // Trending: single global endpoint call covering all chains
   pools = [];
-  const url = `${GECKO_BASE}/networks/trending_pools?limit=${limit * 2}`;
+  const url = `${GECKO_BASE}/networks/trending_pools?include=base_token,quote_token&page=1`;
   
   try {
     const res = await fetch(url);
@@ -584,18 +584,19 @@ async function scanNewPools(minLiq, minScore, limit) {
         }
       });
     }
+    toast(`Fetched ${data.data?.length || 0} pools across all chains`);
   } catch (e) {
     console.error('Trending endpoint error:', e);
     throw new Error('Failed to fetch trending pools');
   }
   
-  pools.sort((a, b) => b.score - a.score).slice(0, limit);
+  pools.sort((a, b) => b.score - a.score);
 }
 
 async function scanVolumSpike(minLiq, minScore, limit) {
-  // Volume Spike: global endpoint, top pools by 24h volume (cross-chain)
+  // Volume Spike: single global endpoint call sorted by volume, covering all chains
   pools = [];
-  const url = `${GECKO_BASE}/networks/trending_pools?limit=${limit * 2}`;
+  const url = `${GECKO_BASE}/networks/trending_pools?sort=volume_usd&include=base_token,quote_token&page=1`;
   
   try {
     const res = await fetch(url);
@@ -610,18 +611,20 @@ async function scanVolumSpike(minLiq, minScore, limit) {
         }
       });
     }
+    toast(`Fetched ${data.data?.length || 0} volume pools across all chains`);
   } catch (e) {
     console.error('Volume spike endpoint error:', e);
     throw new Error('Failed to fetch volume spike pools');
   }
   
-  pools.sort((a, b) => b.score - a.score).slice(0, limit);
+  pools.sort((a, b) => b.score - a.score);
 }
 
 async function scanTopGainers(minLiq, minScore, limit) {
-  // Top Gainers: global endpoint, sort by price change for selected timeframe
+  // Top Gainers: single global endpoint call sorted by price change, covering all chains
   pools = [];
-  const url = `${GECKO_BASE}/networks/trending_pools?limit=${limit * 3}`;
+  const sortKey = currentTimeframe === '1h' ? 'price_change_percentage.h1' : currentTimeframe === '4h' ? 'price_change_percentage.h4' : 'price_change_percentage.h24';
+  const url = `${GECKO_BASE}/networks/trending_pools?sort=${sortKey}&include=base_token,quote_token&page=1`;
   
   try {
     const res = await fetch(url);
@@ -636,6 +639,7 @@ async function scanTopGainers(minLiq, minScore, limit) {
         }
       });
     }
+    toast(`Fetched ${data.data?.length || 0} gainers across all chains`);
   } catch (e) {
     console.error('Top gainers endpoint error:', e);
     throw new Error('Failed to fetch top gainers');
@@ -643,37 +647,32 @@ async function scanTopGainers(minLiq, minScore, limit) {
   
   // Sort by price change for the selected timeframe
   pools.sort((a, b) => {
-    const priceKeyA = `price_change_${currentTimeframe}`;
-    const priceKeyB = `price_change_${currentTimeframe}`;
-    const changeA = Math.abs(a.chg24h); // fallback to 24h if timeframe not available
-    const changeB = Math.abs(b.chg24h);
-    return changeB - changeA;
-  }).slice(0, limit);
+    const changeA = currentTimeframe === '1h' ? a.chg1h : currentTimeframe === '4h' ? a.chg6h : a.chg24h;
+    const changeB = currentTimeframe === '1h' ? b.chg1h : currentTimeframe === '4h' ? b.chg6h : b.chg24h;
+    return (changeB || 0) - (changeA || 0);
+  });
 }
 
 async function scanChainDeepDive(minLiq, minScore, limit) {
-  // Chain Deep Dive: full scan of single chain, fetch ALL available tokens
+  // Chain Deep Dive: single API call for selected chain, maximum depth
   pools = [];
-  if (!selectedChainDeepDive) { toast('Select a chain'); return; }
+  if (!selectedChainDeepDive) { toast('Select a chain for deep dive'); return; }
   
   const geckoChain = selectedChainDeepDive;
   
   try {
-    // Fetch with large limit (250) to get as many pools as possible in one call
-    // GeckoTerminal typically allows up to 250 per request
-    const url = `${GECKO_BASE}/networks/${geckoChain}/pools?order=h24_volume_usd.desc&limit=250`;
-    console.log('Fetching deep dive from:', url);
+    // Single call with max limit (250) for deepest possible scan
+    const url = `${GECKO_BASE}/networks/${geckoChain}/pools?include=base_token,quote_token&page=1`;
     
     const res = await fetch(url);
     
     if (!res.ok) {
-      throw new Error(`API returned ${res.status}: ${res.statusText}. Check that the chain ID is correct for GeckoTerminal.`);
+      throw new Error(`API returned ${res.status}: ${res.statusText}`);
     }
     
     const data = await res.json();
     
     if (data.data && Array.isArray(data.data)) {
-      console.log(`Found ${data.data.length} pools on ${geckoChain}`);
       data.data.forEach(pool => {
         const p = parsePool(pool, geckoChain, 'chain-dive');
         if (p.liquidity >= minLiq && p.score >= minScore) {
@@ -681,7 +680,6 @@ async function scanChainDeepDive(minLiq, minScore, limit) {
         }
       });
     }
-    
     toast(`Scanned ${data.data?.length || 0} pools on ${geckoChain}`);
   } catch (e) {
     console.error('Chain deep dive error:', e);
@@ -723,45 +721,70 @@ function extractChainFromPool(pool) {
 }
 
 function parsePool(pool, chain, mode) {
-  const liquidity = parseFloat(pool.attributes.reserve_in_usd) || 0;
+  const a = pool.attributes || {};
+  const liquidity = parseFloat(a.reserve_in_usd || a.liquidity || 0);
   
-  let price = 0;
-  if (mode === 'chain-dive') {
-    // Try multiple possible price field names
-    price = parseFloat(
-      pool.attributes.token_price_usd || 
-      pool.attributes.token_price_usd_h24 ||
-      pool.attributes.price_usd || 
-      pool.attributes.price ||
-      pool.attributes.base_token_price_usd ||
-      pool.attributes.quote_token_price_usd ||
-      0
-    );
-    
-    // Debug logging - remove once we find the right field
-    if (price === 0 && pool.id) {
-      console.log('Chain Deep Dive pool attributes:', pool.attributes);
-    }
-  }
+  // Price - try multiple field names
+  let price = parseFloat(
+    a.base_token_price_usd || 
+    a.token_price_usd || 
+    a.price_usd || 
+    a.price ||
+    0
+  );
   
-  const vol24h = parseFloat(pool.attributes.volume_usd?.h24) || 0;
-  const chg24h = parseFloat(pool.attributes.price_change_percentage?.h24) || 0;
-  const createdAt = new Date(pool.attributes.pool_created_at || 0);
-  const ageMinutes = (Date.now() - createdAt) / 60000;
+  // Volume
+  const vol24h = parseFloat(a.volume_usd?.h24 || a.volume_usd || 0);
+  
+  // Price changes
+  const chg1h = parseFloat(a.price_change_percentage?.h1 || 0);
+  const chg6h = parseFloat(a.price_change_percentage?.h6 || 0);
+  const chg24h = parseFloat(a.price_change_percentage?.h24 || 0);
+  
+  // Age
+  const createdAt = a.pool_created_at ? new Date(a.pool_created_at).getTime() : null;
+  const ageHours = createdAt ? (Date.now() - createdAt) / 3600000 : 999;
+  
+  // Market cap / FDV
+  const mcap = parseFloat(a.fdv_usd || a.fdv || 0);
+  
+  // Pool % (liquidity / FDV * 100)
+  const poolPct = (mcap > 0 && liquidity > 0) ? Math.min(9999, (liquidity / mcap) * 100) : 0;
+  
+  // Extract token info from included data
+  const baseRel = pool.relationships?.base_token?.data;
+  let tokenName = a.name || 'Unknown';
+  let symbol = tokenName.split('/')[0].trim();
+  let tokenAddress = '';
+  
+  // DEX
+  const dex = a.dex_id || a.dex || '';
+  
+  // Link
+  const link = `https://www.geckoterminal.com/${chain}/pools/${a.address || pool.id}`;
   
   // Compute score based on mode
-  const score = computeScore(liquidity, vol24h, chg24h, ageMinutes, mode);
+  const score = computeScore(liquidity, vol24h, chg24h, ageHours, mode);
   
   return {
-    token: pool.attributes.name || 'Unknown',
+    name: tokenName,
+    symbol,
     chain,
     price,
     liquidity,
-    vol24h,
+    poolPct,
+    chg1h,
+    chg6h,
     chg24h,
+    vol24h,
+    mcap,
     score,
-    address: pool.id,
-    mode, // include mode for rendering logic
+    dex,
+    age: Math.round(ageHours * 10) / 10,
+    address: tokenAddress || pool.id,
+    poolAddr: a.address || pool.id,
+    link,
+    mode,
   };
 }
 
@@ -790,35 +813,64 @@ function computeScore(liq, vol, chg, age, mode) {
   );
 }
 
+// ── Chain tag styling (matching v2.0.0 color pills) ──
+function getChainTag(chainId) {
+  const meta = {
+    'solana':     { label:'Solana',   bg:'#2d1a4a',    color:'#c49fff', border:'#9945ff' },
+    'eth':        { label:'Ethereum', bg:'#1a2040',    color:'#aabfff', border:'#6699ff' },
+    'base':       { label:'Base',     bg:'#001a3a',    color:'#88aaff', border:'#4488ff' },
+    'bsc':        { label:'BSC',      bg:'#2a2000',    color:'#f0d060', border:'#f0b800' },
+    'arbitrum':   { label:'Arbitrum', bg:'#001a2a',    color:'#70ccff', border:'#12aaff' },
+    'optimism':   { label:'Optimism', bg:'#2a0000',    color:'#ff9090', border:'#ff4444' },
+    'polygon_pos':{ label:'Polygon',  bg:'#1a0a30',    color:'#b080ff', border:'#8247e5' },
+    'avax':       { label:'Avalanche',bg:'#2a0505',    color:'#ff8080', border:'#e84142' },
+    'sui-network':{ label:'Sui',      bg:'#001830',    color:'#90c8ff', border:'#4da2ff' },
+    'tron':       { label:'Tron',     bg:'#2a0005',    color:'#ff6070', border:'#ff0013' },
+    'blast':      { label:'Blast',    bg:'#1a1a00',    color:'#f0f060', border:'#fcfc03' },
+    'berachain':  { label:'Berachain',bg:'#1a0a00',    color:'#d2691e', border:'#8b4513' },
+    'cosmos':     { label:'Cosmos',   bg:'#120a1e',    color:'#b090d0', border:'#6f4e8a' },
+  };
+  const m = meta[chainId];
+  if (!m) return `<span style="font-size:9px;letter-spacing:1px;padding:2px 8px;font-weight:600;text-transform:uppercase;background:var(--bg2);color:var(--text-dim);border:1px solid var(--border2);border-radius:2px;display:inline-block;">${chainId}</span>`;
+  return `<span style="font-size:9px;letter-spacing:1px;padding:2px 8px;font-weight:600;text-transform:uppercase;background:${m.bg}!important;color:${m.color}!important;border:1px solid ${m.border};border-radius:2px;display:inline-block;">${m.label}</span>`;
+}
+
 // ── Rendering ─────────────────────────────────────────────────────
 function renderResults() {
   const body = document.getElementById('results-body');
   const sorted = [...pools].sort((a, b) => {
     let aVal = a[sortCol], bVal = b[sortCol];
-    if (sortCol === 'chg24h' || sortCol === 'price') aVal = parseFloat(aVal) || 0, bVal = parseFloat(bVal) || 0;
+    if (sortCol === 'chg24h' || sortCol === 'chg1h' || sortCol === 'chg6h' || sortCol === 'price' || sortCol === 'liquidity' || sortCol === 'vol24h' || sortCol === 'mcap' || sortCol === 'poolPct') aVal = parseFloat(aVal) || 0, bVal = parseFloat(bVal) || 0;
     return sortAsc ? aVal - bVal : bVal - aVal;
   });
   
-  document.getElementById('result-count').textContent = pools.length;
+  const tokCountEl = document.getElementById('tok-count');
+  if (tokCountEl) tokCountEl.textContent = pools.length;
   
   if (!pools.length) {
-    body.innerHTML = '<tr><td colspan="8" class="empty-msg">No results found.</td></tr>';
+    body.innerHTML = '<tr><td colspan="16" class="empty-msg">No results found.</td></tr>';
     return;
   }
   
-  body.innerHTML = sorted.map(p => {
-    const priceDisplay = p.mode !== 'chain-dive' ? 'N/A' : fPrice(p.price);
-    return `<tr>
-      <td class="price-cell"><strong>${p.token}</strong></td>
+  body.innerHTML = sorted.map((p, i) => `
+    <tr style="animation-delay:${i*18}ms">
       <td>${getChainTag(p.chain)}</td>
-      <td class="price-cell">${priceDisplay}</td>
-      <td class="vol-cell">${fUsd(p.liquidity)}</td>
-      <td class="vol-cell">${fUsd(p.vol24h)}</td>
-      <td class="${chgCls(p.chg24h)}">${fPct(p.chg24h)}</td>
-      <td class="score-cell">${p.score}</td>
-      <td class="addr-col" onclick="copyAddr('${p.address}')" title="Click to copy">${p.address.substring(0,10)}...</td>
-    </tr>`;
-  }).join('');
+      <td class="name-col" title="${p.name}" style="font-family:var(--sans);font-weight:700;font-size:13px;max-width:140px;overflow:hidden;text-overflow:ellipsis;">${p.name}</td>
+      <td class="sym-col" style="color:var(--blue);font-weight:600;letter-spacing:1px;">${p.symbol}</td>
+      <td class="age-col" style="color:var(--text-dim);">${p.age}h</td>
+      <td class="price-col" style="font-weight:600;">${fPrice(p.price)}</td>
+      <td class="liq-col" style="color:var(--green);font-weight:600;">${fUsd(p.liquidity)}</td>
+      <td class="pool-col" style="color:var(--blue-lt);">${p.poolPct > 0 ? p.poolPct.toFixed(1) + '%' : '—'}</td>
+      <td><span class="${chgCls(p.chg1h)}">${fPct(p.chg1h)}</span></td>
+      <td><span class="${chgCls(p.chg6h)}">${fPct(p.chg6h)}</span></td>
+      <td><span class="${chgCls(p.chg24h)}">${fPct(p.chg24h)}</span></td>
+      <td class="vol-col" style="color:var(--text-mid);">${fUsd(p.vol24h)}</td>
+      <td class="mcap-col" style="color:var(--text-mid);">${p.mcap ? fUsd(p.mcap) : '—'}</td>
+      <td style="color:var(--text-mid);font-weight:600;">${p.score != null ? p.score.toFixed(1) : '—'}</td>
+      <td><span style="font-size:9px;letter-spacing:1px;padding:2px 7px;border:1px solid var(--border2);color:var(--text-dim);text-transform:uppercase;background:var(--bg2);">${p.dex || '—'}</span></td>
+      <td class="addr-col" onclick="copyAddr('${p.poolAddr}')" title="Click to copy" style="font-size:10px;">${(p.poolAddr||'').substring(0,8)}…</td>
+      <td class="link-col"><a href="${p.link}" target="_blank" style="color:var(--green);text-decoration:none;font-size:10px;font-weight:600;letter-spacing:1px;">VIEW &#8599;</a></td>
+    </tr>`).join('');
 }
 
 function updateStats() {
@@ -849,19 +901,8 @@ function sortTable(col) {
   renderResults();
 }
 
-function getChainTag(c) {
-  const tags = {
-    'solana':'SOL','eth':'ETH','base':'BASE','bsc':'BSC',
-    'arbitrum':'ARB','optimism':'OP','polygon_pos':'POLY',
-    'avax':'AVAX','sui-network':'SUI','tron':'TRX',
-    'blast':'BLAST','berachain':'BERA','cosmos':'COSMOS'
-  };
-  return `<span style="background:var(--bg2);padding:2px 6px;border-radius:2px;font-size:9px;font-weight:600;">${tags[c]||c}</span>`;
-}
-
 function updateGoPlusBanner() {
-  // Placeholder: enable when GoPlus integration is ready
-  // document.getElementById('goplus-banner').classList.add('active');
+  // GoPlus disabled per user request
 }
 
 // ── Auto-run ───────────────────────────────────────────────────────
