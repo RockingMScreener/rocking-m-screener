@@ -21,9 +21,9 @@
   /* ── Header ── */
   .top-bar{background:var(--bg-header);border-bottom:3px solid var(--green-lt);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
   .logo-badge{display:flex;align-items:center;gap:16px;}
-  .badge-mark{width:72px;height:82px;background:#111a24;border:1.5px solid var(--green-lt);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:7px;flex-shrink:0;position:relative;}
-  .badge-rocking{font-family:var(--sans);font-size:9px;font-weight:800;letter-spacing:4px;color:var(--green-hi);text-transform:uppercase;line-height:1;}
-  .badge-m{font-family:var(--serif);font-size:54px;font-weight:700;color:#fff;line-height:1;margin-top:-2px;}
+  .badge-mark{width:72px;height:82px;background:#111a24;border:1.5px solid var(--green-lt);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex-shrink:0;position:relative;padding:6px 0;}
+  .badge-rocking{font-family:var(--sans);font-size:8px;font-weight:800;letter-spacing:3px;color:var(--green-hi);text-transform:uppercase;line-height:1.1;}
+  .badge-m{font-family:var(--serif);font-size:52px;font-weight:700;color:#fff;line-height:1;}
   .badge-sub{font-family:var(--sans);font-size:7px;font-weight:600;letter-spacing:3px;color:#3d5570;text-transform:uppercase;position:absolute;bottom:6px;}
   .brand-text{display:flex;flex-direction:column;gap:2px;}
   .brand-title{font-family:var(--sans);font-size:28px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#fff;line-height:1;}
@@ -33,12 +33,22 @@
   .s-item{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
   .s-label{font-family:var(--mono);font-size:9px;color:#4a6070;letter-spacing:2px;text-transform:uppercase;}
   .s-val{font-family:var(--mono);font-size:13px;color:var(--green-hi);font-weight:600;}
+  .header-nav-btn{background:transparent !important;border:2px solid var(--green-hi) !important;color:var(--green-hi) !important;padding:6px 16px !important;font-family:var(--sans) !important;font-size:11px !important;font-weight:600 !important;letter-spacing:2px !important;text-transform:uppercase !important;cursor:pointer !important;transition:all .15s !important;white-space:nowrap;}
+  .header-nav-btn:hover{background:var(--green-hi) !important;color:var(--bg-header) !important;}
 
   .shell{max-width:1500px;margin:0 auto;padding:20px 24px 40px;}
   .sec-label{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
 
+  /* ── Mode Selector ── */
+  .mode-selector{margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--blue);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .mode-buttons{display:flex;gap:8px;flex-wrap:wrap;}
+  .mode-btn{font-family:var(--mono);font-size:11px;letter-spacing:2px;padding:8px 16px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text-mid);cursor:pointer;transition:all .15s;text-transform:uppercase;white-space:nowrap;user-select:none;box-shadow:0 1px 2px rgba(0,0,0,.06);}
+  .mode-btn:hover{border-color:var(--blue);color:var(--blue);background:#eef5ff;}
+  .mode-btn.active{border-color:var(--blue);background:var(--blue);color:#fff;box-shadow:0 2px 6px rgba(0,85,165,.25);}
+
   /* ── Chain selector ── */
   .chain-section{margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--green);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .chain-section.hidden{display:none;}
   .chain-tier-label{font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px;margin-top:10px;}
   .chain-tier-label:first-of-type{margin-top:0;}
   .chain-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px;}
@@ -65,6 +75,26 @@
   .chain-counter{font-family:var(--mono);font-size:11px;font-weight:600;padding:4px 12px;border:1px solid var(--border);background:var(--bg2);color:var(--text-mid);margin-left:auto;}
   .chain-counter.at-limit{border-color:var(--amber);color:var(--amber);background:#fff8e6;}
   .chain-hint{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-top:8px;}
+
+  /* ── Chain Dropdown (for Chain Deep Dive & Top Gainers) ── */
+  .chain-dropdown-section{margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--green);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .chain-dropdown-section.hidden{display:none;}
+  .dropdown-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;display:block;}
+  .quick-chain-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .quick-chain-btn{font-family:var(--mono);font-size:11px;letter-spacing:1px;padding:8px 16px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text-mid);cursor:pointer;transition:all .15s;text-transform:uppercase;white-space:nowrap;user-select:none;font-weight:600;}
+  .quick-chain-btn:hover{border-color:var(--green);color:var(--green);background:#f0f8f4;}
+  .quick-chain-btn.active{border-color:var(--green);background:var(--green);color:#fff;box-shadow:0 2px 6px rgba(0,122,61,.25);}
+  .chain-dropdown{font-family:var(--mono);font-size:12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 12px;outline:none;width:100%;max-width:300px;cursor:pointer;}
+  .chain-dropdown:focus{border-color:var(--green);background:#fff;}
+
+  /* ── Timeframe Toggle (for Top Gainers) ── */
+  .timeframe-section{margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--blue-lt);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .timeframe-section.hidden{display:none;}
+  .timeframe-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;display:block;}
+  .timeframe-toggles{display:flex;gap:8px;flex-wrap:wrap;}
+  .tf-btn{font-family:var(--mono);font-size:11px;letter-spacing:1px;padding:6px 16px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text-mid);cursor:pointer;transition:all .15s;text-transform:uppercase;white-space:nowrap;user-select:none;}
+  .tf-btn:hover{border-color:var(--blue-lt);color:var(--blue-lt);}
+  .tf-btn.active{border-color:var(--blue-lt);background:var(--blue-lt);color:#fff;}
 
   /* ── GoPlus banner ── */
   .goplus-banner{display:none;align-items:center;gap:10px;margin-bottom:10px;padding:8px 14px;background:#e6f4ec;border:1px solid var(--green);border-left:4px solid var(--green-hi);font-family:var(--mono);font-size:10px;color:var(--green);letter-spacing:1px;}
@@ -128,862 +158,724 @@
   tbody tr:hover{background:#edf5f0!important;}
   td{padding:8px 11px;white-space:nowrap;color:var(--text);border-right:1px solid rgba(196,202,210,.4);}
   td:last-child{border-right:none;}
-  td.name-col{font-family:var(--sans);font-weight:700;font-size:13px;max-width:140px;overflow:hidden;text-overflow:ellipsis;}
-  td.sym-col{color:var(--blue);font-weight:600;letter-spacing:1px;}
-  td.age-col{color:var(--text-dim);}
-  td.price-col{font-weight:600;}
-  td.liq-col{color:var(--green);font-weight:600;}
-  td.pool-col{color:var(--blue-lt);}
-  td.vol-col{color:var(--text-mid);}
-  td.mcap-col{color:var(--text-mid);}
-  td.addr-col{color:var(--blue-lt);font-size:10px;cursor:pointer;transition:color .15s;}
-  td.addr-col:hover{color:var(--blue);text-decoration:underline;}
-  td.link-col a{color:var(--green);text-decoration:none;font-size:10px;font-weight:600;letter-spacing:1px;}
-  td.link-col a:hover{text-decoration:underline;}
-
-  td.gp-cell{border-left:2px solid rgba(0,204,102,.15);font-size:10px;}
-  .gp-safe{color:var(--green);font-weight:600;}
-  .gp-warn{color:var(--amber);font-weight:600;}
-  .gp-danger{color:var(--red);font-weight:600;}
-  .gp-dim{color:var(--text-dim);}
-  .gp-loading{color:var(--text-dim);font-style:italic;}
-  .hp-badge{font-size:9px;letter-spacing:1px;padding:2px 7px;font-weight:700;text-transform:uppercase;}
-  .hp-safe{background:var(--green-bg);color:var(--green);border:1px solid var(--green);}
-  .hp-danger{background:#fde8e8;color:var(--red);border:1px solid var(--red);}
-  .hp-unknown{background:var(--bg2);color:var(--text-dim);border:1px solid var(--border2);}
-  .risk-badge{font-size:10px;letter-spacing:2px;padding:3px 10px;font-weight:800;text-transform:uppercase;display:inline-block;}
-  .risk-red   {background:#fde8e8;color:var(--red);border:1px solid var(--red);}
-  .risk-amber {background:#fff3cd;color:var(--amber);border:1px solid var(--amber);}
-  .risk-green {background:var(--green-bg);color:var(--green);border:1px solid var(--green);}
-  .risk-grey  {background:var(--bg2);color:var(--text-dim);border:1px solid var(--border2);font-weight:600;letter-spacing:1px;}
-
-  /* ── Chain color pills ── */
-  .chain-tag{font-size:9px;letter-spacing:1px;padding:2px 8px;text-transform:uppercase;font-weight:600;border-radius:2px;display:inline-block;}
-  span.chain-tag.ct-solana   {background:#2d1a4a!important;color:#c49fff!important;border:1px solid #9945ff;}
-  span.chain-tag.ct-eth      {background:#1a2040!important;color:#aabfff!important;border:1px solid #6699ff;}
-  span.chain-tag.ct-base     {background:#001a3a!important;color:#88aaff!important;border:1px solid #4488ff;}
-  span.chain-tag.ct-bsc      {background:#2a2000!important;color:#f0d060!important;border:1px solid #f0b800;}
-  span.chain-tag.ct-arbitrum {background:#001a2a!important;color:#70ccff!important;border:1px solid #12aaff;}
-  span.chain-tag.ct-optimism {background:#2a0000!important;color:#ff9090!important;border:1px solid #ff4444;}
-  span.chain-tag.ct-polygon  {background:#1a0a30!important;color:#b080ff!important;border:1px solid #8247e5;}
-  span.chain-tag.ct-avax     {background:#2a0505!important;color:#ff8080!important;border:1px solid #e84142;}
-  span.chain-tag.ct-sui      {background:#001830!important;color:#90c8ff!important;border:1px solid #4da2ff;}
-  span.chain-tag.ct-tron     {background:#2a0005!important;color:#ff6070!important;border:1px solid #ff0013;}
-  span.chain-tag.ct-blast    {background:#1a1a00!important;color:#f0f060!important;border:1px solid #fcfc03;}
-  span.chain-tag.ct-berachain{background:#1a0a00!important;color:#d2691e!important;border:1px solid #8b4513;}
-  span.chain-tag.ct-cosmos   {background:#120a1e!important;color:#b090d0!important;border:1px solid #6f4e8a;}
-  span.chain-tag.ct-other    {background:#1a2330!important;color:#8fa0b0!important;border:1px solid #3d5570;}
-
-  .chg-high{color:#fff;background:var(--green);padding:2px 7px;font-weight:600;}
-  .chg-med{color:#fff;background:var(--green-lt);padding:2px 7px;}
-  .chg-low{color:var(--green);background:var(--green-bg);padding:2px 7px;}
-  .chg-neg{color:#fff;background:var(--red);padding:2px 7px;font-weight:600;}
-  .chg-zero{color:var(--text-dim);padding:2px 7px;}
-  .badge{font-size:9px;letter-spacing:1px;padding:2px 7px;border:1px solid var(--border2);color:var(--text-dim);text-transform:uppercase;background:var(--bg2);}
-  .empty-msg{text-align:center;padding:50px 20px;font-family:var(--mono);font-size:12px;color:var(--text-dim);letter-spacing:2px;}
-  .spinner{display:inline-block;width:10px;height:10px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px;}
-  @keyframes spin{to{transform:rotate(360deg)}}
+  .addr-col{cursor:pointer;color:var(--blue);text-decoration:underline;text-decoration-color:transparent;transition:text-decoration-color .15s;}
+  .addr-col:hover{text-decoration-color:currentColor;}
+  td.score-cell{font-weight:600;color:var(--green);}
+  td.price-cell{color:var(--blue);}
+  td.vol-cell{color:var(--amber);}
+  .chg-high{color:#00aa00;font-weight:600;}
+  .chg-med{color:#00cc66;}
+  .chg-low{color:#00ff99;}
+  .chg-neg{color:#ff4444;}
+  .chg-zero{color:var(--text-dim);}
+  .empty-msg{text-align:center;color:var(--text-dim);padding:40px 20px!important;}
 
   /* ── Trade Journal ── */
-  .section-hdr{font-family:var(--sans);font-size:14px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--text);border-bottom:2px solid var(--green);padding-bottom:6px;margin:24px 0 12px;}
-  .tradelog-form{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 2fr auto;gap:8px;margin-bottom:10px;align-items:flex-end;}
-  .tl-tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;}
-  .tl-tbl th{padding:8px 11px;background:var(--bg-header);font-size:8px;letter-spacing:2px;color:#a0b4c4;text-transform:uppercase;text-align:left;border-right:1px solid rgba(255,255,255,.06);}
-  .tl-tbl td{padding:8px 11px;border-bottom:1px solid var(--border);border-right:1px solid rgba(196,202,210,.4);}
-  .tl-tbl tr:nth-child(even) td{background:#f7f9fb;}
-  .tl-tbl tr:hover td{background:#edf5f0;}
-  .outcome-win{color:var(--green);font-weight:600;}
-  .outcome-loss{color:var(--red);font-weight:600;}
-  .outcome-open{color:var(--amber);font-weight:600;}
-  .btn-del{background:transparent;border:none;color:var(--text-dim);cursor:pointer;font-family:var(--mono);font-size:11px;padding:2px 6px;}
-  .btn-del:hover{color:var(--red);}
-  .export-row{display:flex;gap:8px;margin-top:10px;}
-  .btn-sm{font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:6px 14px;border:1px solid var(--border2);background:var(--bg3);color:var(--text-mid);cursor:pointer;transition:all .15s;box-shadow:0 1px 2px rgba(0,0,0,.07);}
-  .btn-sm:hover{border-color:var(--green);color:var(--green);background:var(--green-bg);}
+  .tl-section{margin-top:40px;border-top:2px solid var(--border);padding-top:20px;}
+  .tl-entry{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .tl-input{font-family:var(--mono);font-size:11px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 10px;outline:none;width:100%;transition:border-color .15s;}
+  .tl-input:focus{border-color:var(--green);background:#fff;}
+  textarea.tl-input{resize:vertical;min-height:50px;grid-column:1/-1;}
+  .btn-add{font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:8px 20px;border:1.5px solid var(--green);background:transparent;color:var(--green);cursor:pointer;transition:all .15s;grid-column:1/-1;}
+  .btn-add:hover{background:var(--green);color:#fff;}
+  .btn-del{font-family:var(--mono);font-size:11px;border:1px solid var(--red);background:transparent;color:var(--red);padding:4px 8px;cursor:pointer;transition:all .15s;}
+  .btn-del:hover{background:var(--red);color:#fff;}
+  .outcome-open{color:var(--amber);}
+  .outcome-win{color:var(--green);}
+  .outcome-loss{color:var(--red);}
+  .export-btns{display:flex;gap:8px;flex-wrap:wrap;}
+  .btn-export{font-family:var(--mono);font-size:11px;letter-spacing:1px;padding:6px 16px;border:1px solid var(--border);background:var(--bg2);color:var(--text-mid);cursor:pointer;transition:all .15s;text-transform:uppercase;}
+  .btn-export:hover{border-color:var(--blue);background:var(--bg3);color:var(--blue);}
 
-  /* ── Footer ── */
-  footer{margin-top:20px;padding-top:14px;border-top:2px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
-  footer span{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;}
-  .toast{position:fixed;bottom:20px;right:20px;background:var(--bg-header);border:1px solid var(--green-lt);padding:10px 18px;font-family:var(--mono);font-size:11px;color:var(--green-hi);letter-spacing:1px;z-index:10000;opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.2);}
-  .toast.show{opacity:1;transform:translateY(0);}
+  /* ── Toast ── */
+  .toast{position:fixed;bottom:20px;right:20px;background:var(--green);color:#fff;padding:12px 20px;border-radius:3px;font-family:var(--mono);font-size:11px;letter-spacing:1px;box-shadow:0 4px 12px rgba(0,122,61,.3);animation:slide-up .3s ease;}
+  @keyframes slide-up{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+  @media(max-width:768px){
+    .brand-title{font-size:20px;}
+    .mode-buttons{gap:6px;}
+    .mode-btn{font-size:10px;padding:6px 12px;}
+    .shell{padding:12px 16px 30px;}
+  }
 </style>
 </head>
 <body>
 
-<!-- ── Header ── -->
 <div class="top-bar">
   <div class="logo-badge">
     <div class="badge-mark">
-      <span class="badge-rocking">Rocking</span>
-      <svg width="58" height="14" viewBox="0 0 58 14" fill="none" style="display:block;margin:2px 0 -4px">
-        <path d="M 2 12 Q 29 2 56 12" stroke="#00cc66" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-      </svg>
-      <span class="badge-m">M</span>
-      <span class="badge-sub">Crypto</span>
+      <div class="badge-rocking">Rocking</div>
+      <div class="badge-m">M</div>
+      <div class="badge-sub">crypto</div>
     </div>
     <div class="brand-text">
-      <div class="brand-title">ROCKING <span>M</span> CRYPTO</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:3px;color:#3d5570;text-transform:uppercase;margin-top:2px;">Cipher &middot; Decodes What the Market Is Saying</div>
-      <div class="brand-tagline">You don't have to be a master trader.<br>You just need to know how to use the tools.</div>
+      <div class="brand-title">ROCKING M <span>CRYPTO</span></div>
+      <div class="brand-tagline">Cipher — Decodes What the Market Is Saying<br>You don't have to be a master trader.<br>You just need to know how to use the tools.</div>
     </div>
   </div>
   <div class="status-cluster">
-    <div class="s-item"><span class="s-label">Last Scan</span><span class="s-val" id="last-scan">&#8212;</span></div>
-    <div class="s-item"><span class="s-label">Next Scan</span><span class="s-val" id="next-scan">&#8212;</span></div>
-    <div class="s-item"><span class="s-label">Tokens Found</span><span class="s-val" id="tok-count">0</span></div>
-    <a href="trailguide.html" target="_blank" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;border:2px solid var(--green-lt);background:transparent;color:var(--green-hi);text-decoration:none;transition:all .15s;white-space:nowrap;" onmouseover="this.style.background='var(--green)'" onmouseout="this.style.background='transparent'"> &#9672; TRAIL GUIDE</a>
-    <a href="craftsman.html" target="_blank" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;border:2px solid var(--green-lt);background:transparent;color:var(--green-hi);text-decoration:none;transition:all .15s;white-space:nowrap;" onmouseover="this.style.background='var(--green)'" onmouseout="this.style.background='transparent'">&#9672; CRAFTSMAN</a>
+    <div class="s-item">
+      <div class="s-label">Last Scan</div>
+      <div class="s-val" id="last-scan">&#8212;</div>
+    </div>
+    <div class="s-item">
+      <div class="s-label">Next Scan</div>
+      <div class="s-val" id="next-scan">&#8212;</div>
+    </div>
+    <div class="s-item">
+      <div class="s-label">Tokens Found</div>
+      <div class="s-val" id="result-count">0</div>
+    </div>
+    <a href="https://rockingmscreener.com/trailguide.html" target="_blank" style="text-decoration:none;">
+      <button class="header-nav-btn">🧭 Trail Guide</button>
+    </a>
+    <a href="https://rockingmscreener.com/papertrader.html" target="_blank" style="text-decoration:none;">
+      <button class="header-nav-btn">⚒️ Craftsman</button>
+    </a>
   </div>
 </div>
 
 <div class="shell">
 
-  <!-- ── Chain Selector ── -->
-  <div class="chain-section">
-    <div class="sec-label">
-      SELECT CHAINS
-      <span class="chain-counter" id="chain-counter">1 / 5 selected</span>
+  <!-- Mode Selector -->
+  <div class="mode-selector">
+    <div class="sec-label">⚙ Scan Mode</div>
+    <div class="mode-buttons">
+      <button class="mode-btn active" data-mode="new-pools" onclick="setMode('new-pools')">Trending</button>
+      <button class="mode-btn" data-mode="volume-spike" onclick="setMode('volume-spike')">Volume Spike</button>
+      <button class="mode-btn" data-mode="top-gainers" onclick="setMode('top-gainers')">Top Gainers</button>
+      <button class="mode-btn" data-mode="chain-dive" onclick="setMode('chain-dive')">Chain Deep Dive</button>
     </div>
-    <div class="chain-tier-label">Tier 1 &mdash; High Volume &middot; GoPlus Security Enabled</div>
-    <div class="chain-chips" id="tier1-chips">
-      <button class="chip active" data-chain="solana"   onclick="toggleChain(this)">&#9672; Solana</button>
-      <button class="chip"        data-chain="eth"      onclick="toggleChain(this)">&#9672; Ethereum</button>
-      <button class="chip"        data-chain="base"     onclick="toggleChain(this)">&#9672; Base</button>
-      <button class="chip"        data-chain="bsc"      onclick="toggleChain(this)">&#9672; BSC</button>
-      <button class="chip"        data-chain="arbitrum" onclick="toggleChain(this)">&#9672; Arbitrum</button>
-      <button class="chip"        data-chain="optimism" onclick="toggleChain(this)">&#9672; Optimism</button>
-    </div>
-    <div class="chain-tier-label">Tier 2 &mdash; Active Communities &middot; Price Data Only</div>
-    <div class="chain-chips" id="tier2-chips">
-      <button class="chip" data-chain="polygon_pos" onclick="toggleChain(this)">&#9672; Polygon</button>
-      <button class="chip" data-chain="avax"        onclick="toggleChain(this)">&#9672; Avalanche</button>
-      <button class="chip" data-chain="sui-network" onclick="toggleChain(this)">&#9672; Sui</button>
-      <button class="chip" data-chain="tron"        onclick="toggleChain(this)">&#9672; Tron</button>
-      <button class="chip" data-chain="blast"       onclick="toggleChain(this)">&#9672; Blast</button>
-      <button class="chip" data-chain="berachain"   onclick="toggleChain(this)">&#9672; Berachain</button>
-      <button class="chip" data-chain="cosmos"      onclick="toggleChain(this)">&#9672; Cosmos</button>
-    </div>
-    <div class="chain-hint">Select up to 5 chains per scan &mdash; results combined into one table. Tier 1 chains include GoPlus security data. Deselect a chain to enable others.</div>
   </div>
 
-  <!-- ── GoPlus Active Banner ── -->
+  <!-- Timeframe Toggle (hidden by default, shown for Top Gainers) -->
+  <div class="timeframe-section hidden" id="timeframe-section">
+    <label class="timeframe-label">Timeframe</label>
+    <div class="timeframe-toggles">
+      <button class="tf-btn" data-timeframe="1h" onclick="setTimeframe('1h')">1h</button>
+      <button class="tf-btn active" data-timeframe="4h" onclick="setTimeframe('4h')">4h</button>
+      <button class="tf-btn" data-timeframe="24h" onclick="setTimeframe('24h')">24h</button>
+    </div>
+  </div>
+
+  <!-- Chain Selector (visible for modes: new-pools, volume-spike, top-gainers) -->
+  <div class="chain-section" id="chain-section">
+    <div class="sec-label">Chains <span id="chain-counter-label" style="margin-left:auto;"></span></div>
+    <div class="chain-tier-label">Tier 1 (high volume)</div>
+    <div class="chain-chips">
+      <button class="chip" data-chain="solana" onclick="toggleChain('solana')">Solana</button>
+      <button class="chip" data-chain="eth" onclick="toggleChain('eth')">Ethereum</button>
+      <button class="chip" data-chain="base" onclick="toggleChain('base')">Base</button>
+      <button class="chip" data-chain="bsc" onclick="toggleChain('bsc')">BSC</button>
+    </div>
+    <div class="chain-tier-label">Tier 2 (emerging)</div>
+    <div class="chain-chips">
+      <button class="chip" data-chain="arbitrum" onclick="toggleChain('arbitrum')">Arbitrum</button>
+      <button class="chip" data-chain="optimism" onclick="toggleChain('optimism')">Optimism</button>
+      <button class="chip" data-chain="polygon_pos" onclick="toggleChain('polygon_pos')">Polygon</button>
+      <button class="chip" data-chain="avax" onclick="toggleChain('avax')">Avax</button>
+    </div>
+    <div class="chain-tier-label">Tier 3 (specialized)</div>
+    <div class="chain-chips">
+      <button class="chip" data-chain="sui-network" onclick="toggleChain('sui-network')">Sui</button>
+      <button class="chip" data-chain="tron" onclick="toggleChain('tron')">Tron</button>
+      <button class="chip" data-chain="blast" onclick="toggleChain('blast')">Blast</button>
+      <button class="chip" data-chain="berachain" onclick="toggleChain('berachain')">Berachain</button>
+      <button class="chip" data-chain="cosmos" onclick="toggleChain('cosmos')">Cosmos</button>
+    </div>
+    <div class="chain-hint" id="chain-hint"></div>
+  </div>
+
+  <!-- Chain Selector for Deep Dive (buttons for top chains + dropdown for rest) -->
+  <div class="chain-dropdown-section hidden" id="chain-dropdown-section">
+    <label class="dropdown-label">Quick Select</label>
+    <div class="quick-chain-buttons">
+      <button class="quick-chain-btn" data-chain-id="solana" onclick="selectChainDeepDive('solana', 'Solana')">Solana</button>
+      <button class="quick-chain-btn" data-chain-id="bsc" onclick="selectChainDeepDive('bsc', 'BSC')">BSC</button>
+      <button class="quick-chain-btn" data-chain-id="base" onclick="selectChainDeepDive('base', 'Base')">Base</button>
+      <button class="quick-chain-btn" data-chain-id="eth" onclick="selectChainDeepDive('eth', 'Ethereum')">Ethereum</button>
+    </div>
+    <label class="dropdown-label" style="margin-top:12px;">Other Chains</label>
+    <select class="chain-dropdown" id="chain-dropdown" onchange="onChainDropdownChange()">
+      <option value="">-- Select a chain --</option>
+    </select>
+  </div>
+
+  <!-- GoPlus Banner -->
   <div class="goplus-banner" id="goplus-banner">
-    <span class="goplus-dot"></span>
-    GOPLUS SECURITY ACTIVE &mdash; Honeypot detection, tax analysis &amp; holder data powered by GoPlus Labs &middot; Free &middot; No key required
+    <div class="goplus-dot"></div>
+    <span>GoPlus integration: checking honeypots, deployer traits</span>
   </div>
 
-  <!-- ── Filters ── -->
+  <!-- Filter Panel -->
   <div class="filter-panel">
-    <div class="fgroup"><span class="flabel">Min Liquidity ($)</span><input class="finput" type="number" id="min-liq" value="8000" step="1000"></div>
-    <div class="fgroup"><span class="flabel">Max Pool Age (h)</span><input class="finput" type="number" id="max-age" value="24" step="1"><span style="font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-top:3px;display:block">GeckoTerminal typically returns pools under 4h old</span></div>
-    <div class="fgroup"><span class="flabel">Min 1H Change (%)</span><input class="finput" type="number" id="min-chg" value="0" step="1"></div>
-    <div class="fgroup"><span class="flabel">Min Volume 24H ($)</span><input class="finput" type="number" id="min-vol" value="0" step="1000"></div>
+    <div class="fgroup">
+      <label class="flabel">Min Liquidity (USD)</label>
+      <input type="number" class="finput" id="min-liq" value="5000" min="0" step="1000">
+    </div>
+    <div class="fgroup">
+      <label class="flabel">Min Score</label>
+      <input type="number" class="finput" id="min-score" value="50" min="0" max="100" step="5">
+    </div>
+    <div class="fgroup">
+      <label class="flabel">Results Limit</label>
+      <input type="number" class="finput" id="results-limit" value="30" min="5" max="100" step="5">
+    </div>
   </div>
 
-  <!-- ── Controls ── -->
+  <!-- Controls -->
   <div class="ctrl-row">
-    <button class="btn-run" id="run-btn" onclick="runScreener()">&#9654; RUN SCAN</button>
+    <button class="btn-run" id="btn-run" onclick="runScan()">Scan Now</button>
     <div class="auto-group">
       <label class="toggle">
         <input type="checkbox" id="auto-toggle" onchange="toggleAuto()">
         <div class="toggle-track"></div>
         <div class="toggle-thumb"></div>
       </label>
-      <span class="mono-sm">AUTO</span>
-      <select class="mono-sm" id="interval-sel">
-        <option value="1">1 min</option>
-        <option value="5" selected>5 min</option>
-        <option value="15">15 min</option>
-        <option value="30">30 min</option>
-      </select>
+      <label class="mono-sm">Auto-run every
+        <select class="mono-sm" id="auto-interval">
+          <option value="30">30s</option>
+          <option value="60" selected>60s</option>
+          <option value="120">2m</option>
+          <option value="300">5m</option>
+        </select>
+      </label>
     </div>
-    <div class="status-pill"><span class="live-dot" id="live-dot"></span><span id="status-txt">IDLE</span></div>
+    <div class="status-pill">
+      <div class="live-dot" id="live-dot"></div>
+      <span id="status-text">Ready</span>
+    </div>
   </div>
 
-  <!-- ── Stats ── -->
-  <div class="stats-row">
-    <div class="scard"><div class="scard-label">Total Passing</div><div class="scard-val" id="st-total">0</div></div>
-    <div class="scard hot-card"><div class="scard-label">Hot (25%+)</div><div class="scard-val" id="st-hot" style="color:var(--green-lt)">0</div></div>
-    <div class="scard blue-card"><div class="scard-label">Avg Liquidity</div><div class="scard-val" id="st-liq" style="font-size:15px;color:var(--blue)">&#8212;</div></div>
-    <div class="scard red-card"><div class="scard-label">Negative 1H</div><div class="scard-val" id="st-neg" style="color:var(--red)">0</div></div>
-    <div class="scard"><div class="scard-label">Avg 1H %</div><div class="scard-val" id="st-avg1h" style="font-size:15px">&#8212;</div></div>
-    <div class="scard amber-card"><div class="scard-label">Chains Scanned</div><div class="scard-val" id="st-chains" style="font-size:15px;color:var(--amber)">&#8212;</div></div>
+  <!-- Stats -->
+  <div class="stats-row" id="stats-row" style="display:none;">
+    <div class="scard hot-card">
+      <div class="scard-label">Avg Score</div>
+      <div class="scard-val" id="stat-score">&#8212;</div>
+    </div>
+    <div class="scard blue-card">
+      <div class="scard-label">Avg 24h Chg</div>
+      <div class="scard-val" id="stat-chg24h">&#8212;</div>
+    </div>
+    <div class="scard amber-card">
+      <div class="scard-label">Total Liquidity</div>
+      <div class="scard-val" id="stat-liq">&#8212;</div>
+    </div>
   </div>
 
-  <!-- ── Table ── -->
+  <!-- Results Table -->
   <div class="tbl-wrap">
-    <table id="main-table">
-      <thead id="tbl-head">
+    <table>
+      <thead>
         <tr>
-          <th onclick="sortBy('chain')">Chain</th>
-          <th onclick="sortBy('name')">Name</th>
-          <th onclick="sortBy('symbol')">Symbol</th>
-          <th onclick="sortBy('age')">Age</th>
-          <th onclick="sortBy('price')">Price</th>
-          <th onclick="sortBy('liquidity')">Liquidity</th>
-          <th onclick="sortBy('poolPct')">Pool %</th>
-          <th onclick="sortBy('chg1h')" class="sorted">1H %</th>
-          <th onclick="sortBy('chg6h')">6H %</th>
-          <th onclick="sortBy('chg24h')">24H %</th>
-          <th onclick="sortBy('vol24h')">Vol 24H</th>
-          <th onclick="sortBy('mcap')">Mkt Cap</th>
-          <th>DEX</th>
+          <th onclick="sortTable('token')">Token</th>
+          <th onclick="sortTable('chain')">Chain</th>
+          <th onclick="sortTable('price')">Price</th>
+          <th onclick="sortTable('liq')">Liquidity</th>
+          <th onclick="sortTable('vol24h')">24h Vol</th>
+          <th onclick="sortTable('chg24h')">24h Chg</th>
+          <th onclick="sortTable('score')">Score</th>
           <th>Address</th>
-          <th>Link</th>
         </tr>
       </thead>
-      <tbody id="tbl-body">
-        <tr><td colspan="15" class="empty-msg">Select chains above and press RUN SCAN</td></tr>
+      <tbody id="results-body">
+        <tr><td colspan="8" class="empty-msg">No results yet. Click "Scan Now" to begin.</td></tr>
       </tbody>
     </table>
   </div>
 
-  <!-- ── Disclaimer ── -->
-  <div style="margin:24px 0 8px;padding:14px 20px;background:#fff8e6;border:1px solid #c4cad2;border-left:4px solid #c47a00;text-align:center;">
-    <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#1a1f26;letter-spacing:1px;line-height:1.8;">
-      <strong>RESEARCH TOOL ONLY</strong> &mdash; Nothing displayed here constitutes financial advice, investment recommendations, or endorsements of any token.
-      Always do your own research. Only invest what you are prepared to lose.
-    </p>
+  <!-- Trade Journal -->
+  <div class="tl-section">
+    <div class="sec-label">📓 Trade Journal</div>
+    <div class="tl-entry">
+      <input type="text" class="tl-input" id="tl-sym" placeholder="Symbol (e.g., TOKEN)">
+      <input type="text" class="tl-input" id="tl-addr" placeholder="Contract address">
+      <input type="number" class="tl-input" id="tl-entry" placeholder="Entry price" step="0.00000001">
+      <input type="number" class="tl-input" id="tl-exit" placeholder="Exit price (optional)" step="0.00000001">
+      <textarea class="tl-input" id="tl-reason" placeholder="Entry reason / Notes"></textarea>
+      <button class="btn-add" onclick="addTrade()">Add Trade</button>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Chain</th>
+            <th>Symbol</th>
+            <th>Address</th>
+            <th>Entry</th>
+            <th>Exit</th>
+            <th>PnL %</th>
+            <th>Reason</th>
+            <th>Outcome</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody id="tl-body"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-export" onclick="exportCSV()">Export CSV</button>
+      <button class="btn-export" onclick="exportJSON()">Export ElizaOS JSON</button>
+    </div>
   </div>
 
-  <!-- ── Trade Journal ── -->
-  <div class="section-hdr">Trade Journal &middot; ElizaOS Training Data</div>
-  <div class="tradelog-form">
-    <div class="fgroup"><span class="flabel">Token Symbol</span><input class="finput" type="text" id="tl-sym" placeholder="TOKEN"></div>
-    <div class="fgroup"><span class="flabel">Contract Address</span><input class="finput" type="text" id="tl-addr" placeholder="0x... or base58"></div>
-    <div class="fgroup"><span class="flabel">Entry Price</span><input class="finput" type="number" id="tl-entry" placeholder="0.000000" step="any"></div>
-    <div class="fgroup"><span class="flabel">Exit Price</span><input class="finput" type="number" id="tl-exit" placeholder="blank if open" step="any"></div>
-    <div class="fgroup"><span class="flabel">Reason for Trade</span><input class="finput" type="text" id="tl-reason" placeholder="e.g. liq>10k, 1h>20%, age<2h"></div>
-    <div class="fgroup" style="justify-content:flex-end"><span class="flabel">&nbsp;</span><button class="btn-run" style="padding:7px 20px;font-size:13px" onclick="addTrade()">+ LOG</button></div>
-  </div>
-
-  <table class="tl-tbl">
-    <thead>
-      <tr>
-        <th>Date</th><th>Chain</th><th>Symbol</th><th>Address</th>
-        <th>Entry</th><th>Exit</th><th>P&amp;L %</th><th>Reason</th><th>Outcome</th><th></th>
-      </tr>
-    </thead>
-    <tbody id="tl-body">
-      <tr><td colspan="10" class="empty-msg" style="padding:20px">No trades logged yet</td></tr>
-    </tbody>
-  </table>
-
-  <div class="export-row">
-    <button class="btn-sm" onclick="exportCSV()">&#8595; Export CSV</button>
-    <button class="btn-sm" onclick="exportJSON()">&#8595; Export JSON (ElizaOS)</button>
-  </div>
-
-  <footer>
-    <span><span class="live-dot" id="footer-dot" style="margin-right:6px;vertical-align:middle"></span><span id="footer-txt">IDLE</span></span>
-    <span>GeckoTerminal Free API &middot; GoPlus Security API &middot; 13 Chains &middot; Max 5 per scan &middot; No key required</span>
-    <span>Rocking M Crypto Screener v1.5 &middot; ElizaOS Ready &middot;
-      <a href="trailguide.html" target="_blank" style="color:var(--green-hi);text-decoration:none;">Trail Guide &#8599;</a> &middot;
-      <a href="craftsman.html" target="_blank" style="color:var(--green-hi);text-decoration:none;">CRAFTSMAN &#8599;</a> &middot;
-      <a href="https://x.com/Rockingmscreen" target="_blank" rel="noopener noreferrer" style="color:var(--green-hi);text-decoration:none;">X</a> &middot;
-      <a href="https://discord.gg/Z2VWxUcpy" target="_blank" rel="noopener noreferrer" style="color:var(--green-hi);text-decoration:none;">Discord</a>
-    </span>
-  </footer>
 </div>
 
-<div class="toast" id="toast"></div>
-
 <script>
-// ── Chain metadata ─────────────────────────────────────────────
-const CHAIN_META = {
-  'solana':      { label:'Solana',    cssClass:'ct-solana',    tier:1 },
-  'eth':         { label:'Ethereum',  cssClass:'ct-eth',       tier:1 },
-  'base':        { label:'Base',      cssClass:'ct-base',      tier:1 },
-  'bsc':         { label:'BSC',       cssClass:'ct-bsc',       tier:1 },
-  'arbitrum':    { label:'Arbitrum',  cssClass:'ct-arbitrum',  tier:1 },
-  'optimism':    { label:'Optimism',  cssClass:'ct-optimism',  tier:1 },
-  'polygon_pos': { label:'Polygon',   cssClass:'ct-polygon',   tier:2 },
-  'avax':        { label:'Avalanche', cssClass:'ct-avax',      tier:2 },
-  'sui-network': { label:'Sui',       cssClass:'ct-sui',       tier:2 },
-  'tron':        { label:'Tron',      cssClass:'ct-tron',      tier:2 },
-  'blast':       { label:'Blast',     cssClass:'ct-blast',     tier:2 },
-  'berachain':   { label:'Berachain', cssClass:'ct-berachain', tier:2 },
-  'cosmos':      { label:'Cosmos',    cssClass:'ct-cosmos',    tier:2 },
+// ── Global State ──────────────────────────────────────────────────
+const GECKO_BASE = 'https://api.geckoterminal.com/api/v2';
+const chainMaps = {
+  'solana':'solana','eth':'ethereum','base':'base','bsc':'bsc',
+  'arbitrum':'arbitrum','optimism':'optimism','polygon_pos':'polygon',
+  'avax':'avalanche','sui-network':'sui','tron':'tron','blast':'blast',
+  'berachain':'berachain','cosmos':'cosmos'
 };
 
-// GoPlus chain ID map (Tier 1 only)
-const GOPLUS_CHAIN_ID = {
-  'solana':   'solana',
-  'eth':      '1',
-  'base':     '8453',
-  'bsc':      '56',
-  'arbitrum': '42161',
-  'optimism': '10',
-};
+let currentMode = 'new-pools';
+let currentTimeframe = '4h';
+let selectedChains = ['solana'];
+let selectedChainDeepDive = '';
+let sortCol = 'score', sortAsc = false;
+let pools = [];
+let trades = [];
+let autoTimer = null, nextTick = null;
 
-const TIER1_CHAINS = new Set(Object.keys(GOPLUS_CHAIN_ID));
-const MAX_CHAINS   = 5;
+// ── Mode Management ────────────────────────────────────────────────
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+  updateModeUI();
+}
 
-// ── State ──────────────────────────────────────────────────────
-let tokens    = [];
-let trades    = JSON.parse(localStorage.getItem('rm_trades_v4') || '[]');
-let sortKey   = 'score';
-let sortAsc   = false;
-let autoTimer = null;
-let nextTick  = null;
-let nextTime  = null;
-let showGoPlusColumns = false;
-
-
-// ── Chain toggle logic ─────────────────────────────────────────
-function toggleChain(btn) {
-  const isActive = btn.classList.contains('active');
-  const selected = getSelectedChains();
-  if (!isActive && selected.length >= MAX_CHAINS) {
-    toast('Max 5 chains per scan — deselect one first');
-    return;
+function updateModeUI() {
+  const tfSection = document.getElementById('timeframe-section');
+  const chainSection = document.getElementById('chain-section');
+  const chainDropdownSection = document.getElementById('chain-dropdown-section');
+  
+  // Hide all mode-specific UI
+  tfSection.classList.add('hidden');
+  chainSection.classList.add('hidden');
+  chainDropdownSection.classList.add('hidden');
+  
+  if (currentMode === 'new-pools') {
+    // Trending: global endpoint, no chain selection needed
+  } else if (currentMode === 'volume-spike') {
+    // Volume Spike: global endpoint, no chain selection needed
+  } else if (currentMode === 'top-gainers') {
+    // Top Gainers: global endpoint + timeframe toggle
+    tfSection.classList.remove('hidden');
+  } else if (currentMode === 'chain-dive') {
+    // Chain Deep Dive: show dropdown only
+    chainDropdownSection.classList.remove('hidden');
   }
-  btn.classList.toggle('active');
+}
+
+function setTimeframe(tf) {
+  currentTimeframe = tf;
+  document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-timeframe="${tf}"]`).classList.add('active');
+}
+
+function selectChainDeepDive(chainId, chainName) {
+  selectedChainDeepDive = chainId;
+  
+  // Update active button state
+  document.querySelectorAll('.quick-chain-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelector(`[data-chain-id="${chainId}"]`).classList.add('active');
+  
+  // Reset dropdown
+  document.getElementById('chain-dropdown').value = '';
+}
+
+function onChainDropdownChange() {
+  const value = document.getElementById('chain-dropdown').value;
+  if (value) {
+    selectedChainDeepDive = value;
+    // Remove active state from buttons
+    document.querySelectorAll('.quick-chain-btn').forEach(btn => btn.classList.remove('active'));
+  }
+}
+
+// ── Chain Selection ────────────────────────────────────────────────
+function toggleChain(chain) {
+  const idx = selectedChains.indexOf(chain);
+  if (idx > -1) selectedChains.splice(idx, 1);
+  else selectedChains.push(chain);
   updateChipStates();
-  updateGoPlusBanner();
-}
-
-function updateChipStates() {
-  const selected = getSelectedChains();
-  const atLimit  = selected.length >= MAX_CHAINS;
-  const counter  = document.getElementById('chain-counter');
-  counter.textContent = `${selected.length} / ${MAX_CHAINS} selected`;
-  counter.className   = 'chain-counter' + (atLimit ? ' at-limit' : '');
-  document.querySelectorAll('.chip').forEach(chip => {
-    chip.classList.toggle('disabled', atLimit && !chip.classList.contains('active'));
-  });
-}
-
-function updateGoPlusBanner() {
-  const hasTier1 = getSelectedChains().some(c => TIER1_CHAINS.has(c));
-  document.getElementById('goplus-banner').classList.toggle('active', hasTier1);
 }
 
 function getSelectedChains() {
-  return [...document.querySelectorAll('.chip.active')].map(c => c.dataset.chain);
+  return selectedChains;
 }
 
-function hasTier1Selected() {
-  return getSelectedChains().some(c => TIER1_CHAINS.has(c));
+function updateChipStates() {
+  document.querySelectorAll('.chip').forEach(chip => {
+    const chain = chip.getAttribute('data-chain');
+    if (selectedChains.includes(chain)) {
+      chip.classList.add('active');
+    } else {
+      chip.classList.remove('active');
+    }
+  });
+  updateChainCounter();
 }
 
+function updateChainCounter() {
+  const count = selectedChains.length;
+  const label = document.getElementById('chain-counter-label');
+  if (count > 0) {
+    label.innerHTML = `<span class="chain-counter${count > 5 ? ' at-limit' : ''}">${count} selected</span>`;
+  }
+}
 
-// ── Filter Module ──────────────────────────────────────────────
-// #20 — getFilterConfig() and applyFilters()
+// ── API & Scoring ─────────────────────────────────────────────────
+async function runScan() {
+  const btn = document.getElementById('btn-run');
+  const minLiq = parseFloat(document.getElementById('min-liq').value);
+  const minScore = parseFloat(document.getElementById('min-score').value);
+  const limit = parseInt(document.getElementById('results-limit').value);
+  
+  btn.disabled = true;
+  btn.classList.add('scanning');
+  document.getElementById('status-text').textContent = 'Scanning...';
+  document.getElementById('live-dot').classList.add('on');
+  
+  try {
+    if (currentMode === 'new-pools') {
+      await scanNewPools(minLiq, minScore, limit);
+    } else if (currentMode === 'volume-spike') {
+      await scanVolumSpike(minLiq, minScore, limit);
+    } else if (currentMode === 'top-gainers') {
+      await scanTopGainers(minLiq, minScore, limit);
+    } else if (currentMode === 'chain-dive') {
+      await scanChainDeepDive(minLiq, minScore, limit);
+    }
+    renderResults();
+    updateStats();
+  } catch (e) {
+    console.error(e);
+    toast(`Error: ${e.message}`);
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('scanning');
+    document.getElementById('status-text').textContent = 'Ready';
+    document.getElementById('live-dot').classList.remove('on');
+    updateLastScan();
+  }
+}
 
-/**
- * getFilterConfig()
- * Reads current filter UI values and returns a config object.
- * Replaces the old cfg() function — single source of filter truth.
- */
-function getFilterConfig() {
+async function scanNewPools(minLiq, minScore, limit) {
+  // Trending: hit global trending endpoint (cross-chain)
+  pools = [];
+  const url = `${GECKO_BASE}/networks/trending_pools?limit=${limit * 2}`;
+  
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    
+    if (data.data && Array.isArray(data.data)) {
+      data.data.forEach(pool => {
+        const chain = extractChainFromPool(pool);
+        const p = parsePool(pool, chain, 'new-pools');
+        if (p.liquidity >= minLiq && p.score >= minScore) {
+          pools.push(p);
+        }
+      });
+    }
+  } catch (e) {
+    console.error('Trending endpoint error:', e);
+    throw new Error('Failed to fetch trending pools');
+  }
+  
+  pools.sort((a, b) => b.score - a.score).slice(0, limit);
+}
+
+async function scanVolumSpike(minLiq, minScore, limit) {
+  // Volume Spike: global endpoint, top pools by 24h volume (cross-chain)
+  pools = [];
+  const url = `${GECKO_BASE}/networks/trending_pools?limit=${limit * 2}`;
+  
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    
+    if (data.data && Array.isArray(data.data)) {
+      data.data.forEach(pool => {
+        const chain = extractChainFromPool(pool);
+        const p = parsePool(pool, chain, 'volume-spike');
+        if (p.liquidity >= minLiq && p.score >= minScore) {
+          pools.push(p);
+        }
+      });
+    }
+  } catch (e) {
+    console.error('Volume spike endpoint error:', e);
+    throw new Error('Failed to fetch volume spike pools');
+  }
+  
+  pools.sort((a, b) => b.score - a.score).slice(0, limit);
+}
+
+async function scanTopGainers(minLiq, minScore, limit) {
+  // Top Gainers: global endpoint, sort by price change for selected timeframe
+  pools = [];
+  const url = `${GECKO_BASE}/networks/trending_pools?limit=${limit * 3}`;
+  
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    
+    if (data.data && Array.isArray(data.data)) {
+      data.data.forEach(pool => {
+        const chain = extractChainFromPool(pool);
+        const p = parsePool(pool, chain, 'top-gainers');
+        if (p.liquidity >= minLiq && p.score >= minScore) {
+          pools.push(p);
+        }
+      });
+    }
+  } catch (e) {
+    console.error('Top gainers endpoint error:', e);
+    throw new Error('Failed to fetch top gainers');
+  }
+  
+  // Sort by price change for the selected timeframe
+  pools.sort((a, b) => {
+    const priceKeyA = `price_change_${currentTimeframe}`;
+    const priceKeyB = `price_change_${currentTimeframe}`;
+    const changeA = Math.abs(a.chg24h); // fallback to 24h if timeframe not available
+    const changeB = Math.abs(b.chg24h);
+    return changeB - changeA;
+  }).slice(0, limit);
+}
+
+async function scanChainDeepDive(minLiq, minScore, limit) {
+  // Chain Deep Dive: full scan of single chain, fetch ALL available tokens
+  pools = [];
+  if (!selectedChainDeepDive) { toast('Select a chain'); return; }
+  
+  const geckoChain = selectedChainDeepDive;
+  
+  try {
+    // Fetch with large limit (250) to get as many pools as possible in one call
+    // GeckoTerminal typically allows up to 250 per request
+    const url = `${GECKO_BASE}/networks/${geckoChain}/pools?order=h24_volume_usd.desc&limit=250`;
+    console.log('Fetching deep dive from:', url);
+    
+    const res = await fetch(url);
+    
+    if (!res.ok) {
+      throw new Error(`API returned ${res.status}: ${res.statusText}. Check that the chain ID is correct for GeckoTerminal.`);
+    }
+    
+    const data = await res.json();
+    
+    if (data.data && Array.isArray(data.data)) {
+      console.log(`Found ${data.data.length} pools on ${geckoChain}`);
+      data.data.forEach(pool => {
+        const p = parsePool(pool, geckoChain, 'chain-dive');
+        if (p.liquidity >= minLiq && p.score >= minScore) {
+          pools.push(p);
+        }
+      });
+    }
+    
+    toast(`Scanned ${data.data?.length || 0} pools on ${geckoChain}`);
+  } catch (e) {
+    console.error('Chain deep dive error:', e);
+    throw new Error(`Could not scan ${geckoChain}. ${e.message}`);
+  }
+  
+  pools.sort((a, b) => b.score - a.score);
+}
+
+function extractChainFromPool(pool) {
+  // Extract chain from pool relationships or attributes
+  // GeckoTerminal structure: pool.relationships.network.data.id contains network slug
+  let networkSlug = '';
+  
+  if (pool.relationships?.network?.data?.id) {
+    networkSlug = pool.relationships.network.data.id;
+  } else if (pool.attributes?.network_id) {
+    networkSlug = pool.attributes.network_id;
+  }
+  
+  // Map GeckoTerminal network slugs to our chain names
+  const networkMap = {
+    'solana': 'solana',
+    'ethereum': 'eth',
+    'base': 'base',
+    'bsc': 'bsc',
+    'arbitrum': 'arbitrum',
+    'optimism': 'optimism',
+    'polygon': 'polygon_pos',
+    'avalanche': 'avax',
+    'sui': 'sui-network',
+    'tron': 'tron',
+    'blast': 'blast',
+    'berachain': 'berachain',
+    'cosmos': 'cosmos'
+  };
+  
+  return networkMap[networkSlug] || networkSlug || 'unknown';
+}
+
+function parsePool(pool, chain, mode) {
+  const liquidity = parseFloat(pool.attributes.reserve_in_usd) || 0;
+  
+  let price = 0;
+  if (mode === 'chain-dive') {
+    // Try multiple possible price field names
+    price = parseFloat(
+      pool.attributes.token_price_usd || 
+      pool.attributes.token_price_usd_h24 ||
+      pool.attributes.price_usd || 
+      pool.attributes.price ||
+      pool.attributes.base_token_price_usd ||
+      pool.attributes.quote_token_price_usd ||
+      0
+    );
+    
+    // Debug logging - remove once we find the right field
+    if (price === 0 && pool.id) {
+      console.log('Chain Deep Dive pool attributes:', pool.attributes);
+    }
+  }
+  
+  const vol24h = parseFloat(pool.attributes.volume_usd?.h24) || 0;
+  const chg24h = parseFloat(pool.attributes.price_change_percentage?.h24) || 0;
+  const createdAt = new Date(pool.attributes.pool_created_at || 0);
+  const ageMinutes = (Date.now() - createdAt) / 60000;
+  
+  // Compute score based on mode
+  const score = computeScore(liquidity, vol24h, chg24h, ageMinutes, mode);
+  
   return {
-    minLiq: parseFloat(document.getElementById('min-liq').value) || 0,
-    maxAge: parseFloat(document.getElementById('max-age').value) || 24,
-    minChg: parseFloat(document.getElementById('min-chg').value) || 0,
-    minVol: parseFloat(document.getElementById('min-vol').value) || 0,
+    token: pool.attributes.name || 'Unknown',
+    chain,
+    price,
+    liquidity,
+    vol24h,
+    chg24h,
+    score,
+    address: pool.id,
+    mode, // include mode for rendering logic
   };
 }
 
-/**
- * applyFilters(token, config)
- * Returns true if the token passes all active filters.
- * Called once per pool after the token object is fully built in fetchGecko.
- */
-function applyFilters(token, config) {
-  if (token.age      >  config.maxAge) return false;
-  if (token.liquidity < config.minLiq) return false;
-  if (token.chg1h    <= config.minChg) return false;
-  if (token.vol24h   <  config.minVol) return false;
-  return true;
-}
-
-
-// ── Scoring Module ─────────────────────────────────────────────
-// #21 — scorePool() and calcRiskScore()
-
-/**
- * scorePool(token)
- * Weighted composite score for ranking results.
- * Replaces raw chg1h sort — produces a 0–100 score.
- *
- * Weights:
- *   40% — 1H momentum  (primary signal, capped at 200%)
- *   25% — Liquidity     (quality proxy, capped at $100k)
- *   20% — Freshness     (newer pool = more upside potential)
- *   15% — Volume 24H    (confirmation signal, capped at $500k)
- */
-function scorePool(token) {
-  const momentum  = Math.min(Math.max(token.chg1h, 0), 200) / 200 * 40;
-  const liquidity = Math.min(token.liquidity, 100000) / 100000 * 25;
-  const freshness = Math.max(0, (24 - token.age) / 24) * 20;
-  const volume    = Math.min(token.vol24h, 500000) / 500000 * 15;
-  return momentum + liquidity + freshness + volume;
-}
-
-/**
- * calcRiskScore(token)
- * Composite GoPlus risk verdict.
- * Returns { level: 'red'|'amber'|'green'|'unscored', reasons: [] }
- */
-function calcRiskScore(t) {
-  if (!t.gp_loaded) return { level: 'unscored', reasons: ['scanning'] };
-
-  const reasons = [];
-  let redFlags   = 0;
-  let amberFlags = 0;
-  let dataPoints = 0;
-
-  if (t.gp_honeypot === true) {
-    redFlags++; dataPoints++;
-    reasons.push('Honeypot confirmed');
-  } else if (t.gp_honeypot === false) {
-    dataPoints++;
+function computeScore(liq, vol, chg, age, mode) {
+  // Normalize components (0-100)
+  const momScore = Math.min(100, Math.abs(chg) * 2);
+  const liqScore = Math.min(100, (liq / 100000) * 100);
+  const freshScore = Math.max(0, Math.min(100, 100 - (age / 1440) * 100)); // decay over 24h
+  const volScore = Math.min(100, (vol / 500000) * 100);
+  
+  let weights = { momentum: 0.40, liquidity: 0.25, freshness: 0.20, volume: 0.15 };
+  
+  if (mode === 'volume-spike') {
+    weights = { momentum: 0.35, liquidity: 0.20, freshness: 0.05, volume: 0.40 };
+  } else if (mode === 'top-gainers') {
+    weights = { momentum: 0.45, liquidity: 0.25, freshness: 0.10, volume: 0.20 };
+  } else if (mode === 'chain-dive') {
+    weights = { momentum: 0.40, liquidity: 0.25, freshness: 0.20, volume: 0.15 };
   }
-
-  if (t.gp_sell_tax != null) {
-    dataPoints++;
-    if (t.gp_sell_tax > 10)     { redFlags++;   reasons.push(`Sell tax ${t.gp_sell_tax.toFixed(1)}%`); }
-    else if (t.gp_sell_tax > 5) { amberFlags++; reasons.push(`Sell tax ${t.gp_sell_tax.toFixed(1)}%`); }
-  }
-
-  if (t.gp_buy_tax != null) {
-    dataPoints++;
-    if (t.gp_buy_tax > 10)     { redFlags++;   reasons.push(`Buy tax ${t.gp_buy_tax.toFixed(1)}%`); }
-    else if (t.gp_buy_tax > 5) { amberFlags++; reasons.push(`Buy tax ${t.gp_buy_tax.toFixed(1)}%`); }
-  }
-
-  if (t.gp_creator_pct != null) {
-    dataPoints++;
-    if (t.gp_creator_pct > 50)      { redFlags++;   reasons.push(`Creator ${t.gp_creator_pct.toFixed(1)}%`); }
-    else if (t.gp_creator_pct > 20) { amberFlags++; reasons.push(`Creator ${t.gp_creator_pct.toFixed(1)}%`); }
-  }
-
-  if (t.gp_holders != null) {
-    dataPoints++;
-    if (t.gp_holders < 10) { amberFlags++; reasons.push(`Only ${t.gp_holders} holders`); }
-  }
-
-  if (dataPoints < 2) return { level: 'unscored', reasons: ['Insufficient data'] };
-  if (redFlags > 0)   return { level: 'red',      reasons };
-  if (amberFlags > 0) return { level: 'amber',    reasons };
-  return                     { level: 'green',     reasons: ['No major flags'] };
+  
+  return Math.round(
+    momScore * weights.momentum +
+    liqScore * weights.liquidity +
+    freshScore * weights.freshness +
+    volScore * weights.volume
+  );
 }
 
-
-// ── Fetch Module ───────────────────────────────────────────────
-
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-function fetchWithTimeout(url, ms) {
-  return Promise.race([
-    fetch(url),
-    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))
-  ]);
-}
-
-function safeTax(val) {
-  if (val == null || val === '' || val === 'null') return null;
-  const n = parseFloat(val);
-  if (isNaN(n)) return null;
-  return n < 1 ? n * 100 : n;
-}
-
-function safeFloat(val) {
-  if (val == null || val === '' || val === 'null') return null;
-  const n = parseFloat(val);
-  return isNaN(n) ? null : n;
-}
-
-function safeInt(val) {
-  if (val == null || val === '' || val === 'null') return null;
-  const n = parseInt(val);
-  return isNaN(n) ? null : n;
-}
-
-/**
- * fetchGecko(network)
- * Fetches new pools from GeckoTerminal, builds token objects,
- * then runs each through applyFilters() before including in results.
- */
-async function fetchGecko(network) {
-  const url = `https://api.geckoterminal.com/api/v2/networks/${network}/new_pools?include=base_token,quote_token&page=1`;
-  const r = await fetch(url, { headers: { Accept: 'application/json;version=20230302' }});
-  if (r.status === 429) {
-    setStatus('running', 'Rate limited — waiting...');
-    await sleep(15000);
-    return fetchGecko(network);
-  }
-  if (!r.ok) return [];
-
-  const json = await r.json();
-  const pools    = json.data     || [];
-  const included = json.included || [];
-
-  // Build token lookup map from included data
-  const tmap = {};
-  included.forEach(i => { if (i.type === 'token') tmap[i.id] = i.attributes; });
-
-  const config = getFilterConfig();
-  const out    = [];
-
-  pools.forEach(pool => {
-    const a = pool.attributes;
-
-    // Build full token object first
-    const createdAt = a.pool_created_at ? new Date(a.pool_created_at).getTime() : null;
-    const ageH      = createdAt ? (Date.now() - createdAt) / 3600000 : 999;
-    const liq       = parseFloat(a.reserve_in_usd || 0);
-    const chg1h     = parseFloat(a.price_change_percentage?.h1 || 0);
-    const vol24h    = parseFloat(a.volume_usd?.h24 || 0);
-    const baseRel   = pool.relationships?.base_token?.data;
-    const tattr     = baseRel ? tmap[baseRel.id] : null;
-    const symbol    = (a.name || '/').split('/')[0].trim();
-    const fdv       = parseFloat(a.fdv_usd || 0);
-    const poolPct   = (fdv > 0 && liq > 0) ? Math.min(9999, (liq / fdv) * 100) : 0;
-
-    const token = {
-      chain: network, name: tattr?.name || symbol, symbol,
-      age:   Math.round(ageH * 10) / 10,
-      price: parseFloat(a.base_token_price_usd || 0),
-      liquidity: liq, poolPct, chg1h,
-      chg6h:  parseFloat(a.price_change_percentage?.h6  || 0),
-      chg24h: parseFloat(a.price_change_percentage?.h24 || 0),
-      vol24h, mcap: fdv, dex: a.dex_id || '',
-      address:  tattr?.address || a.address,
-      poolAddr: a.address,
-      link: `https://www.geckoterminal.com/${network}/pools/${a.address}`,
-      // GoPlus fields — populated during enrichment pass
-      gp_loaded:     false,
-      gp_honeypot:   null,
-      gp_buy_tax:    null,
-      gp_sell_tax:   null,
-      gp_holders:    null,
-      gp_creator_pct: null,
-    };
-
-    // Apply filters — only include tokens that pass
-    if (applyFilters(token, config)) out.push(token);
+// ── Rendering ─────────────────────────────────────────────────────
+function renderResults() {
+  const body = document.getElementById('results-body');
+  const sorted = [...pools].sort((a, b) => {
+    let aVal = a[sortCol], bVal = b[sortCol];
+    if (sortCol === 'chg24h' || sortCol === 'price') aVal = parseFloat(aVal) || 0, bVal = parseFloat(bVal) || 0;
+    return sortAsc ? aVal - bVal : bVal - aVal;
   });
-
-  return out;
-}
-
-/**
- * fetchGoPlus(token)
- * Enriches a Tier 1 token with GoPlus security data.
- * Mutates the token object in place.
- */
-async function fetchGoPlus(token) {
-  if (!TIER1_CHAINS.has(token.chain)) return;
-  const address = token.address;
-  if (!address) { token.gp_loaded = true; return; }
-
-  try {
-    let url, result;
-
-    if (token.chain === 'solana') {
-      url = `https://api.gopluslabs.io/api/v1/solana/token_security?contract_addresses=${address}`;
-      const r = await fetchWithTimeout(url, 8000);
-      if (!r.ok) { token.gp_loaded = true; return; }
-      const data = await r.json();
-      result = data?.result?.[address] || data?.result?.[address.toLowerCase()] || null;
-      if (!result) { token.gp_loaded = true; return; }
-      token.gp_honeypot    = result.is_honeypot != null
-        ? (result.is_honeypot === '1' || result.is_honeypot === true)
-        : null;
-      token.gp_buy_tax     = safeTax(result.buy_tax);
-      token.gp_sell_tax    = safeTax(result.sell_tax);
-      token.gp_holders     = safeInt(result.holder_count);
-      token.gp_creator_pct = safeFloat(result.creator_percent) != null
-        ? safeFloat(result.creator_percent) * 100
-        : null;
-    } else {
-      const chainId = GOPLUS_CHAIN_ID[token.chain];
-      url = `https://api.gopluslabs.io/api/v1/token_security/${chainId}?contract_addresses=${address}`;
-      const r = await fetchWithTimeout(url, 8000);
-      if (!r.ok) { token.gp_loaded = true; return; }
-      const data = await r.json();
-      result = data?.result?.[address.toLowerCase()] || data?.result?.[address] || null;
-      if (!result) { token.gp_loaded = true; return; }
-      token.gp_honeypot    = result.is_honeypot != null
-        ? (result.is_honeypot === '1' || result.is_honeypot === true)
-        : null;
-      token.gp_buy_tax     = safeTax(result.buy_tax);
-      token.gp_sell_tax    = safeTax(result.sell_tax);
-      token.gp_holders     = safeInt(result.holder_count);
-      token.gp_creator_pct = safeFloat(result.creator_percent) != null
-        ? safeFloat(result.creator_percent) * 100
-        : null;
-    }
-
-    token.gp_loaded = true;
-  } catch(e) {
-    token.gp_loaded = true;
-  }
-}
-
-
-// ── Main run ───────────────────────────────────────────────────
-async function runScreener() {
-  const chains = getSelectedChains();
-  if (!chains.length) { toast('Select at least one chain'); return; }
-
-  showGoPlusColumns = chains.some(c => TIER1_CHAINS.has(c));
-  updateTableHeaders();
-
-  setStatus('running', `Scanning ${chains.length} chain${chains.length > 1 ? 's' : ''}...`);
-  tokens = [];
-
-  try {
-    // Step 1: GeckoTerminal scan
-    for (let i = 0; i < chains.length; i++) {
-      const chain = chains[i];
-      const meta  = CHAIN_META[chain] || { label: chain };
-      setStatus('running', `Scanning ${meta.label} (${i+1}/${chains.length})...`);
-      const results = await fetchGecko(chain);
-      tokens = [...tokens, ...results];
-      if (i < chains.length - 1) await sleep(2500);
-    }
-
-    // Sort by composite score (scorePool) after initial scan
-    tokens.forEach(t => { t.score = scorePool(t); });
-    tokens.sort((a, b) => b.score - a.score);
-
-    renderTable();
-    updateStats(chains);
-    document.getElementById('last-scan').textContent = new Date().toLocaleTimeString();
-    document.getElementById('tok-count').textContent = tokens.length;
-    toast(`${tokens.length} tokens across ${chains.length} chain${chains.length > 1 ? 's' : ''}`);
-
-    // Step 2: GoPlus enrichment for Tier 1 tokens
-    const tier1Tokens = tokens.filter(t => TIER1_CHAINS.has(t.chain));
-    if (tier1Tokens.length > 0) {
-      setStatus('running', `GoPlus security scan — ${tier1Tokens.length} tokens...`);
-      for (let i = 0; i < tier1Tokens.length; i++) {
-        await fetchGoPlus(tier1Tokens[i]);
-        if (i < tier1Tokens.length - 1) await sleep(300);
-        if (i % 5 === 4) renderTable();
-      }
-      renderTable();
-      toast(`GoPlus scan complete — ${tier1Tokens.length} tokens checked`);
-    }
-
-  } catch(e) {
-    toast('Scan error — check connection');
-  }
-
-  setStatus('idle');
-}
-
-
-// ── Render Module ──────────────────────────────────────────────
-// #22 — updateTableHeaders, getChainTag, renderGpCells, renderTable, updateStats
-
-/**
- * updateTableHeaders()
- * Rebuilds the table header row, adding GoPlus columns when Tier 1
- * chains are selected.
- */
-function updateTableHeaders() {
-  const head = document.getElementById('tbl-head');
-  const baseHeaders = `
-    <th onclick="sortBy('chain')">Chain</th>
-    <th onclick="sortBy('name')">Name</th>
-    <th onclick="sortBy('symbol')">Symbol</th>
-    <th onclick="sortBy('age')">Age</th>
-    <th onclick="sortBy('price')">Price</th>
-    <th onclick="sortBy('liquidity')">Liquidity</th>
-    <th onclick="sortBy('poolPct')">Pool %</th>
-    <th onclick="sortBy('chg1h')">1H %</th>
-    <th onclick="sortBy('chg6h')">6H %</th>
-    <th onclick="sortBy('chg24h')">24H %</th>
-    <th onclick="sortBy('vol24h')">Vol 24H</th>
-    <th onclick="sortBy('mcap')">Mkt Cap</th>
-    <th onclick="sortBy('score')" class="sorted">Score</th>
-    <th>DEX</th>
-    <th>Address</th>
-    <th>Link</th>`;
-
-  const gpHeaders = showGoPlusColumns ? `
-    <th class="gp-header gp-divider" onclick="sortBy('gp_risk')" title="Composite risk score from GoPlus data">&#9679; Risk Score</th>
-    <th class="gp-header" onclick="sortBy('gp_honeypot')" title="Honeypot check only">HP Check</th>
-    <th class="gp-header" onclick="sortBy('gp_buy_tax')" title="Buy Tax %">Buy Tax</th>
-    <th class="gp-header" onclick="sortBy('gp_sell_tax')" title="Sell Tax %">Sell Tax</th>
-    <th class="gp-header" onclick="sortBy('gp_holders')" title="Holder Count">Holders</th>
-    <th class="gp-header" onclick="sortBy('gp_creator_pct')" title="Creator % of supply">Creator %</th>` : '';
-
-  head.innerHTML = `<tr>${baseHeaders}${gpHeaders}</tr>`;
-}
-
-/**
- * getChainTag(chainId)
- * Returns a colored chain pill HTML string.
- */
-function getChainTag(chainId) {
-  const meta = CHAIN_META[chainId];
-  if (meta) return `<span class="chain-tag ${meta.cssClass}">${meta.label}</span>`;
-  return `<span class="chain-tag ct-other">${chainId}</span>`;
-}
-
-/**
- * renderGpCells(token)
- * Returns HTML string for the 6 GoPlus columns for a given token.
- * Returns empty string when GoPlus columns are hidden.
- */
-function renderGpCells(t) {
-  if (!showGoPlusColumns) return '';
-  const colCount = 6;
-
-  if (!TIER1_CHAINS.has(t.chain)) {
-    return `<td class="gp-cell gp-divider gp-dim">&#8212;</td>${'<td class="gp-cell gp-dim">&#8212;</td>'.repeat(colCount - 1)}`;
-  }
-  if (!t.gp_loaded) {
-    return `<td class="gp-cell gp-divider gp-loading" colspan="${colCount}"><span class="spinner"></span>scanning...</td>`;
-  }
-
-  const risk = calcRiskScore(t);
-  const riskTitle = risk.reasons.join(' · ');
-  let riskBadge;
-  if      (risk.level === 'red')   riskBadge = `<span class="risk-badge risk-red"   title="${riskTitle}">HIGH RISK</span>`;
-  else if (risk.level === 'amber') riskBadge = `<span class="risk-badge risk-amber" title="${riskTitle}">CAUTION</span>`;
-  else if (risk.level === 'green') riskBadge = `<span class="risk-badge risk-green" title="${riskTitle}">LOW RISK</span>`;
-  else                             riskBadge = `<span class="risk-badge risk-grey"  title="${riskTitle}">UNSCORED</span>`;
-
-  let hpCell;
-  if      (t.gp_honeypot === true)  hpCell = `<span class="hp-badge hp-danger">HP: YES</span>`;
-  else if (t.gp_honeypot === false) hpCell = `<span class="hp-badge hp-safe">HP: NO</span>`;
-  else                               hpCell = `<span class="hp-badge hp-unknown">HP: ?</span>`;
-
-  const buyTax = t.gp_buy_tax != null
-    ? `<span class="${t.gp_buy_tax > 10 ? 'gp-danger' : t.gp_buy_tax > 5 ? 'gp-warn' : 'gp-safe'}">${t.gp_buy_tax.toFixed(1)}%</span>`
-    : `<span class="gp-dim">&#8212;</span>`;
-
-  const sellTax = t.gp_sell_tax != null
-    ? `<span class="${t.gp_sell_tax > 10 ? 'gp-danger' : t.gp_sell_tax > 5 ? 'gp-warn' : 'gp-safe'}">${t.gp_sell_tax.toFixed(1)}%</span>`
-    : `<span class="gp-dim">&#8212;</span>`;
-
-  const holders = t.gp_holders != null
-    ? `<span class="${t.gp_holders < 10 ? 'gp-warn' : 'gp-safe'}">${t.gp_holders.toLocaleString()}</span>`
-    : `<span class="gp-dim">&#8212;</span>`;
-
-  const creatorPct = t.gp_creator_pct != null
-    ? `<span class="${t.gp_creator_pct > 50 ? 'gp-danger' : t.gp_creator_pct > 20 ? 'gp-warn' : 'gp-safe'}">${t.gp_creator_pct.toFixed(1)}%</span>`
-    : `<span class="gp-dim">&#8212;</span>`;
-
-  return `<td class="gp-cell gp-divider">${riskBadge}</td><td class="gp-cell">${hpCell}</td><td class="gp-cell">${buyTax}</td><td class="gp-cell">${sellTax}</td><td class="gp-cell">${holders}</td><td class="gp-cell">${creatorPct}</td>`;
-}
-
-/**
- * renderTable()
- * Sorts the current token list by active sort key and rebuilds tbody.
- */
-function renderTable() {
-  const body    = document.getElementById('tbl-body');
-  const colSpan = showGoPlusColumns ? 22 : 16;
-  let data = [...tokens];
-
-  data.sort((a, b) => {
-    const av = a[sortKey], bv = b[sortKey];
-    if (av == null && bv == null) return 0;
-    if (av == null) return 1; if (bv == null) return -1;
-    if (typeof av === 'string') return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
-    return sortAsc ? av - bv : bv - av;
-  });
-
-  if (!data.length) {
-    body.innerHTML = `<tr><td colspan="${colSpan}" class="empty-msg">No tokens passed filters — try loosening thresholds</td></tr>`;
+  
+  document.getElementById('result-count').textContent = pools.length;
+  
+  if (!pools.length) {
+    body.innerHTML = '<tr><td colspan="8" class="empty-msg">No results found.</td></tr>';
     return;
   }
-
-  body.innerHTML = data.map((t, i) => `
-    <tr style="animation-delay:${i*18}ms">
-      <td>${getChainTag(t.chain)}</td>
-      <td class="name-col" title="${t.name}">${t.name}</td>
-      <td class="sym-col">${t.symbol}</td>
-      <td class="age-col">${t.age}h</td>
-      <td class="price-col">${fPrice(t.price)}</td>
-      <td class="liq-col">${fUsd(t.liquidity)}</td>
-      <td class="pool-col">${t.poolPct > 0 ? t.poolPct.toFixed(1) + '%' : '&#8212;'}</td>
-      <td><span class="${chgCls(t.chg1h)}">${fPct(t.chg1h)}</span></td>
-      <td><span class="${chgCls(t.chg6h)}">${fPct(t.chg6h)}</span></td>
-      <td><span class="${chgCls(t.chg24h)}">${fPct(t.chg24h)}</span></td>
-      <td class="vol-col">${fUsd(t.vol24h)}</td>
-      <td class="mcap-col">${t.mcap ? fUsd(t.mcap) : '&#8212;'}</td>
-      <td style="color:var(--text-mid);font-weight:600">${t.score != null ? t.score.toFixed(1) : '&#8212;'}</td>
-      <td><span class="badge">${t.dex}</span></td>
-      <td class="addr-col" onclick="copyAddr('${t.address}')" title="Click to copy">${(t.address||'').substring(0,8)}&#8230;</td>
-      <td class="link-col"><a href="${t.link}" target="_blank">VIEW &#8599;</a></td>
-      ${renderGpCells(t)}
-    </tr>`).join('');
+  
+  body.innerHTML = sorted.map(p => {
+    const priceDisplay = p.mode !== 'chain-dive' ? 'N/A' : fPrice(p.price);
+    return `<tr>
+      <td class="price-cell"><strong>${p.token}</strong></td>
+      <td>${getChainTag(p.chain)}</td>
+      <td class="price-cell">${priceDisplay}</td>
+      <td class="vol-cell">${fUsd(p.liquidity)}</td>
+      <td class="vol-cell">${fUsd(p.vol24h)}</td>
+      <td class="${chgCls(p.chg24h)}">${fPct(p.chg24h)}</td>
+      <td class="score-cell">${p.score}</td>
+      <td class="addr-col" onclick="copyAddr('${p.address}')" title="Click to copy">${p.address.substring(0,10)}...</td>
+    </tr>`;
+  }).join('');
 }
 
-/**
- * updateStats(chains)
- * Recalculates and renders the stat cards above the table.
- */
-function updateStats(chains) {
-  const n = tokens.length;
-  document.getElementById('st-total').textContent = n;
-  document.getElementById('st-hot').textContent   = tokens.filter(t => t.chg1h >= 25).length;
-  document.getElementById('st-neg').textContent   = tokens.filter(t => t.chg1h < 0).length;
-  const avgLiq = n ? tokens.reduce((s, t) => s + t.liquidity, 0) / n : 0;
-  document.getElementById('st-liq').textContent   = avgLiq ? fUsd(avgLiq) : '&#8212;';
-  const avg1h = n ? tokens.reduce((s, t) => s + t.chg1h, 0) / n : null;
-  const el = document.getElementById('st-avg1h');
-  el.textContent = avg1h != null ? fPct(avg1h) : '&#8212;';
-  el.style.color = avg1h > 0 ? 'var(--green)' : avg1h < 0 ? 'var(--red)' : 'var(--text)';
-  document.getElementById('st-chains').textContent = (chains || getSelectedChains()).length;
-}
-
-
-// ── Status ─────────────────────────────────────────────────────
-function setStatus(s, msg) {
-  const btn  = document.getElementById('run-btn');
-  const dot  = document.getElementById('live-dot');
-  const txt  = document.getElementById('status-txt');
-  const fdot = document.getElementById('footer-dot');
-  const ftxt = document.getElementById('footer-txt');
-  if (s === 'running') {
-    btn.classList.add('scanning'); btn.textContent = 'SCANNING...'; btn.disabled = true;
-    dot.className = 'live-dot on'; txt.textContent = msg || 'SCANNING...';
-    fdot.className = 'live-dot on'; ftxt.textContent = 'SCANNING';
-  } else {
-    btn.classList.remove('scanning'); btn.innerHTML = '&#9654; RUN SCAN'; btn.disabled = false;
-    dot.className = 'live-dot on'; txt.textContent = 'LIVE';
-    fdot.className = 'live-dot on'; ftxt.textContent = 'LIVE';
+function updateStats() {
+  if (!pools.length) {
+    document.getElementById('stats-row').style.display = 'none';
+    return;
   }
+  document.getElementById('stats-row').style.display = 'flex';
+  const avgScore = Math.round(pools.reduce((s, p) => s + p.score, 0) / pools.length);
+  const avgChg = pools.reduce((s, p) => s + p.chg24h, 0) / pools.length;
+  const totLiq = pools.reduce((s, p) => s + p.liquidity, 0);
+  document.getElementById('stat-score').textContent = avgScore;
+  document.getElementById('stat-chg24h').textContent = fPct(avgChg);
+  document.getElementById('stat-liq').textContent = fUsd(totLiq);
 }
 
-// ── Toast ──────────────────────────────────────────────────────
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+function updateLastScan() {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  document.getElementById('last-scan').textContent = timeStr;
 }
 
-// ── Sort ───────────────────────────────────────────────────────
-function sortBy(key) {
-  sortAsc = sortKey === key ? !sortAsc : false;
-  sortKey = key;
+function sortTable(col) {
+  if (sortCol === col) sortAsc = !sortAsc;
+  else { sortCol = col; sortAsc = false; }
   document.querySelectorAll('th').forEach(th => th.classList.remove('sorted', 'asc'));
-  renderTable();
+  document.querySelector(`th:contains("${col}")`);
+  renderResults();
 }
 
-// ── Auto refresh ───────────────────────────────────────────────
+function getChainTag(c) {
+  const tags = {
+    'solana':'SOL','eth':'ETH','base':'BASE','bsc':'BSC',
+    'arbitrum':'ARB','optimism':'OP','polygon_pos':'POLY',
+    'avax':'AVAX','sui-network':'SUI','tron':'TRX',
+    'blast':'BLAST','berachain':'BERA','cosmos':'COSMOS'
+  };
+  return `<span style="background:var(--bg2);padding:2px 6px;border-radius:2px;font-size:9px;font-weight:600;">${tags[c]||c}</span>`;
+}
+
+function updateGoPlusBanner() {
+  // Placeholder: enable when GoPlus integration is ready
+  // document.getElementById('goplus-banner').classList.add('active');
+}
+
+// ── Auto-run ───────────────────────────────────────────────────────
 function toggleAuto() {
   if (document.getElementById('auto-toggle').checked) startAuto();
   else stopAuto();
 }
 
 function startAuto() {
-  stopAuto();
-  const ms = parseInt(document.getElementById('interval-sel').value) * 60000;
-  nextTime  = Date.now() + ms;
+  const ms = parseInt(document.getElementById('auto-interval').value) * 1000;
+  runScan();
+  const nextTime = Date.now() + ms;
   autoTimer = setTimeout(() => {
-    runScreener().then(() => {
-      if (document.getElementById('auto-toggle').checked) startAuto();
-    });
+    if (document.getElementById('auto-toggle').checked) startAuto();
   }, ms);
   clearInterval(nextTick);
   nextTick = setInterval(() => {
@@ -999,8 +891,7 @@ function stopAuto() {
   document.getElementById('next-scan').textContent = '&#8212;';
 }
 
-
-// ── Trade Journal ──────────────────────────────────────────────
+// ── Trade Journal ──────────────────────────────────────────────────
 function addTrade() {
   const sym    = document.getElementById('tl-sym').value.trim().toUpperCase();
   const addr   = document.getElementById('tl-addr').value.trim();
@@ -1067,7 +958,6 @@ function exportJSON() {
     exit_price:   t.exit || null,
     pnl_pct:      t.pnlPct || null,
     entry_reason: t.reason,
-    filters_hit:  t.reason,
     outcome:      t.pnlPct == null ? 'open' : t.pnlPct >= 0 ? 'win' : 'loss'
   }));
   dl('rocking_m_elizaos_training.json', JSON.stringify(data, null, 2), 'application/json');
@@ -1079,14 +969,46 @@ function dl(name, content, type) {
   a.download = name; a.click();
 }
 
+// ── Chain Dropdown Population ──────────────────────────────────
+async function populateChainDropdown() {
+  const dropdown = document.getElementById('chain-dropdown');
+  const quickSelectChains = ['solana', 'bsc', 'base', 'eth'];
+  
+  try {
+    const res = await fetch(`${GECKO_BASE}/networks?limit=100`);
+    const data = await res.json();
+    
+    if (data.data && Array.isArray(data.data)) {
+      console.log('All networks from GeckoTerminal:', data.data.map(n => ({ id: n.id, name: n.attributes.name })));
+      
+      // Filter out quick-select chains and sort by name for readability
+      const filtered = data.data.filter(network => !quickSelectChains.includes(network.id));
+      const sorted = filtered.sort((a, b) => 
+        a.attributes.name.localeCompare(b.attributes.name)
+      );
+      
+      // Populate dropdown with other chains
+      sorted.forEach(network => {
+        const option = document.createElement('option');
+        option.value = network.id;
+        option.textContent = network.attributes.name;
+        dropdown.appendChild(option);
+      });
+    }
+  } catch (e) {
+    console.error('Failed to fetch networks:', e);
+    toast('Could not load available chains');
+  }
+}
 
-// ── Helpers ────────────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────────────
 function fUsd(n) {
   if (!n) return '$0';
   if (n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
   if (n >= 1e3) return '$' + (n/1e3).toFixed(1) + 'K';
   return '$' + n.toFixed(2);
 }
+
 function fPrice(n) {
   if (!n) return '$0';
   if (n < 0.000001) return '$' + n.toExponential(2);
@@ -1094,7 +1016,9 @@ function fPrice(n) {
   if (n < 1)        return '$' + n.toFixed(4);
   return '$' + n.toFixed(2);
 }
+
 function fPct(n)   { return (n > 0 ? '+' : '') + (n||0).toFixed(2) + '%'; }
+
 function chgCls(n) {
   if (n >= 25) return 'chg-high';
   if (n >= 10) return 'chg-med';
@@ -1102,13 +1026,28 @@ function chgCls(n) {
   if (n <  0)  return 'chg-neg';
   return 'chg-zero';
 }
+
 function copyAddr(a) { if (a) navigator.clipboard.writeText(a).then(() => toast('Address copied')); }
 
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
 
-// ── Init ───────────────────────────────────────────────────────
+// ── Init ───────────────────────────────────────────────────────────
+trades = JSON.parse(localStorage.getItem('rm_trades_v4') || '[]');
 renderTrades();
 updateChipStates();
+updateModeUI();
 updateGoPlusBanner();
+populateChainDropdown();
+
+// Note: Chain selection is only used for Chain Deep Dive mode.
+// Trending, Volume Spike, and Top Gainers use GeckoTerminal's global endpoints
+// which return cross-chain results naturally weighted by activity.
 </script>
 </body>
 </html>
