@@ -206,8 +206,8 @@
   <div class="logo-badge">
     <div class="badge-mark">
       <span class="badge-rocking">Rocking</span>
-      <svg width="58" height="14" viewBox="0 0 58 14" fill="none" style="display:block;margin:2px 0 -4px">
-        <path d="M 2 12 Q 29 2 56 12" stroke="#00cc66" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <svg width="72" height="14" viewBox="0 0 72 14" fill="none" style="display:block;margin:2px 0 -4px">
+        <path d="M 2 12 Q 36 2 70 12" stroke="#00cc66" stroke-width="2.5" stroke-linecap="round" fill="none"/>
       </svg>
       <span class="badge-m">M</span>
       <span class="badge-sub">Crypto</span>
@@ -567,24 +567,38 @@ async function runScan() {
 }
 
 async function scanNewPools(minLiq, minScore, limit) {
-  // Trending: single global endpoint call covering all chains
+  // Trending: global endpoint with pagination
   pools = [];
-  const url = `${GECKO_BASE}/networks/trending_pools?include=base_token,quote_token&page=1`;
+  let page = 1;
+  let totalFetched = 0;
+  let hasMore = true;
   
   try {
-    const res = await fetch(url);
-    const data = await res.json();
-    
-    if (data.data && Array.isArray(data.data)) {
-      data.data.forEach(pool => {
-        const chain = extractChainFromPool(pool);
-        const p = parsePool(pool, chain, 'new-pools');
-        if (p.liquidity >= minLiq && p.score >= minScore) {
-          pools.push(p);
-        }
-      });
+    while (hasMore && totalFetched < (limit * 5)) {
+      const url = `${GECKO_BASE}/networks/trending_pools?include=base_token,quote_token&page=${page}`;
+      console.log(`Fetching trending page ${page}`);
+      
+      const res = await fetch(url);
+      const data = await res.json();
+      
+      if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+        console.log(`Page ${page}: Found ${data.data.length} trending pools`);
+        data.data.forEach(pool => {
+          const chain = extractChainFromPool(pool);
+          const p = parsePool(pool, chain, 'new-pools');
+          if (p.liquidity >= minLiq && p.score >= minScore) {
+            pools.push(p);
+          }
+        });
+        totalFetched += data.data.length;
+        page++;
+        
+        if (data.data.length < 20) hasMore = false;
+      } else {
+        hasMore = false;
+      }
     }
-    toast(`Fetched ${data.data?.length || 0} pools across all chains`);
+    toast(`Scanned ${totalFetched} trending pools, matched ${pools.length}`);
   } catch (e) {
     console.error('Trending endpoint error:', e);
     throw new Error('Failed to fetch trending pools');
@@ -594,24 +608,38 @@ async function scanNewPools(minLiq, minScore, limit) {
 }
 
 async function scanVolumSpike(minLiq, minScore, limit) {
-  // Volume Spike: single global endpoint call sorted by volume, covering all chains
+  // Volume Spike: global endpoint with pagination
   pools = [];
-  const url = `${GECKO_BASE}/networks/trending_pools?sort=volume_usd&include=base_token,quote_token&page=1`;
+  let page = 1;
+  let totalFetched = 0;
+  let hasMore = true;
   
   try {
-    const res = await fetch(url);
-    const data = await res.json();
-    
-    if (data.data && Array.isArray(data.data)) {
-      data.data.forEach(pool => {
-        const chain = extractChainFromPool(pool);
-        const p = parsePool(pool, chain, 'volume-spike');
-        if (p.liquidity >= minLiq && p.score >= minScore) {
-          pools.push(p);
-        }
-      });
+    while (hasMore && totalFetched < (limit * 5)) {
+      const url = `${GECKO_BASE}/networks/trending_pools?sort=volume_usd&include=base_token,quote_token&page=${page}`;
+      console.log(`Fetching volume page ${page}`);
+      
+      const res = await fetch(url);
+      const data = await res.json();
+      
+      if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+        console.log(`Page ${page}: Found ${data.data.length} volume pools`);
+        data.data.forEach(pool => {
+          const chain = extractChainFromPool(pool);
+          const p = parsePool(pool, chain, 'volume-spike');
+          if (p.liquidity >= minLiq && p.score >= minScore) {
+            pools.push(p);
+          }
+        });
+        totalFetched += data.data.length;
+        page++;
+        
+        if (data.data.length < 20) hasMore = false;
+      } else {
+        hasMore = false;
+      }
     }
-    toast(`Fetched ${data.data?.length || 0} volume pools across all chains`);
+    toast(`Scanned ${totalFetched} volume pools, matched ${pools.length}`);
   } catch (e) {
     console.error('Volume spike endpoint error:', e);
     throw new Error('Failed to fetch volume spike pools');
@@ -621,25 +649,39 @@ async function scanVolumSpike(minLiq, minScore, limit) {
 }
 
 async function scanTopGainers(minLiq, minScore, limit) {
-  // Top Gainers: single global endpoint call sorted by price change, covering all chains
+  // Top Gainers: global endpoint with pagination
   pools = [];
+  let page = 1;
+  let totalFetched = 0;
+  let hasMore = true;
   const sortKey = currentTimeframe === '1h' ? 'price_change_percentage.h1' : currentTimeframe === '4h' ? 'price_change_percentage.h4' : 'price_change_percentage.h24';
-  const url = `${GECKO_BASE}/networks/trending_pools?sort=${sortKey}&include=base_token,quote_token&page=1`;
   
   try {
-    const res = await fetch(url);
-    const data = await res.json();
-    
-    if (data.data && Array.isArray(data.data)) {
-      data.data.forEach(pool => {
-        const chain = extractChainFromPool(pool);
-        const p = parsePool(pool, chain, 'top-gainers');
-        if (p.liquidity >= minLiq && p.score >= minScore) {
-          pools.push(p);
-        }
-      });
+    while (hasMore && totalFetched < (limit * 5)) {
+      const url = `${GECKO_BASE}/networks/trending_pools?sort=${sortKey}&include=base_token,quote_token&page=${page}`;
+      console.log(`Fetching gainers page ${page}`);
+      
+      const res = await fetch(url);
+      const data = await res.json();
+      
+      if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+        console.log(`Page ${page}: Found ${data.data.length} gainer pools`);
+        data.data.forEach(pool => {
+          const chain = extractChainFromPool(pool);
+          const p = parsePool(pool, chain, 'top-gainers');
+          if (p.liquidity >= minLiq && p.score >= minScore) {
+            pools.push(p);
+          }
+        });
+        totalFetched += data.data.length;
+        page++;
+        
+        if (data.data.length < 20) hasMore = false;
+      } else {
+        hasMore = false;
+      }
     }
-    toast(`Fetched ${data.data?.length || 0} gainers across all chains`);
+    toast(`Scanned ${totalFetched} gainer pools, matched ${pools.length}`);
   } catch (e) {
     console.error('Top gainers endpoint error:', e);
     throw new Error('Failed to fetch top gainers');
@@ -654,33 +696,51 @@ async function scanTopGainers(minLiq, minScore, limit) {
 }
 
 async function scanChainDeepDive(minLiq, minScore, limit) {
-  // Chain Deep Dive: single API call for selected chain, maximum depth
+  // Chain Deep Dive: full scan of single chain with pagination to fetch all pools
   pools = [];
   if (!selectedChainDeepDive) { toast('Select a chain for deep dive'); return; }
   
   const geckoChain = selectedChainDeepDive;
+  let page = 1;
+  let totalFetched = 0;
+  let hasMore = true;
   
   try {
-    // Single call with max limit (250) for deepest possible scan
-    const url = `${GECKO_BASE}/networks/${geckoChain}/pools?include=base_token,quote_token&page=1`;
-    
-    const res = await fetch(url);
-    
-    if (!res.ok) {
-      throw new Error(`API returned ${res.status}: ${res.statusText}`);
-    }
-    
-    const data = await res.json();
-    
-    if (data.data && Array.isArray(data.data)) {
-      data.data.forEach(pool => {
-        const p = parsePool(pool, geckoChain, 'chain-dive');
-        if (p.liquidity >= minLiq && p.score >= minScore) {
-          pools.push(p);
+    while (hasMore && totalFetched < (limit * 10)) {
+      // Fetch with page=N (GeckoTerminal defaults to 20 per page)
+      const url = `${GECKO_BASE}/networks/${geckoChain}/pools?include=base_token,quote_token&page=${page}`;
+      console.log(`Fetching page ${page} from ${geckoChain}`);
+      
+      const res = await fetch(url);
+      
+      if (!res.ok) {
+        throw new Error(`API returned ${res.status}: ${res.statusText}`);
+      }
+      
+      const data = await res.json();
+      
+      if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+        console.log(`Page ${page}: Found ${data.data.length} pools`);
+        data.data.forEach(pool => {
+          const p = parsePool(pool, geckoChain, 'chain-dive');
+          if (p.liquidity >= minLiq && p.score >= minScore) {
+            pools.push(p);
+          }
+        });
+        totalFetched += data.data.length;
+        page++;
+        
+        // If we got fewer than 20, we've reached the end
+        if (data.data.length < 20) {
+          hasMore = false;
         }
-      });
+      } else {
+        hasMore = false;
+      }
     }
-    toast(`Scanned ${data.data?.length || 0} pools on ${geckoChain}`);
+    
+    toast(`Scanned ${totalFetched} pools on ${geckoChain}, matched ${pools.length}`);
+    console.log(`Total scanned: ${totalFetched}, matched criteria: ${pools.length}`);
   } catch (e) {
     console.error('Chain deep dive error:', e);
     throw new Error(`Could not scan ${geckoChain}. ${e.message}`);
