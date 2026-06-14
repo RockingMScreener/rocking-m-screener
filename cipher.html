@@ -23,7 +23,7 @@
   .logo-badge{display:flex;align-items:center;gap:16px;}
   .badge-mark{width:72px;height:82px;background:#111a24;border:1.5px solid var(--green-lt);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex-shrink:0;position:relative;padding:6px 0;}
   .badge-rocking{font-family:var(--sans);font-size:8px;font-weight:800;letter-spacing:3px;color:var(--green-hi);text-transform:uppercase;line-height:1.1;}
-  .badge-m{font-family:var(--serif);font-size:52px;font-weight:700;color:#fff;line-height:1;}
+  .badge-m{font-family:var(--serif);font-size:52px;font-weight:700;color:#fff;line-height:.85;}
   .badge-sub{font-family:var(--sans);font-size:7px;font-weight:600;letter-spacing:3px;color:#3d5570;text-transform:uppercase;position:absolute;bottom:6px;}
   .brand-text{display:flex;flex-direction:column;gap:2px;}
   .brand-title{font-family:var(--sans);font-size:28px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#fff;line-height:1;}
@@ -96,10 +96,6 @@
   .tf-btn:hover{border-color:var(--blue-lt);color:var(--blue-lt);}
   .tf-btn.active{border-color:var(--blue-lt);background:var(--blue-lt);color:#fff;}
 
-  /* ── GoPlus banner ── */
-  .goplus-banner{display:none;align-items:center;gap:10px;margin-bottom:10px;padding:8px 14px;background:#e6f4ec;border:1px solid var(--green);border-left:4px solid var(--green-hi);font-family:var(--mono);font-size:10px;color:var(--green);letter-spacing:1px;}
-  .goplus-banner.active{display:flex;}
-  .goplus-dot{width:7px;height:7px;border-radius:50%;background:var(--green-hi);box-shadow:0 0 5px var(--green-hi);animation:blink 2s infinite;flex-shrink:0;}
 
   /* ── Filter panel ── */
   .filter-panel{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-top:3px solid var(--green);}
@@ -291,12 +287,6 @@
     <select class="chain-dropdown" id="chain-dropdown" onchange="onChainDropdownChange()">
       <option value="">-- Select a chain --</option>
     </select>
-  </div>
-
-  <!-- GoPlus Banner -->
-  <div class="goplus-banner" id="goplus-banner">
-    <div class="goplus-dot"></div>
-    <span>GoPlus integration: checking honeypots, deployer traits</span>
   </div>
 
   <!-- Filter Panel -->
@@ -572,30 +562,36 @@ async function scanNewPools(minLiq, minScore, limit) {
   let page = 1;
   let totalFetched = 0;
   let hasMore = true;
+  const maxPages = limit === 100 ? 20 : 10; // Allow more pages when user wants more results
   
   try {
-    while (hasMore && totalFetched < (limit * 5)) {
+    while (hasMore && page <= maxPages) {
       const url = `${GECKO_BASE}/networks/trending_pools?include=base_token,quote_token&page=${page}`;
       console.log(`Fetching trending page ${page}`);
       
-      const res = await fetch(url);
-      const data = await res.json();
-      
-      if (data.data && Array.isArray(data.data) && data.data.length > 0) {
-        console.log(`Page ${page}: Found ${data.data.length} trending pools`);
-        data.data.forEach(pool => {
-          const chain = extractChainFromPool(pool);
-          const p = parsePool(pool, chain, 'new-pools');
-          if (p.liquidity >= minLiq && p.score >= minScore) {
-            pools.push(p);
-          }
-        });
-        totalFetched += data.data.length;
-        page++;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
         
-        if (data.data.length < 20) hasMore = false;
-      } else {
-        hasMore = false;
+        if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+          console.log(`Page ${page}: Found ${data.data.length} trending pools`);
+          data.data.forEach(pool => {
+            const chain = extractChainFromPool(pool);
+            const p = parsePool(pool, chain, 'new-pools');
+            if (p.liquidity >= minLiq && p.score >= minScore) {
+              pools.push(p);
+            }
+          });
+          totalFetched += data.data.length;
+          page++;
+          
+          if (data.data.length < 20) hasMore = false;
+        } else {
+          hasMore = false;
+        }
+      } catch (fetchErr) {
+        console.warn(`Page ${page} failed (likely CORS):`, fetchErr.message);
+        hasMore = false; // Stop pagination on CORS error
       }
     }
     toast(`Scanned ${totalFetched} trending pools, matched ${pools.length}`);
@@ -613,29 +609,35 @@ async function scanVolumSpike(minLiq, minScore, limit) {
   let page = 1;
   let totalFetched = 0;
   let hasMore = true;
+  const maxPages = limit === 100 ? 20 : 10; // Allow more pages when user wants more results
   
   try {
-    while (hasMore && totalFetched < (limit * 5)) {
+    while (hasMore && page <= maxPages) {
       const url = `${GECKO_BASE}/networks/trending_pools?sort=volume_usd&include=base_token,quote_token&page=${page}`;
       console.log(`Fetching volume page ${page}`);
       
-      const res = await fetch(url);
-      const data = await res.json();
-      
-      if (data.data && Array.isArray(data.data) && data.data.length > 0) {
-        console.log(`Page ${page}: Found ${data.data.length} volume pools`);
-        data.data.forEach(pool => {
-          const chain = extractChainFromPool(pool);
-          const p = parsePool(pool, chain, 'volume-spike');
-          if (p.liquidity >= minLiq && p.score >= minScore) {
-            pools.push(p);
-          }
-        });
-        totalFetched += data.data.length;
-        page++;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
         
-        if (data.data.length < 20) hasMore = false;
-      } else {
+        if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+          console.log(`Page ${page}: Found ${data.data.length} volume pools`);
+          data.data.forEach(pool => {
+            const chain = extractChainFromPool(pool);
+            const p = parsePool(pool, chain, 'volume-spike');
+            if (p.liquidity >= minLiq && p.score >= minScore) {
+              pools.push(p);
+            }
+          });
+          totalFetched += data.data.length;
+          page++;
+          
+          if (data.data.length < 20) hasMore = false;
+        } else {
+          hasMore = false;
+        }
+      } catch (fetchErr) {
+        console.warn(`Page ${page} failed (likely CORS):`, fetchErr.message);
         hasMore = false;
       }
     }
@@ -654,30 +656,36 @@ async function scanTopGainers(minLiq, minScore, limit) {
   let page = 1;
   let totalFetched = 0;
   let hasMore = true;
+  const maxPages = limit === 100 ? 20 : 10; // Allow more pages when user wants more results
   const sortKey = currentTimeframe === '1h' ? 'price_change_percentage.h1' : currentTimeframe === '4h' ? 'price_change_percentage.h4' : 'price_change_percentage.h24';
   
   try {
-    while (hasMore && totalFetched < (limit * 5)) {
+    while (hasMore && page <= maxPages) {
       const url = `${GECKO_BASE}/networks/trending_pools?sort=${sortKey}&include=base_token,quote_token&page=${page}`;
       console.log(`Fetching gainers page ${page}`);
       
-      const res = await fetch(url);
-      const data = await res.json();
-      
-      if (data.data && Array.isArray(data.data) && data.data.length > 0) {
-        console.log(`Page ${page}: Found ${data.data.length} gainer pools`);
-        data.data.forEach(pool => {
-          const chain = extractChainFromPool(pool);
-          const p = parsePool(pool, chain, 'top-gainers');
-          if (p.liquidity >= minLiq && p.score >= minScore) {
-            pools.push(p);
-          }
-        });
-        totalFetched += data.data.length;
-        page++;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
         
-        if (data.data.length < 20) hasMore = false;
-      } else {
+        if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+          console.log(`Page ${page}: Found ${data.data.length} gainer pools`);
+          data.data.forEach(pool => {
+            const chain = extractChainFromPool(pool);
+            const p = parsePool(pool, chain, 'top-gainers');
+            if (p.liquidity >= minLiq && p.score >= minScore) {
+              pools.push(p);
+            }
+          });
+          totalFetched += data.data.length;
+          page++;
+          
+          if (data.data.length < 20) hasMore = false;
+        } else {
+          hasMore = false;
+        }
+      } catch (fetchErr) {
+        console.warn(`Page ${page} failed (likely CORS):`, fetchErr.message);
         hasMore = false;
       }
     }
@@ -696,7 +704,7 @@ async function scanTopGainers(minLiq, minScore, limit) {
 }
 
 async function scanChainDeepDive(minLiq, minScore, limit) {
-  // Chain Deep Dive: full scan of single chain with pagination to fetch all pools
+  // Chain Deep Dive: full scan of single chain with pagination
   pools = [];
   if (!selectedChainDeepDive) { toast('Select a chain for deep dive'); return; }
   
@@ -704,38 +712,40 @@ async function scanChainDeepDive(minLiq, minScore, limit) {
   let page = 1;
   let totalFetched = 0;
   let hasMore = true;
+  const maxPages = limit === 100 ? 50 : 15; // Allow more pages when user wants more results (up to 1000 pools)
   
   try {
-    while (hasMore && totalFetched < (limit * 10)) {
-      // Fetch with page=N (GeckoTerminal defaults to 20 per page)
+    while (hasMore && page <= maxPages) {
       const url = `${GECKO_BASE}/networks/${geckoChain}/pools?include=base_token,quote_token&page=${page}`;
       console.log(`Fetching page ${page} from ${geckoChain}`);
       
-      const res = await fetch(url);
-      
-      if (!res.ok) {
-        throw new Error(`API returned ${res.status}: ${res.statusText}`);
-      }
-      
-      const data = await res.json();
-      
-      if (data.data && Array.isArray(data.data) && data.data.length > 0) {
-        console.log(`Page ${page}: Found ${data.data.length} pools`);
-        data.data.forEach(pool => {
-          const p = parsePool(pool, geckoChain, 'chain-dive');
-          if (p.liquidity >= minLiq && p.score >= minScore) {
-            pools.push(p);
-          }
-        });
-        totalFetched += data.data.length;
-        page++;
+      try {
+        const res = await fetch(url);
         
-        // If we got fewer than 20, we've reached the end
-        if (data.data.length < 20) {
+        if (!res.ok) {
+          throw new Error(`API returned ${res.status}: ${res.statusText}`);
+        }
+        
+        const data = await res.json();
+        
+        if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+          console.log(`Page ${page}: Found ${data.data.length} pools`);
+          data.data.forEach(pool => {
+            const p = parsePool(pool, geckoChain, 'chain-dive');
+            if (p.liquidity >= minLiq && p.score >= minScore) {
+              pools.push(p);
+            }
+          });
+          totalFetched += data.data.length;
+          page++;
+          
+          if (data.data.length < 20) hasMore = false;
+        } else {
           hasMore = false;
         }
-      } else {
-        hasMore = false;
+      } catch (fetchErr) {
+        console.warn(`Page ${page} failed (likely CORS):`, fetchErr.message);
+        hasMore = false; // Stop pagination on CORS error
       }
     }
     
@@ -961,10 +971,6 @@ function sortTable(col) {
   renderResults();
 }
 
-function updateGoPlusBanner() {
-  // GoPlus disabled per user request
-}
-
 // ── Auto-run ───────────────────────────────────────────────────────
 function toggleAuto() {
   if (document.getElementById('auto-toggle').checked) startAuto();
@@ -1143,7 +1149,6 @@ trades = JSON.parse(localStorage.getItem('rm_trades_v4') || '[]');
 renderTrades();
 updateChipStates();
 updateModeUI();
-updateGoPlusBanner();
 populateChainDropdown();
 
 // Note: Chain selection is only used for Chain Deep Dive mode.
