@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cipher — Decodes What the Market Is Saying · Rocking M</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Barlow+Condensed:wght@300;400;600;700;800&display=swap');
+  :root {
+    --bg:#e8eaed;--bg2:#f2f4f6;--bg3:#ffffff;--bg-header:#1a2330;
+    --border:#c4cad2;--border2:#a8b2bc;
+    --green:#007a3d;--green-lt:#00a651;--green-bg:#e6f4ec;--green-hi:#00cc66;
+    --blue:#0055a5;--blue-lt:#0077cc;
+    --red:#cc2200;--amber:#c47a00;
+    --text:#1a1f26;--text-mid:#3d4a57;--text-dim:#6b7a8a;
+    --mono:'IBM Plex Mono',monospace;--sans:'Barlow Condensed',sans-serif;--serif:'Georgia','Times New Roman',serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;}
+
+  /* ── Header ── */
+  .top-bar{background:var(--bg-header);border-bottom:3px solid var(--green-lt);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+  .logo-badge{display:flex;align-items:center;gap:16px;}
+  .badge-mark{width:72px;height:82px;background:#111a24;border:1.5px solid var(--green-lt);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex-shrink:0;position:relative;padding:6px 0;}
+  .badge-rocking{font-family:var(--sans);font-size:8px;font-weight:800;letter-spacing:3px;color:var(--green-hi);text-transform:uppercase;line-height:1.1;}
+  .badge-m{font-family:var(--serif);font-size:52px;font-weight:700;color:#fff;line-height:1;}
+  .badge-sub{font-family:var(--sans);font-size:7px;font-weight:600;letter-spacing:3px;color:#3d5570;text-transform:uppercase;position:absolute;bottom:6px;}
+  .brand-text{display:flex;flex-direction:column;gap:2px;}
+  .brand-title{font-family:var(--sans);font-size:28px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#fff;line-height:1;}
+  .brand-title span{color:var(--green-hi);}
+  .brand-tagline{font-family:var(--mono);font-size:9px;color:#4a6070;letter-spacing:1px;margin-top:4px;line-height:1.6;}
+  .status-cluster{display:flex;gap:16px;align-items:center;flex-wrap:wrap;}
+  .s-item{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+  .s-label{font-family:var(--mono);font-size:9px;color:#4a6070;letter-spacing:2px;text-transform:uppercase;}
+  .s-val{font-family:var(--mono);font-size:13px;color:var(--green-hi);font-weight:600;}
+
+  .shell{max-width:1500px;margin:0 auto;padding:20px 24px 40px;}
+  .sec-label{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;}
+
+  /* ── Mode Selector ── */
+  .mode-selector{margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--blue);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .mode-buttons{display:flex;gap:8px;flex-wrap:wrap;}
+  .mode-btn{font-family:var(--mono);font-size:11px;letter-spacing:2px;padding:8px 16px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text-mid);cursor:pointer;transition:all .15s;text-transform:uppercase;white-space:nowrap;user-select:none;}
+  .mode-btn:hover{border-color:var(--blue);color:var(--blue);background:#eef5ff;}
+  .mode-btn.active{border-color:var(--blue);background:var(--blue);color:#fff;box-shadow:0 2px 6px rgba(0,85,165,.25);}
+
+  /* ── Timeframe Toggle ── */
+  .timeframe-section{margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--blue-lt);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .timeframe-section.hidden{display:none;}
+  .timeframe-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;display:block;}
+  .timeframe-toggles{display:flex;gap:8px;flex-wrap:wrap;}
+  .tf-btn{font-family:var(--mono);font-size:11px;letter-spacing:1px;padding:6px 16px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text-mid);cursor:pointer;transition:all .15s;text-transform:uppercase;}
+  .tf-btn:hover{border-color:var(--blue-lt);color:var(--blue-lt);}
+  .tf-btn.active{border-color:var(--blue-lt);background:var(--blue-lt);color:#fff;}
+
+  /* ── Chain Selector ── */
+  .chain-dropdown-section{margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--green);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .chain-dropdown-section.hidden{display:none;}
+  .dropdown-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;display:block;}
+  .quick-chain-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .quick-chain-btn{font-family:var(--mono);font-size:11px;padding:8px 16px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text-mid);cursor:pointer;transition:all .15s;text-transform:uppercase;font-weight:600;}
+  .quick-chain-btn:hover{border-color:var(--green);color:var(--green);background:#f0f8f4;}
+  .quick-chain-btn.active{border-color:var(--green);background:var(--green);color:#fff;}
+  .chain-dropdown{font-family:var(--mono);font-size:12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 12px;width:100%;max-width:300px;cursor:pointer;}
+  .chain-dropdown:focus{border-color:var(--green);background:#fff;}
+
+  /* ── Filter Panel ── */
+  .filter-panel{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-top:3px solid var(--green);}
+  .fgroup{display:flex;flex-direction:column;gap:4px;}
+  .flabel{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;}
+  .finput{font-family:var(--mono);font-size:12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 10px;outline:none;width:100%;}
+  .finput:focus{border-color:var(--green);background:#fff;}
+
+  /* ── Controls ── */
+  .ctrl-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+  .btn-run{font-family:var(--sans);font-size:16px;font-weight:800;letter-spacing:3px;padding:10px 32px;border:2px solid var(--green);background:var(--green);color:#fff;cursor:pointer;transition:all .15s;}
+  .btn-run:hover{background:var(--green-lt);border-color:var(--green-lt);}
+  .btn-run:disabled{opacity:.4;cursor:not-allowed;}
+  .status-pill{font-family:var(--mono);font-size:11px;padding:4px 12px;border:1px solid var(--border);background:var(--bg3);color:var(--text-dim);}
+
+  /* ── Stats ── */
+  .stats-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .scard{background:var(--bg3);border:1px solid var(--border);border-left:4px solid var(--green);padding:10px 16px;flex:1;min-width:110px;}
+  .scard-label{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}
+  .scard-val{font-family:var(--mono);font-size:22px;color:var(--text);font-weight:600;}
+
+  /* ── Table ── */
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--border);background:var(--bg3);}
+  table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;}
+  thead tr{background:var(--bg-header);}
+  th{padding:10px 11px;text-align:left;font-size:9px;letter-spacing:2px;color:#a0b4c4;text-transform:uppercase;white-space:nowrap;}
+  tbody tr{border-bottom:1px solid var(--border);}
+  tbody tr:nth-child(even){background:#f7f9fb;}
+  tbody tr:hover{background:#edf5f0;}
+  td{padding:8px 11px;white-space:nowrap;color:var(--text);}
+  .chain-col{font-weight:600;padding:6px 10px;border-radius:3px;text-align:center;color:#fff;display:inline-block;}
+  .chain-solana{background:#9945ff;}
+  .chain-eth{background:#627ee1;}
+  .chain-base{background:#0052ff;}
+  .chain-bsc{background:#f3ba2f;color:#000;}
+  .chain-arbitrum{background:#28a0f0;}
+  .chain-optimism{background:#ff0000;}
+  .chain-polygon{background:#8247e5;}
+  .chain-avalanche{background:#e84142;}
+  .chain-sui{background:#6fbcf0;}
+  .empty-msg{text-align:center;color:var(--text-dim);padding:40px 20px;}
+  .chg-high{color:#00aa00;font-weight:600;}
+  .chg-med{color:#00cc66;}
+  .chg-low{color:#00ff99;}
+  .chg-neg{color:#ff4444;}
+  .score-cell{font-weight:600;color:var(--green);}
+
+  /* ── Toast ── */
+  .toast{position:fixed;bottom:20px;right:20px;background:var(--green);color:#fff;padding:12px 20px;border-radius:3px;font-family:var(--mono);font-size:11px;box-shadow:0 4px 12px rgba(0,122,61,.3);}
+
+  @media(max-width:768px){
+    .brand-title{font-size:20px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="logo-badge">
+    <div class="badge-mark">
+      <div class="badge-rocking">Rocking</div>
+      <svg width="72" height="14" viewBox="0 0 72 14" fill="none" style="display:block;margin:2px 0 -4px">
+        <path d="M 2 12 Q 36 2 70 12" stroke="#00cc66" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </svg>
+      <div class="badge-m">M</div>
+      <div class="badge-sub">crypto</div>
+    </div>
+    <div class="brand-text">
+      <div class="brand-title">ROCKING <span>M</span> CRYPTO</div>
+      <div class="brand-tagline">Cipher — Decodes What the Market Is Saying</div>
+    </div>
+  </div>
+  <div class="status-cluster">
+    <div class="s-item">
+      <div class="s-label">Last Scan</div>
+      <div class="s-val" id="last-scan">&#8212;</div>
+    </div>
+    <div class="s-item">
+      <div class="s-label">Tokens Found</div>
+      <div class="s-val" id="tok-count">0</div>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- Mode Selector -->
+  <div class="mode-selector">
+    <div class="sec-label">⚙ Scan Mode</div>
+    <div class="mode-buttons">
+      <button class="mode-btn active" data-mode="new-pools" onclick="setMode('new-pools')">Trending</button>
+      <button class="mode-btn" data-mode="volume-spike" onclick="setMode('volume-spike')">Volume Spike</button>
+      <button class="mode-btn" data-mode="top-gainers" onclick="setMode('top-gainers')">Top Gainers</button>
+      <button class="mode-btn" data-mode="chain-dive" onclick="setMode('chain-dive')">Chain New Pools</button>
+    </div>
+  </div>
+
+  <!-- Timeframe Toggle (hidden by default, shown for Top Gainers) -->
+  <div class="timeframe-section hidden" id="timeframe-section">
+    <label class="timeframe-label">Timeframe</label>
+    <div class="timeframe-toggles">
+      <button class="tf-btn active" data-timeframe="24h" onclick="setTimeframe('24h')">24h</button>
+      <button class="tf-btn" data-timeframe="6h" onclick="setTimeframe('6h')">6h</button>
+      <button class="tf-btn" data-timeframe="1h" onclick="setTimeframe('1h')">1h</button>
+    </div>
+  </div>
+
+  <!-- Chain Selector (hidden by default, shown for Chain Deep Dive) -->
+  <div class="chain-dropdown-section hidden" id="chain-dropdown-section">
+    <label class="dropdown-label">Quick Select</label>
+    <div class="quick-chain-buttons">
+      <button class="quick-chain-btn active" data-chain-id="solana" onclick="selectChainDeepDive('solana')">Solana</button>
+      <button class="quick-chain-btn" data-chain-id="bsc" onclick="selectChainDeepDive('bsc')">BSC</button>
+      <button class="quick-chain-btn" data-chain-id="base" onclick="selectChainDeepDive('base')">Base</button>
+      <button class="quick-chain-btn" data-chain-id="eth" onclick="selectChainDeepDive('eth')">Ethereum</button>
+    </div>
+    <label class="dropdown-label" style="margin-top:12px;">Other Chains</label>
+    <select class="chain-dropdown" id="chain-dropdown" onchange="onChainDropdownChange()">
+      <option value="">-- Select a chain --</option>
+    </select>
+  </div>
+
+  <!-- Filter Panel -->
+  <div class="filter-panel">
+    <div class="fgroup">
+      <label class="flabel" for="min-liq">Min Liquidity (USD)</label>
+      <input type="number" class="finput" id="min-liq" value="5000" min="0" step="1000">
+    </div>
+    <div class="fgroup">
+      <label class="flabel" for="min-score">Min Score</label>
+      <input type="number" class="finput" id="min-score" value="40" min="0" max="100" step="5">
+    </div>
+    <div class="fgroup" id="min-age-group" style="display:none;">
+      <label class="flabel" for="min-age">Min Age (minutes)</label>
+      <input type="number" class="finput" id="min-age" value="0" min="0" max="60" step="1">
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="ctrl-row">
+    <button class="btn-run" id="btn-run" onclick="runScan()">Scan Now</button>
+    <div class="status-pill">
+      <span id="status-text">Ready</span>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row" id="stats-row" style="display:none;">
+    <div class="scard">
+      <div class="scard-label">Avg Score</div>
+      <div class="scard-val" id="stat-score">&#8212;</div>
+    </div>
+    <div class="scard">
+      <div class="scard-label">Avg 24h Chg</div>
+      <div class="scard-val" id="stat-chg24h">&#8212;</div>
+    </div>
+  </div>
+
+  <!-- Results Table -->
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Chain</th>
+          <th>Name</th>
+          <th>Symbol</th>
+          <th>Age</th>
+          <th>Price</th>
+          <th>Liquidity</th>
+          <th>24h %</th>
+          <th>Vol 24h</th>
+          <th>Score</th>
+          <th>Link</th>
+        </tr>
+      </thead>
+      <tbody id="results-body">
+        <tr><td colspan="10" class="empty-msg">No results yet. Click "Scan Now" to begin.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+// ── Global State ──────────────────────────────────────────────────
+const GECKO_BASE = 'https://gecko-proxy.ermccabee1.workers.dev/gecko/v2';
+let currentMode = 'new-pools';
+let currentTimeframe = '24h';
+let selectedChainDeepDive = 'solana';
+let pools = [];
+let cachedData = {};
+
+const networkMap = {
+  "solana": "solana", "eth": "eth", "ethereum": "eth",
+  "base": "base", "bsc": "bsc", "arbitrum": "arbitrum",
+  "optimism": "optimism", "polygon": "polygon",
+  "avalanche": "avalanche", "sui": "sui"
+};
+
+// ── Mode Handling ──────────────────────────────────────────────
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+  document.getElementById('timeframe-section').classList.toggle('hidden', mode !== 'top-gainers');
+  document.getElementById('chain-dropdown-section').classList.toggle('hidden', mode !== 'chain-dive');
+  document.getElementById('min-age-group').style.display = (mode === 'chain-dive') ? 'flex' : 'none';
+  if (cachedData[mode]) delete cachedData[mode];
+}
+
+function setTimeframe(tf) {
+  currentTimeframe = tf;
+  document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-timeframe="${tf}"]`).classList.add('active');
+}
+
+function selectChainDeepDive(chain) {
+  selectedChainDeepDive = networkMap[chain] || chain;
+  document.querySelectorAll('.quick-chain-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-chain-id="${chain}"]`).classList.add('active');
+  document.getElementById('chain-dropdown').value = '';
+  if (cachedData['chain-dive']) delete cachedData['chain-dive'];
+}
+
+function onChainDropdownChange() {
+  const value = document.getElementById('chain-dropdown').value;
+  if (value) {
+    selectedChainDeepDive = value;
+    document.querySelectorAll('.quick-chain-btn').forEach(b => b.classList.remove('active'));
+    if (cachedData['chain-dive']) delete cachedData['chain-dive'];
+  }
+}
+
+// ── Parser ─────────────────────────────────────────────────────
+function parseGeckoPool(item) {
+  const a = item.attributes || {};
+  let symbol = a.symbol || '???';
+  if (a.base_token) symbol = a.base_token.symbol || symbol;
+  if (!symbol || symbol === '???') symbol = a.name ? a.name.split('/')[0].trim() : '???';
+
+  const price = parseFloat(a.base_token_price_usd) || 0;
+  const liquidity = parseFloat(a.reserve_in_usd) || 0;
+  const chg24h = parseFloat(a.price_change_percentage?.h24) || 0;
+  const vol24h = parseFloat(a.volume_usd?.h24) || 0;
+  
+  const score = Math.min(99, Math.round(
+    Math.abs(chg24h) * 2.5 + (liquidity / 80000) * 40
+  ));
+
+  return {
+    name: a.name || 'Unknown',
+    symbol: symbol,
+    chain: selectedChainDeepDive,
+    price: price,
+    liquidity: liquidity,
+    chg24h: chg24h,
+    vol24h: vol24h,
+    score: score,
+    age: a.pool_created_at ? Math.round((Date.now() - new Date(a.pool_created_at).getTime())/3600000*10)/10 : 999,
+    link: `https://www.geckoterminal.com/${selectedChainDeepDive}/pools/${a.address || ''}`
+  };
+}
+
+// ── Main Scan ──────────────────────────────────────────────────
+async function runScan() {
+  const btn = document.getElementById('btn-run');
+  btn.disabled = true;
+  btn.textContent = 'Scanning...';
+  document.getElementById('status-text').textContent = 'Scanning...';
+
+  const minLiq = parseFloat(document.getElementById('min-liq').value) || 5000;
+  const minScore = parseFloat(document.getElementById('min-score').value) || 0;
+  const minAge = currentMode === 'chain-dive' ? parseFloat(document.getElementById('min-age').value) || 0 : 0;
+
+  try {
+    const cacheKey = currentMode === 'chain-dive' ? `chain-dive-${selectedChainDeepDive}` : currentMode;
+
+    if (cachedData[cacheKey] && Date.now() - cachedData[cacheKey].time < 90000) {
+      pools = cachedData[cacheKey].data;
+      toast("Loaded from cache");
+    } else {
+      if (currentMode === 'chain-dive') {
+        await scanChainNewPoolsGecko(minLiq, minScore, minAge);
+      } else if (currentMode === 'new-pools') {
+        await scanTrendingGecko();
+      } else if (currentMode === 'volume-spike') {
+        await scanVolumeSpikeGecko();
+      } else if (currentMode === 'top-gainers') {
+        await scanTopGainersGecko();
+      }
+      cachedData[cacheKey] = { data: pools, time: Date.now() };
+    }
+
+    pools = pools.filter(p => p.liquidity >= minLiq && p.score >= minScore);
+    renderResults();
+    updateStats();
+    document.getElementById('tok-count').textContent = pools.length;
+  } catch (e) {
+    toast("Error: " + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Scan Now';
+    document.getElementById('status-text').textContent = 'Ready';
+    document.getElementById('last-scan').textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  }
+}
+
+async function scanTrendingGecko() {
+  pools = [];
+  let page = 1;
+  const maxPages = 3;
+
+  toast(`Scanning trending pools...`);
+
+  while (page <= maxPages) {
+    try {
+      const res = await fetch(`${GECKO_BASE}/networks/trending_pools?page=${page}&include=base_token`);
+      if (!res.ok) break;
+      const data = await res.json();
+      if (data.data) {
+        data.data.forEach(item => {
+          const a = item.attributes || {};
+          
+          // Extract chain from pool ID (format: chain_pooladdress)
+          const poolId = item.id || '';
+          const chain = poolId.split('_')[0] || 'unknown';
+          
+          // Get symbol from base_token or name
+          let symbol = '???';
+          if (a.base_token && a.base_token.symbol) {
+            symbol = a.base_token.symbol;
+          } else if (a.symbol) {
+            symbol = a.symbol;
+          } else if (a.name) {
+            symbol = a.name.split('/')[0].trim();
+          }
+          
+          const price = parseFloat(a.base_token_price_usd) || 0;
+          const liquidity = parseFloat(a.reserve_in_usd) || 0;
+          const chg24h = parseFloat(a.price_change_percentage?.h24) || 0;
+          const vol24h = parseFloat(a.volume_usd?.h24) || 0;
+          const score = Math.min(99, Math.round(Math.abs(chg24h) * 2.5 + (liquidity / 80000) * 40));
+          
+          pools.push({
+            name: a.name || 'Unknown',
+            symbol: symbol,
+            chain: chain,
+            price: price,
+            liquidity: liquidity,
+            chg24h: chg24h,
+            vol24h: vol24h,
+            score: score,
+            age: a.pool_created_at ? Math.round((Date.now() - new Date(a.pool_created_at).getTime())/3600000*10)/10 : 999,
+            link: `https://www.geckoterminal.com/${chain}/pools/${a.address || ''}`
+          });
+        });
+      }
+      page++;
+    } catch (e) {
+      console.warn(e);
+      break;
+    }
+    await new Promise(r => setTimeout(r, 1000));
+  }
+
+  toast(`Trending: ${pools.length} pools`);
+}
+
+async function scanVolumeSpikeGecko() {
+  pools = [];
+  let page = 1;
+  const maxPages = 3;
+
+  toast(`Scanning volume spikes...`);
+
+  while (page <= maxPages) {
+    try {
+      const res = await fetch(`${GECKO_BASE}/networks/trending_pools?page=${page}&include=base_token&sort=volume_usd`);
+      if (!res.ok) break;
+      const data = await res.json();
+      if (data.data) {
+        data.data.forEach(item => {
+          const a = item.attributes || {};
+          
+          // Extract chain from pool ID (format: chain_pooladdress)
+          const poolId = item.id || '';
+          const chain = poolId.split('_')[0] || 'unknown';
+          
+          // Get symbol from base_token or name
+          let symbol = '???';
+          if (a.base_token && a.base_token.symbol) {
+            symbol = a.base_token.symbol;
+          } else if (a.symbol) {
+            symbol = a.symbol;
+          } else if (a.name) {
+            symbol = a.name.split('/')[0].trim();
+          }
+          
+          const price = parseFloat(a.base_token_price_usd) || 0;
+          const liquidity = parseFloat(a.reserve_in_usd) || 0;
+          const chg24h = parseFloat(a.price_change_percentage?.h24) || 0;
+          const vol24h = parseFloat(a.volume_usd?.h24) || 0;
+          const score = Math.min(99, Math.round(Math.abs(chg24h) * 1.5 + (vol24h / 100000) * 50));
+          
+          pools.push({
+            name: a.name || 'Unknown',
+            symbol: symbol,
+            chain: chain,
+            price: price,
+            liquidity: liquidity,
+            chg24h: chg24h,
+            vol24h: vol24h,
+            score: score,
+            age: a.pool_created_at ? Math.round((Date.now() - new Date(a.pool_created_at).getTime())/3600000*10)/10 : 999,
+            link: `https://www.geckoterminal.com/${chain}/pools/${a.address || ''}`
+          });
+        });
+      }
+      page++;
+    } catch (e) {
+      console.warn(e);
+      break;
+    }
+    await new Promise(r => setTimeout(r, 1000));
+  }
+
+  toast(`Volume Spike: ${pools.length} pools`);
+}
+
+async function scanTopGainersGecko() {
+  pools = [];
+  let page = 1;
+  const maxPages = 3;
+
+  toast(`Scanning top gainers (${currentTimeframe})...`);
+
+  while (page <= maxPages) {
+    try {
+      const res = await fetch(`${GECKO_BASE}/networks/trending_pools?page=${page}&include=base_token`);
+      if (!res.ok) break;
+      const data = await res.json();
+      if (data.data) {
+        data.data.forEach(item => {
+          const a = item.attributes || {};
+          
+          // Extract chain from pool ID (format: chain_pooladdress)
+          const poolId = item.id || '';
+          const chain = poolId.split('_')[0] || 'unknown';
+          
+          // Get symbol from base_token or name
+          let symbol = '???';
+          if (a.base_token && a.base_token.symbol) {
+            symbol = a.base_token.symbol;
+          } else if (a.symbol) {
+            symbol = a.symbol;
+          } else if (a.name) {
+            symbol = a.name.split('/')[0].trim();
+          }
+          
+          const price = parseFloat(a.base_token_price_usd) || 0;
+          const liquidity = parseFloat(a.reserve_in_usd) || 0;
+          
+          let chg = 0;
+          if (currentTimeframe === '1h') chg = parseFloat(a.price_change_percentage?.h1) || 0;
+          else if (currentTimeframe === '6h') chg = parseFloat(a.price_change_percentage?.h6) || 0;
+          else chg = parseFloat(a.price_change_percentage?.h24) || 0;
+          
+          const vol24h = parseFloat(a.volume_usd?.h24) || 0;
+          const score = Math.min(99, Math.round(Math.abs(chg) * 3.5 + (liquidity / 80000) * 25));
+          
+          pools.push({
+            name: a.name || 'Unknown',
+            symbol: symbol,
+            chain: chain,
+            price: price,
+            liquidity: liquidity,
+            chg24h: chg,
+            vol24h: vol24h,
+            score: score,
+            age: a.pool_created_at ? Math.round((Date.now() - new Date(a.pool_created_at).getTime())/3600000*10)/10 : 999,
+            link: `https://www.geckoterminal.com/${chain}/pools/${a.address || ''}`
+          });
+        });
+      }
+      page++;
+    } catch (e) {
+      console.warn(e);
+      break;
+    }
+    await new Promise(r => setTimeout(r, 1000));
+  }
+
+  toast(`Top Gainers: ${pools.length} pools`);
+}
+
+async function scanChainNewPoolsGecko(minLiq, minScore, minAge) {
+  pools = [];
+  const slug = selectedChainDeepDive;
+  let page = 1;
+  const maxPages = 5;
+  const maxAgeMinutes = 60; // Hardcoded 1 hour max
+
+  toast(`New pools on ${slug}... (max 1 hour old)`);
+
+  while (page <= maxPages) {
+    try {
+      const res = await fetch(`${GECKO_BASE}/networks/${slug}/pools?page=${page}&include=base_token`);
+      if (!res.ok) break;
+      const data = await res.json();
+      if (data.data) {
+        const now = Date.now();
+        data.data.forEach(item => {
+          const a = item.attributes || {};
+          const createdAt = new Date(a.pool_created_at || 0).getTime();
+          const ageMinutes = (now - createdAt) / 60000;
+          
+          // Filter: pool must be newer than maxAge (60 min) and older than minAge
+          if (ageMinutes <= maxAgeMinutes && ageMinutes >= minAge) {
+            let symbol = a.symbol || '???';
+            if (a.base_token) symbol = a.base_token.symbol || symbol;
+            if (!symbol || symbol === '???') symbol = a.name ? a.name.split('/')[0].trim() : '???';
+
+            const price = parseFloat(a.base_token_price_usd) || 0;
+            const liquidity = parseFloat(a.reserve_in_usd) || 0;
+            const chg24h = parseFloat(a.price_change_percentage?.h24) || 0;
+            const vol24h = parseFloat(a.volume_usd?.h24) || 0;
+            const score = Math.min(99, Math.round(
+              Math.abs(chg24h) * 2.5 + (liquidity / 80000) * 40
+            ));
+
+            pools.push({
+              name: a.name || 'Unknown',
+              symbol: symbol,
+              chain: slug,
+              price: price,
+              liquidity: liquidity,
+              chg24h: chg24h,
+              vol24h: vol24h,
+              score: score,
+              age: Math.round(ageMinutes * 10) / 10,
+              link: `https://www.geckoterminal.com/${slug}/pools/${a.address || ''}`
+            });
+          }
+        });
+      }
+      page++;
+    } catch (e) {
+      console.warn(e);
+      break;
+    }
+    await new Promise(r => setTimeout(r, 1200));
+  }
+
+  toast(`New pools on ${slug}: ${pools.length} found (${minAge}m - 60m old)`);
+}
+
+function renderResults() {
+  const tbody = document.getElementById('results-body');
+  if (!pools.length) {
+    tbody.innerHTML = `<tr><td colspan="10" class="empty-msg">No results found</td></tr>`;
+    return;
+  }
+
+  const chainClass = (chain) => {
+    const map = {solana:'chain-solana', eth:'chain-eth', base:'chain-base', bsc:'chain-bsc', 
+                 arbitrum:'chain-arbitrum', optimism:'chain-optimism', polygon:'chain-polygon',
+                 avalanche:'chain-avalanche', sui:'chain-sui'};
+    return map[chain] || 'chain-solana';
+  };
+
+  const chgClass = (chg) => {
+    if (chg >= 25) return 'chg-high';
+    if (chg >= 10) return 'chg-med';
+    if (chg > 0) return 'chg-low';
+    return 'chg-neg';
+  };
+
+  tbody.innerHTML = pools.map(p => `
+    <tr>
+      <td><span class="chain-col ${chainClass(p.chain)}">${p.chain.toUpperCase()}</span></td>
+      <td>${p.name}</td>
+      <td><strong>${p.symbol}</strong></td>
+      <td>${p.age}h</td>
+      <td>$${p.price.toFixed(p.price < 0.01 ? 6 : 4)}</td>
+      <td>$${(p.liquidity/1000).toFixed(0)}K</td>
+      <td class="${chgClass(p.chg24h)}">${p.chg24h.toFixed(1)}%</td>
+      <td>$${(p.vol24h/1000).toFixed(0)}K</td>
+      <td class="score-cell">${p.score}</td>
+      <td><a href="${p.link}" target="_blank" style="color:var(--green);text-decoration:underline;">View</a></td>
+    </tr>
+  `).join('');
+}
+
+function updateStats() {
+  if (!pools.length) {
+    document.getElementById('stats-row').style.display = 'none';
+    return;
+  }
+  document.getElementById('stats-row').style.display = 'flex';
+  const avgScore = Math.round(pools.reduce((s, p) => s + p.score, 0) / pools.length);
+  const avgChg = pools.reduce((s, p) => s + p.chg24h, 0) / pools.length;
+  document.getElementById('stat-score').textContent = avgScore;
+  document.getElementById('stat-chg24h').textContent = avgChg.toFixed(1) + '%';
+}
+
+// ── Populate Chain Dropdown ────────────────────────────────────
+async function populateChainDropdown() {
+  const dropdown = document.getElementById('chain-dropdown');
+  const quickSelectChains = ['solana', 'bsc', 'base', 'eth'];
+  
+  try {
+    const res = await fetch(`${GECKO_BASE}/networks?limit=100`);
+    const data = await res.json();
+    
+    if (data.data && Array.isArray(data.data)) {
+      console.log('Available networks:', data.data.map(n => n.id).slice(0, 20));
+      
+      // Filter out quick-select chains and sort by name
+      const filtered = data.data.filter(network => !quickSelectChains.includes(network.id));
+      const sorted = filtered.sort((a, b) => a.attributes.name.localeCompare(b.attributes.name));
+      
+      // Populate dropdown
+      sorted.forEach(network => {
+        const option = document.createElement('option');
+        option.value = network.id;
+        option.textContent = network.attributes.name;
+        dropdown.appendChild(option);
+      });
+    }
+  } catch (e) {
+    console.error('Failed to fetch networks:', e);
+    toast('Could not load available chains');
+  }
+}
+
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// Init
+setMode('new-pools');
+document.getElementById('chain-dropdown').value = 'solana';
+populateChainDropdown();
+</script>
+</body>
+</html>
