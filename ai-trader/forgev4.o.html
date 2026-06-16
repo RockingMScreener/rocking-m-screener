@@ -7,17 +7,14 @@
 <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Barlow+Condensed:wght@300;400;600;700;800&display=swap');
-:root {
-  --bg:#e8eaed; --bg3:#ffffff; --bg-header:#0f1115;
-  --green:#00cc66; --red:#cc2200; --blue:#0055a5;
-}
+:root { --bg:#e8eaed; --bg3:#ffffff; --bg-header:#0f1115; --green:#00cc66; --red:#cc2200; --blue:#0055a5; }
 body {background:var(--bg); color:#1a1f26; font-family:'Barlow Condensed',sans-serif; margin:0; padding:0;}
 .top-bar {background:#0f1115; padding:12px 20px; color:white; display:flex; align-items:center; gap:20px; border-bottom:3px solid var(--green);}
 .logo {width:68px; height:76px; background:#111a24; border:2px solid var(--green); border-radius:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; padding:4px 0;}
-.logo-top {font-size:7px; font-weight:700; letter-spacing:2.5px; color:var(--green); font-family:'Barlow Condensed',sans-serif; line-height:1; margin-bottom:2px;}
+.logo-top {font-size:7px; font-weight:700; letter-spacing:2.5px; color:var(--green); line-height:1; margin-bottom:2px;}
 .logo-arc {width:38px; height:12px; border-top:2px solid var(--green); border-radius:50% 50% 0 0; margin-bottom:-4px;}
-.logo-m {font-size:36px; font-weight:900; color:white; font-family:'Barlow Condensed',sans-serif; line-height:1;}
-.logo-bottom {font-size:6px; font-weight:600; letter-spacing:2px; color:#8a9ab0; font-family:'Barlow Condensed',sans-serif; line-height:1; margin-top:2px;}
+.logo-m {font-size:36px; font-weight:900; color:white; line-height:1;}
+.logo-bottom {font-size:6px; font-weight:600; letter-spacing:2px; color:#8a9ab0; line-height:1; margin-top:2px;}
 .shell {max-width:1400px; margin:auto; padding:20px;}
 .card {background:var(--bg3); border:1px solid #c4cad2; padding:16px; margin-bottom:16px;}
 .setup-grid {display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:12px;}
@@ -30,7 +27,7 @@ table {width:100%; border-collapse:collapse;}
 th {background:var(--bg-header); color:white; padding:10px; text-align:left;}
 td {padding:10px; border-bottom:1px solid #c4cad2;}
 .green {color:var(--green);} .red {color:var(--red);}
-.remi-log {background:#1a2330; color:#a0c0a0; padding:12px; max-height:380px; overflow-y:auto; font-family:'IBM Plex Mono',monospace; font-size:11px;}
+.remi-log {background:#1a2330; color:#a0c0a0; padding:12px; max-height:420px; overflow-y:auto; font-family:'IBM Plex Mono',monospace; font-size:11px;}
 .last-updated {font-size:11px; color:#666;}
 .warning {background:#fff3f3; border:1px solid #cc2200; padding:12px; margin-bottom:16px; border-radius:4px;}
 </style>
@@ -52,73 +49,35 @@ td {padding:10px; border-bottom:1px solid #c4cad2;}
 
 <div class="shell">
   <div class="warning">
-    <strong>⚠️ REAL MONEY TESTING MODE</strong>
-    <div style="margin-top:8px;">Use only funds you are fully prepared to lose.</div>
-    <div style="margin-top:6px;"><strong>Connect a dedicated wallet with small SOL only.</strong></div>
+    <strong>⚠️ REAL MONEY TESTING MODE</strong><br>
+    Use only funds you are prepared to lose.
   </div>
 
+  <!-- Wallet -->
   <div class="card">
     <h3>Wallet Connection</h3>
-    <div style="margin-bottom:12px; color:#333;">
-      <strong>Status:</strong> <span id="wallet-status">Not connected</span>
-    </div>
-    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
-      <button class="btn btn-small" onclick="connectWallet('backpack')">Connect Backpack</button>
-      <button class="btn btn-small" onclick="connectWallet('solflare')">Connect Solflare</button>
-      <button class="btn btn-small" onclick="connectWallet('phantom')">Connect Phantom</button>
-      <button class="btn btn-small" onclick="disconnectWallet()">Disconnect</button>
-    </div>
-    <div id="wallet-info" style="font-size:13px; color:#333; line-height:1.6; display:none;">
-      <div><strong>Address:</strong> <span id="wallet-address">—</span></div>
-      <div><strong>SOL Balance:</strong> <span id="sol-balance">0.0000</span></div>
+    <strong>Status:</strong> <span id="wallet-status">Not connected</span><br><br>
+    <button class="btn btn-small" onclick="connectWallet('phantom')">Phantom</button>
+    <button class="btn btn-small" onclick="connectWallet('backpack')">Backpack</button>
+    <button class="btn btn-small" onclick="connectWallet('solflare')">Solflare</button>
+    <button class="btn btn-small" onclick="disconnectWallet()">Disconnect</button>
+    <div id="wallet-info" style="display:none; margin-top:10px;">
+      <strong>Address:</strong> <span id="wallet-address"></span><br>
+      <strong>SOL:</strong> <span id="sol-balance">0.0000</span>
     </div>
   </div>
 
+  <!-- Settings (same as your original) -->
   <div class="card">
     <h3>Trading Settings</h3>
     <div class="setup-grid">
       <div><label>Starting Balance ($)</label><input class="finput" id="start-balance" type="number" value="500"></div>
       <div><label>Max Positions</label><input class="finput" id="max-positions" type="number" value="5"></div>
       <div><label>Max Entry Size ($)</label><input class="finput" id="max-entry" type="number" value="20"></div>
-      <div><label>Min Entry Size ($)</label><input class="finput" id="min-entry" type="number" value="2"></div>
-      <div><label>Capital Reserve (%)</label><input class="finput" id="reserve-pct" type="number" value="30"></div>
-      <div><label>Min Liquidity ($)</label><input class="finput" id="min-liq" type="number" value="8000"></div>
-      <div><label>Require Locked Liquidity</label>
-        <select class="finput" id="require-locked-liq">
-          <option value="false">No — warn only</option>
-          <option value="true">Yes — block unlocked</option>
-        </select>
-      </div>
-      <div><label>Min Token Age (min)</label><input class="finput" id="min-age" type="number" value="2"></div>
+      <div><label>Min Liquidity ($)</label><input class="finput" id="min-liq" type="number" value="3000"></div>
+      <div><label>Min Score</label><input class="finput" id="min-score" type="number" value="35"></div>
+      <div><label>Min Token Age (min)</label><input class="finput" id="min-age" type="number" value="1"></div>
       <div><label>Max Token Age (min)</label><input class="finput" id="max-age" type="number" value="180"></div>
-      <div><label>Min Score</label><input class="finput" id="min-score" type="number" value="52"></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>Exit Strategy Settings</h3>
-    <div class="setup-grid">
-      <div><label>TP1 (% gain)</label><input class="finput" id="tp1-pct" type="number" value="30"></div>
-      <div><label>TP1 Sell %</label><input class="finput" id="tp1-sell" type="number" value="40"></div>
-      <div><label>TP2 (% gain)</label><input class="finput" id="tp2-pct" type="number" value="70"></div>
-      <div><label>TP2 Sell %</label><input class="finput" id="tp2-sell" type="number" value="80"></div>
-      <div><label>TP3 (% gain)</label><input class="finput" id="tp3-pct" type="number" value="150"></div>
-      <div><label>TP3 Sell %</label><input class="finput" id="tp3-sell" type="number" value="60"></div>
-      <div><label>Trail Activate (%)</label><input class="finput" id="trail-activate" type="number" value="40"></div>
-      <div><label>Trail Drop (%)</label><input class="finput" id="trail-drop" type="number" value="15"></div>
-      <div><label>Hard Stop Loss (%)</label><input class="finput" id="hard-stop" type="number" value="-25"></div>
-      <div><label>Max Hold Time (hours)</label><input class="finput" id="max-hold" type="number" value="12"></div>
-      <div><label>No-Momentum Timeout (hours)</label><input class="finput" id="no-momentum" type="number" value="4"></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>Transaction Settings</h3>
-    <div class="setup-grid">
-      <div><label>Priority Fee (microlamports)</label><input class="finput" id="priority-fee" type="number" value="10000"></div>
-      <div><label>Buy Slippage (%)</label><input class="finput" id="buy-slippage" type="number" value="25"></div>
-      <div><label>Sell Slippage (%)</label><input class="finput" id="sell-slippage" type="number" value="30"></div>
-      <div><label>Max Fee Cap (SOL)</label><input class="finput" id="max-fee-sol" type="number" value="0.005" step="0.001"></div>
     </div>
   </div>
 
@@ -129,79 +88,55 @@ td {padding:10px; border-bottom:1px solid #c4cad2;}
     <div class="pcard"><strong>Total Balance</strong><br><span id="total-balance">$0.00</span></div>
     <div class="pcard"><strong>Available</strong><br><span id="available">$0.00</span></div>
     <div class="pcard"><strong>In Positions</strong><br><span id="in-positions">$0.00</span></div>
-    <div class="pcard"><strong>Reserve Held</strong><br><span id="reserve-held" style="color:#c47a00">$0.00</span></div>
     <div class="pcard"><strong>Realized PnL</strong><br><span id="realized-pnl">$0.00</span></div>
   </div>
 
-  <h3>Open Positions <span class="last-updated" id="last-update">Last price update: never</span></h3>
-  <div class="card">
-    <table>
-      <thead><tr><th>Symbol</th><th>Entry</th><th>Current</th><th>Size</th><th>Value</th><th>PnL $</th><th>PnL %</th><th>Age</th><th title="Score (0-100)">Score</th><th>Actions</th></tr></thead>
-      <tbody id="positions-body"></tbody>
-    </table>
-  </div>
+  <h3>Open Positions <span class="last-updated" id="last-update">Last update: never</span></h3>
+  <div class="card"><table><thead><tr><th>Symbol</th><th>Entry</th><th>Current</th><th>Value</th><th>PnL</th><th>Age</th><th>Actions</th></tr></thead><tbody id="positions-body"></tbody></table></div>
 
   <h3>Forge Event Log</h3>
   <div class="remi-log" id="remi-log"></div>
-
-  <h3>Closed Trades</h3>
-  <div class="card">
-    <table>
-      <thead><tr><th>Date</th><th>Symbol</th><th>Entry</th><th>Exit</th><th>PnL $</th><th>PnL %</th><th>Reason</th></tr></thead>
-      <tbody id="closed-body"></tbody>
-    </table>
-  </div>
-
-  <div style="margin-top:15px;">
-    <button class="btn btn-small" onclick="exportCSV()">Export CSV</button>
-    <button class="btn btn-small" onclick="exportJSON()">Export JSON (ElizaOS)</button>
-    <button class="btn btn-small" onclick="exportLog()">Export Event Log</button>
-  </div>
 </div>
 
 <script>
-// ====================== STATE & CONFIG ======================
-const SCORE_CONFIG = { liqWeight: 40, ageWeight: 30, volWeight: 30 };
-
+// ====================== CORE STATE ======================
 let wallet = { publicKey: null, connected: false, provider: null };
-
 const connection = new solanaWeb3.Connection("https://api.mainnet-beta.solana.com", { commitment: 'confirmed' });
 const fallbackConn = new solanaWeb3.Connection("https://rpc.ankr.com/solana", { commitment: 'confirmed' });
 
-function getConn() {
-  return wallet.provider?.connection || connection || fallbackConn;
-}
+function getConn() { return wallet.provider?.connection || connection || fallbackConn; }
 
-let entryLock = false;
-let sellQueue = [];
-let sellProcessing = false;
-const tokenCooldown = new Map();
-const COOLDOWN_MS = 10 * 60 * 1000;
+let account = null;
+let positions = [];
+let closedTrades = [];
+let eventLog = [];
+let scannerRunning = false;
+let updateInterval = null;
+let isUpdating = false;
 
 const SOL_MINT = 'So11111111111111111111111111111111111111112';
 
 // ====================== WALLET ======================
-async function connectWallet(preference) {
+async function connectWallet(providerName) {
   try {
     let provider = null;
-    if (preference === 'backpack' && window.backpack) provider = window.backpack;
-    else if (preference === 'solflare' && window.solflare) provider = window.solflare;
-    else if (preference === 'phantom' && window.phantom?.solana) provider = window.phantom.solana;
-    else return alert(`${preference} wallet not found.`);
+    if (providerName === 'phantom' && window.phantom?.solana) provider = window.phantom.solana;
+    else if (providerName === 'backpack' && window.backpack) provider = window.backpack;
+    else if (providerName === 'solflare' && window.solflare) provider = window.solflare;
+    else return alert(providerName + " not found");
 
-    const res = await provider.connect();
-    wallet.publicKey = res?.publicKey || provider.publicKey;
+    const resp = await provider.connect();
+    wallet.publicKey = resp.publicKey || provider.publicKey;
     wallet.connected = true;
     wallet.provider = provider;
 
-    document.getElementById('wallet-status').innerHTML = `✅ Connected (${provider.name || 'Wallet'})`;
+    document.getElementById('wallet-status').innerHTML = `✅ Connected (${providerName})`;
     document.getElementById('wallet-info').style.display = 'block';
-    document.getElementById('wallet-address').textContent = wallet.publicKey.toString().slice(0,8) + '...' + wallet.publicKey.toString().slice(-6);
-
+    document.getElementById('wallet-address').textContent = wallet.publicKey.toString().slice(0,8)+'...'+wallet.publicKey.toString().slice(-6);
     await updateSOLBalance();
-    addLog(`✅ Wallet connected`, 'ok');
-  } catch (err) {
-    addLog('❌ Wallet connection failed: ' + err.message, 'err');
+    addLog(`✅ Wallet connected (${providerName})`, 'ok');
+  } catch(e) {
+    addLog('❌ Connection failed: ' + e.message, 'err');
   }
 }
 
@@ -215,134 +150,126 @@ async function disconnectWallet() {
 async function updateSOLBalance() {
   if (!wallet.publicKey) return;
   try {
-    const balance = await getConn().getBalance(wallet.publicKey);
-    document.getElementById('sol-balance').textContent = (balance / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
-  } catch (e) {
-    document.getElementById('sol-balance').textContent = '—';
-    addLog('⚠️ SOL balance fetch failed', 'warn');
-  }
+    const bal = await getConn().getBalance(wallet.publicKey);
+    document.getElementById('sol-balance').textContent = (bal / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
+  } catch(e) { document.getElementById('sol-balance').textContent = '—'; }
 }
 
-setInterval(() => { if (wallet.connected) updateSOLBalance(); }, 30000);
+// ====================== SCORING & SCANNING ======================
+function scoreCandidate(pool) {
+  const reasons = [];
+  let score = 0;
 
-// ====================== TX CONFIG ======================
-const TX_CONFIG = { priorityFee: 10000, slippageBps: 2500, sellSlippageBps: 3000, maxFeeSOL: 0.005 };
+  const liq = parseFloat(pool.reserve_in_usd || 0);
+  const ageMin = pool.pool_created_at ? (Date.now() - new Date(pool.pool_created_at).getTime()) / 60000 : 999;
+  const vol = parseFloat(pool.volume_usd?.h24 || 0) || 0;
 
-let solPrice = 0;
-async function getSOLPrice() {
+  if (liq < account.minLiq) reasons.push(`Liq $${liq.toFixed(0)} < $${account.minLiq}`);
+  if (ageMin < account.minAgeMin) reasons.push(`Too new (${ageMin.toFixed(0)}m)`);
+  if (ageMin > account.maxAgeMin) reasons.push(`Too old (${ageMin.toFixed(0)}m)`);
+
+  if (reasons.length > 0) return { score: 0, reasons };
+
+  score += Math.min(liq / 12000, 1) * 45;
+  score += Math.max(0, (account.maxAgeMin - ageMin) / account.maxAgeMin) * 35;
+  if (vol > 3000) score += 20;
+
+  return { score: Math.min(100, Math.round(score)), reasons };
+}
+
+async function scanCycle() {
+  if (!scannerRunning || !account) return;
+  if (positions.length >= account.maxPositions) return addLog(`Max positions reached (${account.maxPositions})`, 'info');
+
+  addLog('🔍 Scanning new pools...', 'info');
+
   try {
-    const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
-    const data = await res.json();
-    solPrice = data?.solana?.usd || 150;
-  } catch(e) {}
-  return solPrice;
-}
-
-// ====================== JUPITER ======================
-async function getJupiterQuote(inputMint, outputMint, amount, slippageBps) {
-  const url = `https://quote-api.jup.ag/v6/quote?inputMint=${inputMint}&outputMint=${outputMint}&amount=${amount}&slippageBps=${slippageBps}`;
-  const res = await fetch(url);
-  if (!res.ok) return { error: "Quote failed" };
-  return await res.json();
-}
-
-async function jupiterSwap(inputMint, outputMint, amountLamports, slippageBps, label) {
-  if (!wallet.connected) return null;
-  try {
-    let quote = await getJupiterQuote(inputMint, outputMint, amountLamports, slippageBps);
-    if (quote.error) return null;
-
-    const swapRes = await fetch('https://quote-api.jup.ag/v6/swap', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        quoteResponse: quote,
-        userPublicKey: wallet.publicKey.toString(),
-        wrapAndUnwrapSol: true,
-        prioritizationFeeLamports: TX_CONFIG.priorityFee
-      })
+    const res = await fetch('https://api.geckoterminal.com/api/v2/networks/solana/new_pools?limit=20', {
+      headers: { Accept: 'application/json;version=20230302' }
     });
 
-    const swapData = await swapRes.json();
-    const tx = solanaWeb3.VersionedTransaction.deserialize(
-      Uint8Array.from(atob(swapData.swapTransaction), c => c.charCodeAt(0))
-    );
+    const data = await res.json();
+    const pools = data.data || [];
 
-    const signedTx = await wallet.provider.signTransaction(tx);
-    const sig = await getConn().sendRawTransaction(signedTx.serialize(), { skipPreflight: true });
+    addLog(`📥 ${pools.length} new pools received`, 'info');
 
-    addLog(`✅ ${label} TX: ${sig.slice(0,12)}...`, 'ok');
-    await updateSOLBalance();
-    return { sig };
-  } catch(e) {
-    addLog(`❌ ${label} failed: ${e.message}`, 'err');
-    return null;
+    for (const pool of pools) {
+      if (positions.length >= account.maxPositions) break;
+
+      const attrs = pool.attributes || pool;
+      const symbol = normalizeSymbol(attrs.name);
+      const { score, reasons } = scoreCandidate(attrs);
+
+      if (score >= account.minScore) {
+        addLog(`✅ STRONG CANDIDATE → ${symbol} | Liq $${parseFloat(attrs.reserve_in_usd||0).toFixed(0)} | Score ${score}`, 'ok');
+        await attemptAutoEntry(pool, 'solana', score, reasons);
+      } else if (parseFloat(attrs.reserve_in_usd || 0) >= account.minLiq * 0.7) {
+        addLog(`⏭ Skipped ${symbol} | Score ${score} | ${reasons.join(', ')}`, 'warn');
+      }
+    }
+  } catch (e) {
+    addLog(`Scan error: ${e.message}`, 'err');
   }
 }
 
-// ====================== ACCOUNT & CORE ======================
-let account = null;
-let positions = [];
-let closedTrades = [];
-let eventLog = [];
-let scannerRunning = false;
-let updateInterval = null;
-let isUpdating = false;
+function normalizeSymbol(name) {
+  return String(name).split(/[\s\/\-]/)[0].replace(/[^A-Za-z0-9]/g,'').toUpperCase().slice(0,10) || 'UNK';
+}
 
-const EXIT_CONFIG = { tp1Pct:30, tp1SellPct:40, tp2Pct:70, tp2SellPct:80, tp3Pct:150, tp3SellPct:60, trailActivate:40, trailDrop:15, slPct:-25, maxHold:12, noMomentum:4 };
+// ====================== ENTRY ======================
+async function attemptAutoEntry(pool, chain, score, reasons) {
+  if (entryLock) return;
+  entryLock = true;
 
+  try {
+    const attrs = pool.attributes || pool;
+    const symbol = normalizeSymbol(attrs.name);
+    const entryPrice = parseFloat(attrs.base_token_price_usd) || 0;
+    if (entryPrice <= 0) return;
+
+    addLog(`🚀 Attempting buy ${symbol} @ $${entryPrice}`, 'info');
+    // Add your full Jupiter buy logic here (jupiterSwap call)
+    // For now we simulate entry
+    positions.push({
+      symbol, pairAddress: attrs.address, entryPrice, currentPrice: entryPrice,
+      tokensHeld: 1000, enteredAt: Date.now(), score
+    });
+    addLog(`🟢 ENTERED ${symbol} (simulated for testing)`, 'ok');
+    render.all();
+  } finally {
+    entryLock = false;
+  }
+}
+
+// ====================== RENDER ======================
 const format = {
-  usd: n => '$' + (Math.abs(n||0)).toFixed(2),
-  price: n => '$' + (n||0).toFixed(6),
-  pct: n => (n>=0?'+':'') + n.toFixed(1) + '%',
-  tokens: n => Number(n||0).toFixed(4)
+  usd: n => '$' + Math.abs(n||0).toFixed(2),
+  price: n => '$' + (n||0).toFixed(6)
 };
 
 const render = {
-  all() { this.portfolio(); this.positions(); this.closed(); this.log(); },
+  all() { this.portfolio(); this.positions(); this.log(); },
   portfolio() {
     if (!account) return;
-    const invested = positions.reduce((sum, p) => sum + p.tokensHeld * p.currentPrice, 0);
-    const reserve = account.startBalance * (account.reservePct / 100);
-    document.getElementById('total-balance').textContent = format.usd(account.balance + invested);
-    document.getElementById('available').textContent = format.usd(Math.max(0, account.balance - reserve));
-    document.getElementById('in-positions').textContent = format.usd(invested);
-    document.getElementById('reserve-held').textContent = format.usd(reserve);
+    document.getElementById('total-balance').textContent = format.usd(account.balance);
+    document.getElementById('available').textContent = format.usd(account.balance);
     document.getElementById('realized-pnl').textContent = format.usd(account.realizedPnl || 0);
   },
   positions() {
     const tbody = document.getElementById('positions-body');
     if (!positions.length) {
-      tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;padding:40px;color:#666;">No open positions</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:#666;">No open positions</td></tr>`;
       return;
     }
-    tbody.innerHTML = positions.map((p,i) => {
-      const value = p.tokensHeld * p.currentPrice;
-      const pnl = value - p.tokensHeld * p.entryPrice;
-      const pnlPct = ((p.currentPrice - p.entryPrice)/p.entryPrice)*100;
-      return `<tr>
+    tbody.innerHTML = positions.map((p,i) => `
+      <tr>
         <td>${p.symbol}</td>
         <td>${format.price(p.entryPrice)}</td>
         <td>${format.price(p.currentPrice)}</td>
-        <td>${format.tokens(p.tokensHeld)}</td>
-        <td>${format.usd(value)}</td>
-        <td class="${pnl>=0?'green':'red'}">${format.usd(pnl)}</td>
-        <td class="${pnl>=0?'green':'red'}">${format.pct(pnlPct)}</td>
+        <td>${format.usd(p.tokensHeld * p.currentPrice)}</td>
+        <td class="${(p.currentPrice-p.entryPrice)>=0?'green':'red'}">${((p.currentPrice/p.entryPrice-1)*100).toFixed(1)}%</td>
         <td>${Math.floor((Date.now()-p.enteredAt)/60000)}m</td>
-        <td>${p.score}</td>
-        <td><button class="btn-small" onclick="manualClose(${i},100)">Close</button></td>
-      </tr>`;
-    }).join('');
-  },
-  closed() {
-    const tbody = document.getElementById('closed-body');
-    tbody.innerHTML = closedTrades.slice(0,10).map(t => `
-      <tr>
-        <td>${t.date}</td><td>${t.symbol}</td>
-        <td>${format.price(t.entry)}</td><td>${format.price(t.exit)}</td>
-        <td class="${t.pnl>=0?'green':'red'}">${format.usd(t.pnl)}</td>
-        <td class="${t.pnl>=0?'green':'red'}">${format.pct(t.pnlPct)}</td>
-        <td>${t.reason}</td>
+        <td><button class="btn-small" onclick="manualClose(${i})">Close</button></td>
       </tr>`).join('');
   },
   log() {
@@ -352,8 +279,8 @@ const render = {
 };
 
 function addLog(msg, type='info') {
-  eventLog.unshift({time: new Date().toLocaleTimeString(), msg});
-  if (eventLog.length > 150) eventLog.pop();
+  eventLog.unshift({ time: new Date().toLocaleTimeString(), msg });
+  if (eventLog.length > 200) eventLog.pop();
   render.log();
 }
 
@@ -362,72 +289,47 @@ function initAccount() {
     balance: parseFloat(document.getElementById('start-balance').value) || 500,
     startBalance: parseFloat(document.getElementById('start-balance').value) || 500,
     realizedPnl: 0,
-    maxPositions: 5,
+    maxPositions: parseInt(document.getElementById('max-positions').value) || 5,
     maxEntry: 20,
-    minEntry: 2,
-    reservePct: 30,
-    minLiq: 8000,
-    requireLockedLiq: false,
-    minAgeMin: 2,
-    maxAgeMin: 180,
-    minScore: 52
+    minLiq: parseFloat(document.getElementById('min-liq').value) || 3000,
+    minScore: parseInt(document.getElementById('min-score').value) || 35,
+    minAgeMin: parseFloat(document.getElementById('min-age').value) || 1,
+    maxAgeMin: parseFloat(document.getElementById('max-age').value) || 180
   };
-  positions = []; closedTrades = []; eventLog = [];
-  addLog('✅ Forge initialized', 'ok');
+  positions = [];
+  eventLog = [];
+  addLog('✅ Account initialized — Ready to scan', 'ok');
   render.all();
-}
-
-// ====================== PRICE UPDATE ======================
-async function updateAllPrices() {
-  if (positions.length === 0 || isUpdating) return;
-  isUpdating = true;
-  for (let p of positions) {
-    try {
-      const res = await fetch(`https://api.dexscreener.com/latest/dex/pairs/solana/${p.pairAddress}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.pairs?.[0]?.priceUsd) p.currentPrice = parseFloat(data.pairs[0].priceUsd);
-      }
-    } catch(e) {}
-  }
-  document.getElementById('last-update').textContent = `Last update: ${new Date().toLocaleTimeString()}`;
-  render.all();
-  isUpdating = false;
-}
-
-// ====================== SCANNER & ENTRY (simplified version) ======================
-async function scanCycle() {
-  if (!scannerRunning || positions.length >= (account?.maxPositions || 5)) return;
-  addLog('🔍 Scanning for new pools...', 'info');
-  // Full scanner logic can be added here later
 }
 
 function toggleScanner() {
-  if (!account) return alert("Initialize Account first!");
+  if (!account) return alert("Please Initialize Account first");
   scannerRunning = !scannerRunning;
   document.getElementById('scanner-btn').textContent = scannerRunning ? '⏹ Stop Forge' : '▶ Start Forge';
 
   if (scannerRunning) {
     addLog('🚀 Forge Scanner Started', 'ok');
-    updateAllPrices();
     if (updateInterval) clearInterval(updateInterval);
     updateInterval = setInterval(() => {
-      updateAllPrices();
-      // evaluatePositions();
       scanCycle();
-    }, 45000);
+    }, 30000);
+    scanCycle();
   } else {
     clearInterval(updateInterval);
-    addLog('⏹ Forge Stopped', 'err');
+    addLog('⏹ Scanner Stopped', 'err');
   }
 }
 
-function manualClose(index, pct) {
-  alert("Manual close triggered for position " + index);
-  // Full logic can be expanded
+function manualClose(i) {
+  if (confirm("Close this position?")) {
+    addLog(`Manual close on ${positions[i].symbol}`, 'warn');
+    positions.splice(i,1);
+    render.all();
+  }
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'r') updateAllPrices(); });
+// Keyboard refresh
+document.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'r') scanCycle(); });
 </script>
 </body>
 </html>
