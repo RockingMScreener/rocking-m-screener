@@ -687,6 +687,8 @@ function scoreCandidate(pool) {
     : 999;
 
   // Basic filters
+  const symbol = normalizeSymbol(pool.name);
+  if (symbol.length < 3) return { score: 0, reasons: [`Symbol "${symbol}" too short`] };
   if (liq < account.minLiq) return { score: 0, reasons: [`Liq $${liq.toFixed(0)} below min`] };
   if (ageMin > account.maxAgeMin) return { score: 0, reasons: [`Age ${Math.floor(ageMin)}m > max`] };
   if (ageMin < account.minAgeMin) return { score: 0, reasons: [`Age ${Math.floor(ageMin)}m < min ${account.minAgeMin}m`] };
@@ -1140,12 +1142,11 @@ async function _closePartial(pos, sellFraction, reason) {
 
   // --- PAPER TRACKING --- only reaches here if real sell confirmed or wallet not connected
   account.realizedPnl = (account.realizedPnl || 0) + pnl;
-  account.balance += costBasis;
+  // Return the actual sell value (costBasis + pnl) to balance
+  account.balance += costBasis + (pnl < 0 ? pnl : 0);
 
   if (pnl > 0) {
     account.profitReserve = (account.profitReserve || 0) + pnl;
-  } else {
-    account.balance += pnl;
   }
 
   pos.tokensHeld -= tokensToSell;
