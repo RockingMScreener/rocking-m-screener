@@ -13,7 +13,7 @@
     --blue:#0055a5;--blue-lt:#0077cc;
     --red:#cc2200;--amber:#c47a00;
     --text:#1a1f26;--text-mid:#3d4a57;--text-dim:#6b7a8a;
-    --mono:'IBM Plex Mono',monospace;--sans:'Barlow Condensed',sans-serif;--serif:'Georgia','Times New Roman',serif;
+    --mono:'IBM Plex Mono',monospace;--sans:'Barlow Condensed',sans-serif;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;}
@@ -23,53 +23,85 @@
   .logo-badge{display:flex;align-items:center;gap:16px;}
   .badge-mark{width:72px;height:82px;background:#111a24;border:1.5px solid var(--green-lt);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex-shrink:0;position:relative;padding:6px 0;}
   .badge-rocking{font-family:var(--sans);font-size:8px;font-weight:800;letter-spacing:3px;color:var(--green-hi);text-transform:uppercase;line-height:1.1;}
-  .badge-m{font-family:var(--serif);font-size:52px;font-weight:700;color:#fff;line-height:1;}
+  .badge-m{font-family:'Georgia',serif;font-size:52px;font-weight:700;color:#fff;line-height:1;}
   .badge-sub{font-family:var(--sans);font-size:7px;font-weight:600;letter-spacing:3px;color:#3d5570;text-transform:uppercase;position:absolute;bottom:6px;}
   .brand-text{display:flex;flex-direction:column;gap:2px;}
   .brand-title{font-family:var(--sans);font-size:28px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#fff;line-height:1;}
   .brand-title span{color:var(--green-hi);}
   .brand-tagline{font-family:var(--mono);font-size:9px;color:#4a6070;letter-spacing:1px;margin-top:4px;line-height:1.6;}
-  .status-cluster{display:flex;gap:16px;align-items:center;flex-wrap:wrap;}
+  .header-right{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
   .s-item{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
   .s-label{font-family:var(--mono);font-size:9px;color:#4a6070;letter-spacing:2px;text-transform:uppercase;}
   .s-val{font-family:var(--mono);font-size:13px;color:var(--green-hi);font-weight:600;}
+  .btn-settings{background:transparent;border:1.5px solid #2a4060;color:#4a6070;padding:6px 12px;font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .15s;letter-spacing:1px;}
+  .btn-settings:hover{border-color:var(--green-lt);color:var(--green-hi);}
+  .key-status{font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:2px;letter-spacing:1px;}
+  .key-status.set{background:#0a2a1a;color:var(--green-hi);border:1px solid var(--green);}
+  .key-status.unset{background:#2a1a0a;color:#cc8844;border:1px solid #cc6622;}
 
+  /* ── API Key Modal ── */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:900;display:none;align-items:center;justify-content:center;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--bg-header);border:1px solid var(--border2);border-top:3px solid var(--green-lt);padding:28px 32px;max-width:560px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.5);}
+  .modal-title{font-family:var(--sans);font-size:20px;font-weight:800;letter-spacing:3px;color:#fff;text-transform:uppercase;margin-bottom:6px;}
+  .modal-title span{color:var(--green-hi);}
+  .modal-sub{font-family:var(--mono);font-size:10px;color:#4a6070;letter-spacing:1px;margin-bottom:20px;line-height:1.7;}
+  .modal-steps{margin-bottom:20px;}
+  .step{display:flex;gap:12px;margin-bottom:12px;align-items:flex-start;}
+  .step-num{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--green-hi);background:#0a2a1a;border:1px solid var(--green);width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:2px;}
+  .step-text{font-family:var(--mono);font-size:10px;color:#8aacbc;letter-spacing:.5px;line-height:1.7;padding-top:3px;}
+  .step-text a{color:var(--green-hi);text-decoration:underline;}
+  .step-text strong{color:#fff;}
+  .modal-divider{border:none;border-top:1px solid #2a3a4a;margin:16px 0;}
+  .key-input-row{display:flex;gap:8px;margin-bottom:12px;}
+  .key-input{font-family:var(--mono);font-size:12px;background:#0d1a24;border:1px solid var(--border2);color:#fff;padding:8px 12px;flex:1;outline:none;letter-spacing:1px;}
+  .key-input:focus{border-color:var(--green-lt);}
+  .btn-save-key{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:2px;padding:8px 20px;background:var(--green);color:#fff;border:none;cursor:pointer;text-transform:uppercase;transition:all .15s;white-space:nowrap;}
+  .btn-save-key:hover{background:var(--green-lt);}
+  .btn-clear-key{font-family:var(--mono);font-size:10px;padding:8px 14px;background:transparent;color:#cc4422;border:1px solid #cc4422;cursor:pointer;transition:all .15s;letter-spacing:1px;}
+  .btn-clear-key:hover{background:#cc4422;color:#fff;}
+  .modal-note{font-family:var(--mono);font-size:9px;color:#4a6070;letter-spacing:.5px;line-height:1.7;margin-top:8px;}
+  .btn-close-modal{font-family:var(--mono);font-size:10px;padding:6px 14px;background:transparent;color:#6b7a8a;border:1px solid #2a3a4a;cursor:pointer;transition:all .15s;margin-top:16px;letter-spacing:1px;}
+  .btn-close-modal:hover{color:#fff;border-color:#fff;}
+
+  /* ── Shell ── */
   .shell{max-width:1500px;margin:0 auto;padding:20px 24px 40px;}
   .sec-label{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;}
 
   /* ── Mode Selector ── */
   .mode-selector{margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--blue);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
   .mode-buttons{display:flex;gap:8px;flex-wrap:wrap;}
-  .mode-btn{font-family:var(--mono);font-size:11px;letter-spacing:2px;padding:8px 16px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text-mid);cursor:pointer;transition:all .15s;text-transform:uppercase;white-space:nowrap;user-select:none;}
+  .mode-btn{font-family:var(--mono);font-size:11px;letter-spacing:2px;padding:8px 16px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text-mid);cursor:pointer;transition:all .15s;text-transform:uppercase;}
   .mode-btn:hover{border-color:var(--blue);color:var(--blue);background:#eef5ff;}
-  .mode-btn.active{border-color:var(--blue);background:var(--blue);color:#fff;box-shadow:0 2px 6px rgba(0,85,165,.25);}
+  .mode-btn.active{border-color:var(--blue);background:var(--blue);color:#fff;}
+  .mode-source{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-top:8px;}
+  .mode-source span{color:var(--green-hi);font-weight:600;}
 
-  /* ── Timeframe Toggle ── */
-  .timeframe-section{margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--blue-lt);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
-  .timeframe-section.hidden{display:none;}
-  .timeframe-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;display:block;}
-  .timeframe-toggles{display:flex;gap:8px;flex-wrap:wrap;}
-  .tf-btn{font-family:var(--mono);font-size:11px;letter-spacing:1px;padding:6px 16px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text-mid);cursor:pointer;transition:all .15s;text-transform:uppercase;}
-  .tf-btn:hover{border-color:var(--blue-lt);color:var(--blue-lt);}
-  .tf-btn.active{border-color:var(--blue-lt);background:var(--blue-lt);color:#fff;}
-
-  /* ── Chain Selector ── */
-  .chain-dropdown-section{margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--green);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
-  .chain-dropdown-section.hidden{display:none;}
-  .dropdown-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;display:block;}
-  .quick-chain-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
-  .quick-chain-btn{font-family:var(--mono);font-size:11px;padding:8px 16px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text-mid);cursor:pointer;transition:all .15s;text-transform:uppercase;font-weight:600;}
-  .quick-chain-btn:hover{border-color:var(--green);color:var(--green);background:#f0f8f4;}
-  .quick-chain-btn.active{border-color:var(--green);background:var(--green);color:#fff;}
-  .chain-dropdown{font-family:var(--mono);font-size:12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 12px;width:100%;max-width:300px;cursor:pointer;}
-  .chain-dropdown:focus{border-color:var(--green);background:#fff;}
-
-  /* ── Filter Panel ── */
+  /* ── Chain + Filters ── */
+  .chain-section{margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--green);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .chain-select{font-family:var(--mono);font-size:12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 12px;width:100%;max-width:320px;outline:none;cursor:pointer;}
+  .chain-select:focus{border-color:var(--green);}
   .filter-panel{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-top:3px solid var(--green);}
   .fgroup{display:flex;flex-direction:column;gap:4px;}
   .flabel{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;}
   .finput{font-family:var(--mono);font-size:12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 10px;outline:none;width:100%;}
   .finput:focus{border-color:var(--green);background:#fff;}
+  .fgroup.hidden{display:none;}
+
+  /* ── Auto Scan ── */
+  .auto-section{margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--amber);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);display:none;}
+  .auto-section.visible{display:block;}
+  .auto-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .toggle{position:relative;width:38px;height:20px;cursor:pointer;flex-shrink:0;}
+  .toggle input{display:none;}
+  .toggle-track{position:absolute;inset:0;background:var(--border);border:1px solid var(--border2);transition:all .2s;}
+  .toggle input:checked+.toggle-track{background:var(--green-bg);border-color:var(--green);}
+  .toggle-thumb{position:absolute;top:3px;left:3px;width:12px;height:12px;background:var(--text-dim);transition:all .2s;}
+  .toggle input:checked~.toggle-thumb{left:21px;background:var(--green);}
+  .mono-sm{font-family:var(--mono);font-size:11px;color:var(--text-mid);letter-spacing:1px;}
+  select.mono-sm{background:var(--bg3);border:1px solid var(--border);color:var(--text-mid);padding:4px 8px;font-family:var(--mono);font-size:11px;outline:none;cursor:pointer;}
+  .next-scan-pill{font-family:var(--mono);font-size:11px;padding:4px 10px;border:1px solid var(--amber);color:var(--amber);background:#fff8e6;letter-spacing:1px;display:none;}
+  .next-scan-pill.visible{display:inline-block;}
 
   /* ── Controls ── */
   .ctrl-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
@@ -79,47 +111,105 @@
   .status-pill{font-family:var(--mono);font-size:11px;padding:4px 12px;border:1px solid var(--border);background:var(--bg3);color:var(--text-dim);}
 
   /* ── Stats ── */
-  .stats-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .stats-row{display:none;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .stats-row.visible{display:flex;}
   .scard{background:var(--bg3);border:1px solid var(--border);border-left:4px solid var(--green);padding:10px 16px;flex:1;min-width:110px;}
   .scard-label{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}
-  .scard-val{font-family:var(--mono);font-size:22px;color:var(--text);font-weight:600;}
+  .scard-val{font-family:var(--mono);font-size:20px;color:var(--text);font-weight:600;}
 
   /* ── Table ── */
-  .tbl-wrap{overflow-x:auto;border:1px solid var(--border);background:var(--bg3);}
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--border);background:var(--bg3);box-shadow:0 2px 8px rgba(0,0,0,.08);}
   table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;}
   thead tr{background:var(--bg-header);}
   th{padding:10px 11px;text-align:left;font-size:9px;letter-spacing:2px;color:#a0b4c4;text-transform:uppercase;white-space:nowrap;}
-  tbody tr{border-bottom:1px solid var(--border);}
+  tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
   tbody tr:nth-child(even){background:#f7f9fb;}
-  tbody tr:hover{background:#edf5f0;}
+  tbody tr:hover{background:#edf5f0!important;}
   td{padding:8px 11px;white-space:nowrap;color:var(--text);}
-  .chain-col{font-weight:600;padding:6px 10px;border-radius:3px;text-align:center;color:#fff;display:inline-block;}
+  .chain-col{font-weight:600;padding:5px 9px;border-radius:3px;text-align:center;color:#fff;display:inline-block;font-size:10px;letter-spacing:1px;}
   .chain-solana{background:#9945ff;}
-  .chain-eth{background:#627ee1;}
+  .chain-eth,.chain-ethereum{background:#627ee1;}
   .chain-base{background:#0052ff;}
   .chain-bsc{background:#f3ba2f;color:#000;}
   .chain-arbitrum{background:#28a0f0;}
   .chain-optimism{background:#ff0000;}
   .chain-polygon{background:#8247e5;}
   .chain-avalanche{background:#e84142;}
+  .chain-berachain{background:#8b4513;}
+  .chain-sonic{background:#00bcd4;}
+  .chain-zksync{background:#4e5de4;}
   .chain-sui{background:#6fbcf0;}
-  .empty-msg{text-align:center;color:var(--text-dim);padding:40px 20px;}
-  .chg-high{color:#00aa00;font-weight:600;}
-  .chg-med{color:#00cc66;}
-  .chg-low{color:#00ff99;}
+  .chg-pos-high{color:#00aa00;font-weight:600;}
+  .chg-pos-med{color:#00cc66;font-weight:600;}
+  .chg-pos-low{color:#44bb66;}
   .chg-neg{color:#ff4444;}
+  .chg-zero{color:var(--text-dim);}
   .score-cell{font-weight:600;color:var(--green);}
+  .score-high{color:#00aa00;font-weight:700;}
+  .score-med{color:var(--green);font-weight:600;}
+  .score-low{color:var(--amber);}
+  .empty-msg{text-align:center;padding:60px;color:var(--text-dim);}
+
+  /* ── No Key Warning ── */
+  .no-key-banner{display:none;align-items:center;gap:12px;padding:12px 16px;background:#2a1a0a;border:1px solid #cc6622;border-left:4px solid #cc6622;margin-bottom:16px;font-family:var(--mono);font-size:11px;color:#cc8844;}
+  .no-key-banner.visible{display:flex;}
+  .no-key-banner button{background:#cc6622;color:#fff;border:none;padding:4px 12px;cursor:pointer;font-family:var(--mono);font-size:10px;letter-spacing:1px;}
 
   /* ── Toast ── */
-  .toast{position:fixed;bottom:20px;right:20px;background:var(--green);color:#fff;padding:12px 20px;border-radius:3px;font-family:var(--mono);font-size:11px;box-shadow:0 4px 12px rgba(0,122,61,.3);}
+  .toast{position:fixed;bottom:20px;right:20px;background:var(--green);color:#fff;padding:12px 20px;border-radius:3px;font-family:var(--mono);font-size:11px;box-shadow:0 4px 12px rgba(0,122,61,.3);z-index:1000;animation:slide-up .3s ease;}
+  @keyframes slide-up{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+  footer{text-align:center;padding:24px;color:var(--text-dim);font-size:11px;font-family:var(--mono);border-top:1px solid var(--border);margin-top:40px;}
+  footer a{color:var(--green-lt);text-decoration:none;}
+  footer a:hover{text-decoration:underline;}
 
   @media(max-width:768px){
     .brand-title{font-size:20px;}
+    .shell{padding:12px 16px 30px;}
+    .modal{padding:20px;}
   }
 </style>
 </head>
 <body>
 
+<!-- ── API Key Modal ── -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-title">BIRDEYE <span>API KEY</span></div>
+    <div class="modal-sub">Cipher uses Birdeye for Trending and Top Volume scans. Your key is stored locally in your browser and never sent anywhere except Birdeye's API.</div>
+
+    <div class="modal-steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">Go to <a href="https://birdeye.so/data-api" target="_blank">birdeye.so/data-api</a> and click <strong>Get API Key</strong> or <strong>Start for Free</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">Sign up with your email address. <strong>No credit card required</strong> for the free Standard tier.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">Once logged in, go to your <strong>Dashboard</strong>. Your API key will be displayed there — copy it.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-text">Paste your key below and click <strong>Save</strong>. The Standard (free) tier gives you <strong>30,000 compute units/month</strong> — plenty for manual scanning.</div>
+      </div>
+    </div>
+
+    <hr class="modal-divider">
+
+    <div class="key-input-row">
+      <input type="password" class="key-input" id="key-input" placeholder="Paste your Birdeye API key here...">
+      <button class="btn-save-key" onclick="saveKey()">Save</button>
+      <button class="btn-clear-key" onclick="clearKey()">Clear</button>
+    </div>
+    <div class="modal-note">⚠ Your key is saved in <strong>localStorage</strong> — local to this browser only. If you clear browser data you'll need to re-enter it. Never share your API key with anyone.</div>
+    <div><button class="btn-close-modal" onclick="closeModal()">Close</button></div>
+  </div>
+</div>
+
+<!-- ── Header ── -->
 <div class="top-bar">
   <div class="logo-badge">
     <div class="badge-mark">
@@ -135,7 +225,7 @@
       <div class="brand-tagline">Cipher — Decodes What the Market Is Saying</div>
     </div>
   </div>
-  <div class="status-cluster">
+  <div class="header-right">
     <div class="s-item">
       <div class="s-label">Last Scan</div>
       <div class="s-val" id="last-scan">&#8212;</div>
@@ -144,44 +234,46 @@
       <div class="s-label">Tokens Found</div>
       <div class="s-val" id="tok-count">0</div>
     </div>
+    <div id="key-status" class="key-status unset">NO API KEY</div>
+    <button class="btn-settings" onclick="openModal()">⚙ API KEY</button>
   </div>
 </div>
 
 <div class="shell">
 
+  <!-- No Key Warning -->
+  <div class="no-key-banner" id="no-key-banner">
+    <span>⚠ Birdeye API key not set. Trending and Top Volume scans require a key.</span>
+    <button onclick="openModal()">Set API Key</button>
+  </div>
+
   <!-- Mode Selector -->
   <div class="mode-selector">
     <div class="sec-label">⚙ Scan Mode</div>
     <div class="mode-buttons">
-      <button class="mode-btn active" data-mode="new-pools" onclick="setMode('new-pools')">Trending</button>
-      <button class="mode-btn" data-mode="volume-spike" onclick="setMode('volume-spike')">Volume Spike</button>
-      <button class="mode-btn" data-mode="top-gainers" onclick="setMode('top-gainers')">Top Gainers</button>
-      <button class="mode-btn" data-mode="chain-dive" onclick="setMode('chain-dive')">Chain New Pools</button>
+      <button class="mode-btn active" data-mode="trending" onclick="setMode('trending')">Trending</button>
+      <button class="mode-btn" data-mode="volume" onclick="setMode('volume')">Top Volume</button>
+      <button class="mode-btn" data-mode="new" onclick="setMode('new')">New Tokens</button>
     </div>
+    <div class="mode-source" id="mode-source">Source: <span>Birdeye</span> · Trending tokens ranked by activity</div>
   </div>
 
-  <!-- Timeframe Toggle (hidden by default, shown for Top Gainers) -->
-  <div class="timeframe-section hidden" id="timeframe-section">
-    <label class="timeframe-label">Timeframe</label>
-    <div class="timeframe-toggles">
-      <button class="tf-btn active" data-timeframe="24h" onclick="setTimeframe('24h')">24h</button>
-      <button class="tf-btn" data-timeframe="6h" onclick="setTimeframe('6h')">6h</button>
-      <button class="tf-btn" data-timeframe="1h" onclick="setTimeframe('1h')">1h</button>
-    </div>
-  </div>
-
-  <!-- Chain Selector (hidden by default, shown for Chain Deep Dive) -->
-  <div class="chain-dropdown-section hidden" id="chain-dropdown-section">
-    <label class="dropdown-label">Quick Select</label>
-    <div class="quick-chain-buttons">
-      <button class="quick-chain-btn active" data-chain-id="solana" onclick="selectChainDeepDive('solana')">Solana</button>
-      <button class="quick-chain-btn" data-chain-id="bsc" onclick="selectChainDeepDive('bsc')">BSC</button>
-      <button class="quick-chain-btn" data-chain-id="base" onclick="selectChainDeepDive('base')">Base</button>
-      <button class="quick-chain-btn" data-chain-id="eth" onclick="selectChainDeepDive('eth')">Ethereum</button>
-    </div>
-    <label class="dropdown-label" style="margin-top:12px;">Other Chains</label>
-    <select class="chain-dropdown" id="chain-dropdown" onchange="onChainDropdownChange()">
-      <option value="">-- Select a chain --</option>
+  <!-- Chain Selector -->
+  <div class="chain-section">
+    <div class="sec-label">Chain</div>
+    <select class="chain-select" id="chain-select">
+      <option value="solana">Solana</option>
+      <option value="ethereum">Ethereum</option>
+      <option value="base">Base</option>
+      <option value="bsc">BSC</option>
+      <option value="arbitrum">Arbitrum</option>
+      <option value="optimism">Optimism</option>
+      <option value="polygon">Polygon</option>
+      <option value="avalanche">Avalanche</option>
+      <option value="berachain">Berachain</option>
+      <option value="sonic">Sonic</option>
+      <option value="zksync">zkSync</option>
+      <option value="sui">Sui</option>
     </select>
   </div>
 
@@ -189,35 +281,65 @@
   <div class="filter-panel">
     <div class="fgroup">
       <label class="flabel" for="min-liq">Min Liquidity (USD)</label>
-      <input type="number" class="finput" id="min-liq" value="5000" min="0" step="1000">
+      <input type="number" class="finput" id="min-liq" value="8000" min="0" step="1000">
     </div>
     <div class="fgroup">
       <label class="flabel" for="min-score">Min Score</label>
-      <input type="number" class="finput" id="min-score" value="40" min="0" max="100" step="5">
+      <input type="number" class="finput" id="min-score" value="25" min="0" max="99" step="5">
     </div>
-    <div class="fgroup" id="min-age-group" style="display:none;">
+    <div class="fgroup hidden" id="min-age-group">
       <label class="flabel" for="min-age">Min Age (minutes)</label>
       <input type="number" class="finput" id="min-age" value="0" min="0" max="60" step="1">
+    </div>
+    <div class="fgroup hidden" id="max-age-group">
+      <label class="flabel" for="max-age">Max Age (minutes)</label>
+      <input type="number" class="finput" id="max-age" value="60" min="1" max="60" step="1">
+    </div>
+  </div>
+
+  <!-- Auto Scan (New Tokens only) -->
+  <div class="auto-section" id="auto-section">
+    <div class="sec-label">⏱ Auto Scan</div>
+    <div class="auto-row">
+      <label class="toggle">
+        <input type="checkbox" id="auto-toggle" onchange="toggleAuto()">
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+      <span class="mono-sm">Auto-scan every</span>
+      <select class="mono-sm" id="auto-interval">
+        <option value="30">30s</option>
+        <option value="60" selected>60s</option>
+        <option value="120">2m</option>
+        <option value="300">5m</option>
+      </select>
+      <div class="next-scan-pill" id="next-scan-pill">Next: <span id="next-scan">—</span></div>
     </div>
   </div>
 
   <!-- Controls -->
   <div class="ctrl-row">
     <button class="btn-run" id="btn-run" onclick="runScan()">Scan Now</button>
-    <div class="status-pill">
-      <span id="status-text">Ready</span>
-    </div>
+    <div class="status-pill"><span id="status-text">Ready</span></div>
   </div>
 
   <!-- Stats -->
-  <div class="stats-row" id="stats-row" style="display:none;">
+  <div class="stats-row" id="stats-row">
+    <div class="scard">
+      <div class="scard-label">Results</div>
+      <div class="scard-val" id="stat-count">—</div>
+    </div>
     <div class="scard">
       <div class="scard-label">Avg Score</div>
-      <div class="scard-val" id="stat-score">&#8212;</div>
+      <div class="scard-val" id="stat-score">—</div>
     </div>
     <div class="scard">
       <div class="scard-label">Avg 24h Chg</div>
-      <div class="scard-val" id="stat-chg24h">&#8212;</div>
+      <div class="scard-val" id="stat-chg">—</div>
+    </div>
+    <div class="scard" style="border-left-color:var(--amber);">
+      <div class="scard-label">Total Liquidity</div>
+      <div class="scard-val" id="stat-liq">—</div>
     </div>
   </div>
 
@@ -232,98 +354,296 @@
           <th>Age</th>
           <th>Price</th>
           <th>Liquidity</th>
-          <th>24h %</th>
-          <th>Vol 24h</th>
+          <th>24h Vol</th>
+          <th>24h Chg</th>
           <th>Score</th>
           <th>Link</th>
         </tr>
       </thead>
       <tbody id="results-body">
-        <tr><td colspan="10" class="empty-msg">No results yet. Click "Scan Now" to begin.</td></tr>
+        <tr><td colspan="10" class="empty-msg">Select a chain and mode then click Scan Now.</td></tr>
       </tbody>
     </table>
   </div>
 
 </div>
 
-<script>
-// ── Global State ──────────────────────────────────────────────────
-const GECKO_BASE = 'https://gecko-proxy.ermccabee1.workers.dev/gecko/v2';
-let currentMode = 'new-pools';
-let currentTimeframe = '24h';
-let selectedChainDeepDive = 'solana';
-let pools = [];
-let cachedData = {};
+<footer>
+  Cipher v2.1 &nbsp;·&nbsp; <a href="https://birdeye.so/data-api" target="_blank">Birdeye</a> + <a href="https://dexscreener.com" target="_blank">DexScreener</a> &nbsp;·&nbsp; Rocking M Crypto &nbsp;·&nbsp; <a href="/trailguide.html">Trail Guide</a>
+</footer>
 
-const networkMap = {
-  "solana": "solana", "eth": "eth", "ethereum": "eth",
-  "base": "base", "bsc": "bsc", "arbitrum": "arbitrum",
-  "optimism": "optimism", "polygon": "polygon",
-  "avalanche": "avalanche", "sui": "sui"
-};
+<script>
+// ── Config ────────────────────────────────────────────────────
+const BIRDEYE_BASE = 'https://public-api.birdeye.so';
+const LIMIT = 40;
+
+let currentMode = 'trending';
+let pools = [];
+let autoTimer = null;
+let nextTick = null;
+
+// ── API Key Management ─────────────────────────────────────────
+function getBirdeyeKey() {
+  return localStorage.getItem('rm_birdeye_key') || '';
+}
+
+function saveKey() {
+  const val = document.getElementById('key-input').value.trim();
+  if (!val) { toast('Please paste your API key first'); return; }
+  localStorage.setItem('rm_birdeye_key', val);
+  updateKeyStatus();
+  toast('API key saved!');
+  closeModal();
+}
+
+function clearKey() {
+  localStorage.removeItem('rm_birdeye_key');
+  document.getElementById('key-input').value = '';
+  updateKeyStatus();
+  toast('API key cleared');
+}
+
+function updateKeyStatus() {
+  const key = getBirdeyeKey();
+  const statusEl = document.getElementById('key-status');
+  const bannerEl = document.getElementById('no-key-banner');
+  if (key) {
+    statusEl.textContent = 'API KEY SET';
+    statusEl.className = 'key-status set';
+    bannerEl.classList.remove('visible');
+  } else {
+    statusEl.textContent = 'NO API KEY';
+    statusEl.className = 'key-status unset';
+    if (currentMode !== 'new') bannerEl.classList.add('visible');
+  }
+}
+
+// ── Modal ──────────────────────────────────────────────────────
+function openModal() {
+  const key = getBirdeyeKey();
+  if (key) document.getElementById('key-input').value = key;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
 
 // ── Mode Handling ──────────────────────────────────────────────
+const MODE_META = {
+  trending: { source: 'Birdeye', desc: 'Trending tokens ranked by activity', needsKey: true },
+  volume:   { source: 'Birdeye', desc: 'Top tokens sorted by 24h volume', needsKey: true },
+  new:      { source: 'DexScreener', desc: 'New token pairs — max 60 min old, no key required', needsKey: false }
+};
+
 function setMode(mode) {
   currentMode = mode;
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
   document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
-  document.getElementById('timeframe-section').classList.toggle('hidden', mode !== 'top-gainers');
-  document.getElementById('chain-dropdown-section').classList.toggle('hidden', mode !== 'chain-dive');
-  document.getElementById('min-age-group').style.display = (mode === 'chain-dive') ? 'flex' : 'none';
-  if (cachedData[mode]) delete cachedData[mode];
-}
 
-function setTimeframe(tf) {
-  currentTimeframe = tf;
-  document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector(`[data-timeframe="${tf}"]`).classList.add('active');
-}
+  const meta = MODE_META[mode];
+  document.getElementById('mode-source').innerHTML = `Source: <span>${meta.source}</span> · ${meta.desc}`;
 
-function selectChainDeepDive(chain) {
-  selectedChainDeepDive = networkMap[chain] || chain;
-  document.querySelectorAll('.quick-chain-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector(`[data-chain-id="${chain}"]`).classList.add('active');
-  document.getElementById('chain-dropdown').value = '';
-  if (cachedData['chain-dive']) delete cachedData['chain-dive'];
-}
+  // Age filters — only for New Tokens
+  document.getElementById('min-age-group').classList.toggle('hidden', mode !== 'new');
+  document.getElementById('max-age-group').classList.toggle('hidden', mode !== 'new');
 
-function onChainDropdownChange() {
-  const value = document.getElementById('chain-dropdown').value;
-  if (value) {
-    selectedChainDeepDive = value;
-    document.querySelectorAll('.quick-chain-btn').forEach(b => b.classList.remove('active'));
-    if (cachedData['chain-dive']) delete cachedData['chain-dive'];
+  // Auto scan — only for New Tokens
+  const autoSection = document.getElementById('auto-section');
+  if (mode === 'new') {
+    autoSection.classList.add('visible');
+  } else {
+    autoSection.classList.remove('visible');
+    stopAuto();
   }
+
+  // No-key banner
+  const bannerEl = document.getElementById('no-key-banner');
+  if (meta.needsKey && !getBirdeyeKey()) {
+    bannerEl.classList.add('visible');
+  } else {
+    bannerEl.classList.remove('visible');
+  }
+
+  pools = [];
 }
 
-// ── Parser ─────────────────────────────────────────────────────
-function parseGeckoPool(item) {
-  const a = item.attributes || {};
-  let symbol = a.symbol || '???';
-  if (a.base_token) symbol = a.base_token.symbol || symbol;
-  if (!symbol || symbol === '???') symbol = a.name ? a.name.split('/')[0].trim() : '???';
+// ── Scoring ────────────────────────────────────────────────────
+function calculateScore(token, mode) {
+  const liq = token.liquidity || 0;
+  const vol = token.volume24h || 0;
+  const chg = token.priceChange24h || 0;
+  const age = token.ageMinutes || 999;
 
-  const price = parseFloat(a.base_token_price_usd) || 0;
-  const liquidity = parseFloat(a.reserve_in_usd) || 0;
-  const chg24h = parseFloat(a.price_change_percentage?.h24) || 0;
-  const vol24h = parseFloat(a.volume_usd?.h24) || 0;
-  
-  const score = Math.min(99, Math.round(
-    Math.abs(chg24h) * 2.5 + (liquidity / 80000) * 40
-  ));
+  let score = 0;
 
-  return {
-    name: a.name || 'Unknown',
-    symbol: symbol,
-    chain: selectedChainDeepDive,
-    price: price,
-    liquidity: liquidity,
-    chg24h: chg24h,
-    vol24h: vol24h,
-    score: score,
-    age: a.pool_created_at ? Math.round((Date.now() - new Date(a.pool_created_at).getTime())/3600000*10)/10 : 999,
-    link: `https://www.geckoterminal.com/${selectedChainDeepDive}/pools/${a.address || ''}`
+  if (mode === 'trending') {
+    // Birdeye trending — no priceChange available, weight liquidity + volume + rank bonus
+    score = (liq / 60000 * 45) + (vol / 120000 * 45);
+  } else if (mode === 'volume') {
+    // Birdeye volume — weight raw volume heavily
+    score = (vol / 80000 * 60) + (liq / 80000 * 30);
+  } else if (mode === 'new') {
+    // DexScreener new — freshness + momentum + liquidity
+    const freshness = Math.max(0, (60 - age) * 0.8);
+    score = freshness + (Math.abs(chg) * 2.5) + (liq / 40000 * 30) + (vol / 60000 * 20);
+  }
+
+  return Math.min(99, Math.round(score));
+}
+
+// ── Birdeye Fetch ──────────────────────────────────────────────
+async function fetchBirdeye(mode) {
+  const key = getBirdeyeKey();
+  if (!key) {
+    openModal();
+    throw new Error('Birdeye API key required. Please add your key.');
+  }
+
+  const chain = document.getElementById('chain-select').value;
+  const sortBy = mode === 'volume' ? 'volume24hUSD' : 'rank';
+  const sortType = mode === 'volume' ? 'desc' : 'asc';
+
+  toast(`Scanning ${chain} on Birdeye...`);
+
+  // Birdeye max is 20 per call — 2 pages × 20 = 40 tokens
+  const allTokens = [];
+  const pages = 2;
+
+  for (let page = 0; page < pages; page++) {
+    const offset = page * 20;
+    const url = `${BIRDEYE_BASE}/defi/token_trending?sort_by=${sortBy}&sort_type=${sortType}&offset=${offset}&limit=20`;
+
+    try {
+      const res = await fetch(url, {
+        headers: {
+          'X-API-KEY': key,
+          'x-chain': chain,
+          'accept': 'application/json'
+        }
+      });
+
+      if (res.status === 401) {
+        openModal();
+        throw new Error('Invalid Birdeye API key. Please check your key.');
+      }
+      if (res.status === 403) {
+        throw new Error('Birdeye API access denied. Check your plan allows this endpoint.');
+      }
+      if (!res.ok) throw new Error(`Birdeye error ${res.status} on ${chain}`);
+
+      const json = await res.json();
+      if (!json.success || !json.data?.tokens?.length) break;
+
+      allTokens.push(...json.data.tokens);
+
+      // Stop if we got fewer than 20 — no more pages
+      if (json.data.tokens.length < 20) break;
+
+    } catch (e) {
+      if (allTokens.length > 0) break; // Use what we have
+      throw e;
+    }
+
+    // Small delay between pages to respect rate limit
+    if (page < pages - 1) await new Promise(r => setTimeout(r, 300));
+  }
+
+  if (!allTokens.length) {
+    toast(`No data returned for ${chain}`);
+    return [];
+  }
+
+  // Note: Birdeye trending only returns liquidity, volume24hUSD, rank, name, symbol, address
+  // No price or priceChange in this endpoint
+  return allTokens.map(t => ({
+    chain,
+    name: t.name || 'Unknown',
+    symbol: t.symbol || '???',
+    price: 0, // Not in trending endpoint
+    liquidity: t.liquidity || 0,
+    volume24h: t.volume24hUSD || 0,
+    priceChange24h: 0, // Not in trending endpoint
+    ageMinutes: null,
+    address: t.address || '',
+    link: `https://birdeye.so/token/${t.address}?chain=${chain}`
+  }));
+}
+
+// ── DexScreener Fetch ──────────────────────────────────────────
+async function fetchDexNew() {
+  const chain = document.getElementById('chain-select').value;
+  const minAge = parseFloat(document.getElementById('min-age').value) || 0;
+  const maxAge = parseFloat(document.getElementById('max-age').value) || 60;
+
+  toast(`Scanning new tokens on ${chain}...`);
+
+  // DexScreener chainId mapping
+  const chainMap = {
+    solana: 'solana', ethereum: 'ethereum', base: 'base', bsc: 'bsc',
+    arbitrum: 'arbitrum', optimism: 'optimism', polygon: 'polygon',
+    avalanche: 'avalanche', berachain: 'berachain', sonic: 'sonic',
+    zksync: 'zksync', sui: 'sui'
   };
+  const dexChain = chainMap[chain] || chain;
+
+  try {
+    // Fetch latest token profiles (no key required)
+    const res = await fetch(`https://api.dexscreener.com/token-profiles/latest/v1`);
+    if (!res.ok) throw new Error(`DexScreener error ${res.status}`);
+    const profiles = await res.json();
+
+    // Filter to selected chain
+    const chainProfiles = (Array.isArray(profiles) ? profiles : [])
+      .filter(p => p.chainId?.toLowerCase() === dexChain.toLowerCase())
+      .slice(0, 50);
+
+    // Fetch pair data for each token
+    const tokens = [];
+    for (const profile of chainProfiles) {
+      if (!profile.tokenAddress) continue;
+      try {
+        const pairRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${profile.tokenAddress}`);
+        if (!pairRes.ok) continue;
+        const pairData = await pairRes.json();
+        const pairs = pairData.pairs || [];
+        if (!pairs.length) continue;
+
+        // Use the highest liquidity pair
+        const best = pairs.sort((a, b) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0))[0];
+        const ageMinutes = best.pairCreatedAt
+          ? Math.round((Date.now() - best.pairCreatedAt) / 60000)
+          : 999;
+
+        // Age filter: only keep tokens within min/max age range
+        if (ageMinutes > maxAge || ageMinutes < minAge) continue;
+
+        tokens.push({
+          chain: dexChain,
+          name: best.baseToken?.name || profile.description || 'Unknown',
+          symbol: best.baseToken?.symbol || '???',
+          price: parseFloat(best.priceUsd) || 0,
+          liquidity: parseFloat(best.liquidity?.usd) || 0,
+          volume24h: parseFloat(best.volume?.h24) || 0,
+          priceChange24h: parseFloat(best.priceChange?.h24) || 0,
+          ageMinutes,
+          address: profile.tokenAddress,
+          link: best.url || `https://dexscreener.com/${dexChain}/${best.pairAddress}`
+        });
+
+        if (tokens.length >= LIMIT) break;
+      } catch (e) { /* skip individual failures */ }
+      await new Promise(r => setTimeout(r, 200));
+    }
+
+    return tokens;
+  } catch (e) {
+    throw new Error('DexScreener fetch failed: ' + e.message);
+  }
 }
 
 // ── Main Scan ──────────────────────────────────────────────────
@@ -333,383 +653,150 @@ async function runScan() {
   btn.textContent = 'Scanning...';
   document.getElementById('status-text').textContent = 'Scanning...';
 
-  const minLiq = parseFloat(document.getElementById('min-liq').value) || 5000;
-  const minScore = parseFloat(document.getElementById('min-score').value) || 0;
-  const minAge = currentMode === 'chain-dive' ? parseFloat(document.getElementById('min-age').value) || 0 : 0;
+  const minLiq   = parseFloat(document.getElementById('min-liq').value)   || 0;
+  const minScore = parseFloat(document.getElementById('min-score').value)  || 0;
 
   try {
-    const cacheKey = currentMode === 'chain-dive' ? `chain-dive-${selectedChainDeepDive}` : currentMode;
-
-    if (cachedData[cacheKey] && Date.now() - cachedData[cacheKey].time < 90000) {
-      pools = cachedData[cacheKey].data;
-      toast("Loaded from cache");
+    let raw = [];
+    if (currentMode === 'new') {
+      raw = await fetchDexNew();
     } else {
-      if (currentMode === 'chain-dive') {
-        await scanChainNewPoolsGecko(minLiq, minScore, minAge);
-      } else if (currentMode === 'new-pools') {
-        await scanTrendingGecko();
-      } else if (currentMode === 'volume-spike') {
-        await scanVolumeSpikeGecko();
-      } else if (currentMode === 'top-gainers') {
-        await scanTopGainersGecko();
-      }
-      cachedData[cacheKey] = { data: pools, time: Date.now() };
+      raw = await fetchBirdeye(currentMode);
     }
 
-    pools = pools.filter(p => p.liquidity >= minLiq && p.score >= minScore);
-    renderResults();
+    // Score, filter, sort, cap at 100
+    pools = raw
+      .map(t => ({ ...t, score: calculateScore(t, currentMode) }))
+      .filter(p => p.liquidity >= minLiq && p.score >= minScore)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, LIMIT);
+
+    renderTable();
     updateStats();
+
     document.getElementById('tok-count').textContent = pools.length;
-  } catch (e) {
-    toast("Error: " + e.message);
+    document.getElementById('last-scan').textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+  } catch (err) {
+    console.error(err);
+    toast('Error: ' + err.message);
   } finally {
     btn.disabled = false;
     btn.textContent = 'Scan Now';
     document.getElementById('status-text').textContent = 'Ready';
-    document.getElementById('last-scan').textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
   }
 }
 
-async function scanTrendingGecko() {
-  pools = [];
-  let page = 1;
-  const maxPages = 3;
-
-  toast(`Scanning trending pools...`);
-
-  while (page <= maxPages) {
-    try {
-      const res = await fetch(`${GECKO_BASE}/networks/trending_pools?page=${page}&include=base_token`);
-      if (!res.ok) break;
-      const data = await res.json();
-      if (data.data) {
-        data.data.forEach(item => {
-          const a = item.attributes || {};
-          
-          // Extract chain from pool ID (format: chain_pooladdress)
-          const poolId = item.id || '';
-          const chain = poolId.split('_')[0] || 'unknown';
-          
-          // Get symbol from base_token or name
-          let symbol = '???';
-          if (a.base_token && a.base_token.symbol) {
-            symbol = a.base_token.symbol;
-          } else if (a.symbol) {
-            symbol = a.symbol;
-          } else if (a.name) {
-            symbol = a.name.split('/')[0].trim();
-          }
-          
-          const price = parseFloat(a.base_token_price_usd) || 0;
-          const liquidity = parseFloat(a.reserve_in_usd) || 0;
-          const chg24h = parseFloat(a.price_change_percentage?.h24) || 0;
-          const vol24h = parseFloat(a.volume_usd?.h24) || 0;
-          const score = Math.min(99, Math.round(Math.abs(chg24h) * 2.5 + (liquidity / 80000) * 40));
-          
-          pools.push({
-            name: a.name || 'Unknown',
-            symbol: symbol,
-            chain: chain,
-            price: price,
-            liquidity: liquidity,
-            chg24h: chg24h,
-            vol24h: vol24h,
-            score: score,
-            age: a.pool_created_at ? Math.round((Date.now() - new Date(a.pool_created_at).getTime())/3600000*10)/10 : 999,
-            link: `https://www.geckoterminal.com/${chain}/pools/${a.address || ''}`
-          });
-        });
-      }
-      page++;
-    } catch (e) {
-      console.warn(e);
-      break;
-    }
-    await new Promise(r => setTimeout(r, 1000));
-  }
-
-  toast(`Trending: ${pools.length} pools`);
-}
-
-async function scanVolumeSpikeGecko() {
-  pools = [];
-  let page = 1;
-  const maxPages = 3;
-
-  toast(`Scanning volume spikes...`);
-
-  while (page <= maxPages) {
-    try {
-      const res = await fetch(`${GECKO_BASE}/networks/trending_pools?page=${page}&include=base_token&sort=volume_usd`);
-      if (!res.ok) break;
-      const data = await res.json();
-      if (data.data) {
-        data.data.forEach(item => {
-          const a = item.attributes || {};
-          
-          // Extract chain from pool ID (format: chain_pooladdress)
-          const poolId = item.id || '';
-          const chain = poolId.split('_')[0] || 'unknown';
-          
-          // Get symbol from base_token or name
-          let symbol = '???';
-          if (a.base_token && a.base_token.symbol) {
-            symbol = a.base_token.symbol;
-          } else if (a.symbol) {
-            symbol = a.symbol;
-          } else if (a.name) {
-            symbol = a.name.split('/')[0].trim();
-          }
-          
-          const price = parseFloat(a.base_token_price_usd) || 0;
-          const liquidity = parseFloat(a.reserve_in_usd) || 0;
-          const chg24h = parseFloat(a.price_change_percentage?.h24) || 0;
-          const vol24h = parseFloat(a.volume_usd?.h24) || 0;
-          const score = Math.min(99, Math.round(Math.abs(chg24h) * 1.5 + (vol24h / 100000) * 50));
-          
-          pools.push({
-            name: a.name || 'Unknown',
-            symbol: symbol,
-            chain: chain,
-            price: price,
-            liquidity: liquidity,
-            chg24h: chg24h,
-            vol24h: vol24h,
-            score: score,
-            age: a.pool_created_at ? Math.round((Date.now() - new Date(a.pool_created_at).getTime())/3600000*10)/10 : 999,
-            link: `https://www.geckoterminal.com/${chain}/pools/${a.address || ''}`
-          });
-        });
-      }
-      page++;
-    } catch (e) {
-      console.warn(e);
-      break;
-    }
-    await new Promise(r => setTimeout(r, 1000));
-  }
-
-  toast(`Volume Spike: ${pools.length} pools`);
-}
-
-async function scanTopGainersGecko() {
-  pools = [];
-  let page = 1;
-  const maxPages = 3;
-
-  toast(`Scanning top gainers (${currentTimeframe})...`);
-
-  while (page <= maxPages) {
-    try {
-      const res = await fetch(`${GECKO_BASE}/networks/trending_pools?page=${page}&include=base_token`);
-      if (!res.ok) break;
-      const data = await res.json();
-      if (data.data) {
-        data.data.forEach(item => {
-          const a = item.attributes || {};
-          
-          // Extract chain from pool ID (format: chain_pooladdress)
-          const poolId = item.id || '';
-          const chain = poolId.split('_')[0] || 'unknown';
-          
-          // Get symbol from base_token or name
-          let symbol = '???';
-          if (a.base_token && a.base_token.symbol) {
-            symbol = a.base_token.symbol;
-          } else if (a.symbol) {
-            symbol = a.symbol;
-          } else if (a.name) {
-            symbol = a.name.split('/')[0].trim();
-          }
-          
-          const price = parseFloat(a.base_token_price_usd) || 0;
-          const liquidity = parseFloat(a.reserve_in_usd) || 0;
-          
-          let chg = 0;
-          if (currentTimeframe === '1h') chg = parseFloat(a.price_change_percentage?.h1) || 0;
-          else if (currentTimeframe === '6h') chg = parseFloat(a.price_change_percentage?.h6) || 0;
-          else chg = parseFloat(a.price_change_percentage?.h24) || 0;
-          
-          const vol24h = parseFloat(a.volume_usd?.h24) || 0;
-          const score = Math.min(99, Math.round(Math.abs(chg) * 3.5 + (liquidity / 80000) * 25));
-          
-          pools.push({
-            name: a.name || 'Unknown',
-            symbol: symbol,
-            chain: chain,
-            price: price,
-            liquidity: liquidity,
-            chg24h: chg,
-            vol24h: vol24h,
-            score: score,
-            age: a.pool_created_at ? Math.round((Date.now() - new Date(a.pool_created_at).getTime())/3600000*10)/10 : 999,
-            link: `https://www.geckoterminal.com/${chain}/pools/${a.address || ''}`
-          });
-        });
-      }
-      page++;
-    } catch (e) {
-      console.warn(e);
-      break;
-    }
-    await new Promise(r => setTimeout(r, 1000));
-  }
-
-  toast(`Top Gainers: ${pools.length} pools`);
-}
-
-async function scanChainNewPoolsGecko(minLiq, minScore, minAge) {
-  pools = [];
-  const slug = selectedChainDeepDive;
-  let page = 1;
-  const maxPages = 5;
-  const maxAgeMinutes = 60; // Hardcoded 1 hour max
-
-  toast(`New pools on ${slug}... (max 1 hour old)`);
-
-  while (page <= maxPages) {
-    try {
-      const res = await fetch(`${GECKO_BASE}/networks/${slug}/pools?page=${page}&include=base_token`);
-      if (!res.ok) break;
-      const data = await res.json();
-      if (data.data) {
-        const now = Date.now();
-        data.data.forEach(item => {
-          const a = item.attributes || {};
-          const createdAt = new Date(a.pool_created_at || 0).getTime();
-          const ageMinutes = (now - createdAt) / 60000;
-          
-          // Filter: pool must be newer than maxAge (60 min) and older than minAge
-          if (ageMinutes <= maxAgeMinutes && ageMinutes >= minAge) {
-            let symbol = a.symbol || '???';
-            if (a.base_token) symbol = a.base_token.symbol || symbol;
-            if (!symbol || symbol === '???') symbol = a.name ? a.name.split('/')[0].trim() : '???';
-
-            const price = parseFloat(a.base_token_price_usd) || 0;
-            const liquidity = parseFloat(a.reserve_in_usd) || 0;
-            const chg24h = parseFloat(a.price_change_percentage?.h24) || 0;
-            const vol24h = parseFloat(a.volume_usd?.h24) || 0;
-            const score = Math.min(99, Math.round(
-              Math.abs(chg24h) * 2.5 + (liquidity / 80000) * 40
-            ));
-
-            pools.push({
-              name: a.name || 'Unknown',
-              symbol: symbol,
-              chain: slug,
-              price: price,
-              liquidity: liquidity,
-              chg24h: chg24h,
-              vol24h: vol24h,
-              score: score,
-              age: Math.round(ageMinutes * 10) / 10,
-              link: `https://www.geckoterminal.com/${slug}/pools/${a.address || ''}`
-            });
-          }
-        });
-      }
-      page++;
-    } catch (e) {
-      console.warn(e);
-      break;
-    }
-    await new Promise(r => setTimeout(r, 1200));
-  }
-
-  toast(`New pools on ${slug}: ${pools.length} found (${minAge}m - 60m old)`);
-}
-
-function renderResults() {
+// ── Render ─────────────────────────────────────────────────────
+function renderTable() {
   const tbody = document.getElementById('results-body');
   if (!pools.length) {
-    tbody.innerHTML = `<tr><td colspan="10" class="empty-msg">No results found</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="10" class="empty-msg">No results. Try lowering filters or switching chain.</td></tr>`;
     return;
   }
 
-  const chainClass = (chain) => {
-    const map = {solana:'chain-solana', eth:'chain-eth', base:'chain-base', bsc:'chain-bsc', 
-                 arbitrum:'chain-arbitrum', optimism:'chain-optimism', polygon:'chain-polygon',
-                 avalanche:'chain-avalanche', sui:'chain-sui'};
-    return map[chain] || 'chain-solana';
-  };
+  tbody.innerHTML = pools.map(p => {
+    const chainKey = p.chain.toLowerCase().replace(/\s/g, '');
+    const chainClass = `chain-${chainKey}`;
+    const chgClass = p.priceChange24h >= 25 ? 'chg-pos-high' : p.priceChange24h >= 5 ? 'chg-pos-med' : p.priceChange24h > 0 ? 'chg-pos-low' : p.priceChange24h < 0 ? 'chg-neg' : 'chg-zero';
+    const scoreClass = p.score >= 70 ? 'score-high' : p.score >= 40 ? 'score-med' : 'score-low';
+    const age = p.ageMinutes !== null && p.ageMinutes < 999 ? `${p.ageMinutes}m` : '—';
+    const price = p.price
+      ? p.price < 0.0001 ? p.price.toExponential(3)
+      : p.price < 1 ? p.price.toFixed(6)
+      : p.price.toFixed(4)
+      : '—';
 
-  const chgClass = (chg) => {
-    if (chg >= 25) return 'chg-high';
-    if (chg >= 10) return 'chg-med';
-    if (chg > 0) return 'chg-low';
-    return 'chg-neg';
-  };
-
-  tbody.innerHTML = pools.map(p => `
-    <tr>
-      <td><span class="chain-col ${chainClass(p.chain)}">${p.chain.toUpperCase()}</span></td>
+    return `<tr>
+      <td><span class="chain-col ${chainClass}">${p.chain.toUpperCase()}</span></td>
       <td>${p.name}</td>
       <td><strong>${p.symbol}</strong></td>
-      <td>${p.age}h</td>
-      <td>$${p.price.toFixed(p.price < 0.01 ? 6 : 4)}</td>
-      <td>$${(p.liquidity/1000).toFixed(0)}K</td>
-      <td class="${chgClass(p.chg24h)}">${p.chg24h.toFixed(1)}%</td>
-      <td>$${(p.vol24h/1000).toFixed(0)}K</td>
-      <td class="score-cell">${p.score}</td>
+      <td>${age}</td>
+      <td>$${price}</td>
+      <td>$${fmtNum(p.liquidity)}</td>
+      <td>$${fmtNum(p.volume24h)}</td>
+      <td class="${chgClass}">${p.priceChange24h ? (p.priceChange24h > 0 ? '+' : '') + p.priceChange24h.toFixed(1) + '%' : '—'}</td>
+      <td class="${scoreClass}">${p.score}</td>
       <td><a href="${p.link}" target="_blank" style="color:var(--green);text-decoration:underline;">View</a></td>
-    </tr>
-  `).join('');
+    </tr>`;
+  }).join('');
 }
 
 function updateStats() {
-  if (!pools.length) {
-    document.getElementById('stats-row').style.display = 'none';
-    return;
-  }
-  document.getElementById('stats-row').style.display = 'flex';
+  const row = document.getElementById('stats-row');
+  if (!pools.length) { row.classList.remove('visible'); return; }
+  row.classList.add('visible');
+
   const avgScore = Math.round(pools.reduce((s, p) => s + p.score, 0) / pools.length);
-  const avgChg = pools.reduce((s, p) => s + p.chg24h, 0) / pools.length;
-  document.getElementById('stat-score').textContent = avgScore;
-  document.getElementById('stat-chg24h').textContent = avgChg.toFixed(1) + '%';
+  const avgChg   = pools.reduce((s, p) => s + (p.priceChange24h || 0), 0) / pools.length;
+  const totLiq   = pools.reduce((s, p) => s + (p.liquidity || 0), 0);
+
+  document.getElementById('stat-count').textContent  = pools.length;
+  document.getElementById('stat-score').textContent  = avgScore;
+  document.getElementById('stat-chg').textContent    = (avgChg > 0 ? '+' : '') + avgChg.toFixed(1) + '%';
+  document.getElementById('stat-liq').textContent    = '$' + fmtNum(totLiq);
 }
 
-// ── Populate Chain Dropdown ────────────────────────────────────
-async function populateChainDropdown() {
-  const dropdown = document.getElementById('chain-dropdown');
-  const quickSelectChains = ['solana', 'bsc', 'base', 'eth'];
-  
-  try {
-    const res = await fetch(`${GECKO_BASE}/networks?limit=100`);
-    const data = await res.json();
-    
-    if (data.data && Array.isArray(data.data)) {
-      console.log('Available networks:', data.data.map(n => n.id).slice(0, 20));
-      
-      // Filter out quick-select chains and sort by name
-      const filtered = data.data.filter(network => !quickSelectChains.includes(network.id));
-      const sorted = filtered.sort((a, b) => a.attributes.name.localeCompare(b.attributes.name));
-      
-      // Populate dropdown
-      sorted.forEach(network => {
-        const option = document.createElement('option');
-        option.value = network.id;
-        option.textContent = network.attributes.name;
-        dropdown.appendChild(option);
-      });
-    }
-  } catch (e) {
-    console.error('Failed to fetch networks:', e);
-    toast('Could not load available chains');
+function fmtNum(n) {
+  if (!n) return '0';
+  if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(0) + 'K';
+  return n.toFixed(0);
+}
+
+// ── Auto Scan ──────────────────────────────────────────────────
+function toggleAuto() {
+  if (document.getElementById('auto-toggle').checked) {
+    startAuto();
+  } else {
+    stopAuto();
   }
 }
 
+function startAuto() {
+  const ms = parseInt(document.getElementById('auto-interval').value) * 1000;
+  runScan();
+  const nextTime = Date.now() + ms;
+  const pill = document.getElementById('next-scan-pill');
+  pill.classList.add('visible');
+
+  clearTimeout(autoTimer);
+  clearInterval(nextTick);
+
+  nextTick = setInterval(() => {
+    const rem = Math.max(0, nextTime - Date.now());
+    const m = Math.floor(rem / 60000);
+    const s = Math.floor((rem % 60000) / 1000);
+    document.getElementById('next-scan').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }, 1000);
+
+  autoTimer = setTimeout(() => {
+    clearInterval(nextTick);
+    if (document.getElementById('auto-toggle').checked) startAuto();
+  }, ms);
+}
+
+function stopAuto() {
+  clearTimeout(autoTimer);
+  clearInterval(nextTick);
+  const toggle = document.getElementById('auto-toggle');
+  if (toggle) toggle.checked = false;
+  const pill = document.getElementById('next-scan-pill');
+  if (pill) pill.classList.remove('visible');
+}
+
+// ── Toast ──────────────────────────────────────────────────────
 function toast(msg) {
   const t = document.createElement('div');
   t.className = 'toast';
   t.textContent = msg;
   document.body.appendChild(t);
-  setTimeout(() => t.remove(), 3000);
+  setTimeout(() => t.remove(), 3500);
 }
 
-// Init
-setMode('new-pools');
-document.getElementById('chain-dropdown').value = 'solana';
-populateChainDropdown();
+// ── Init ───────────────────────────────────────────────────────
+updateKeyStatus();
+setMode('trending');
 </script>
 </body>
 </html>
