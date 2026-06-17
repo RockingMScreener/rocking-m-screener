@@ -68,7 +68,7 @@ td {padding:10px; border-bottom:1px solid #c4cad2; font-family:'IBM Plex Mono',m
   </div>
   <div>
     <h1 style="margin:0; font-size:28px; letter-spacing:2px;">STORMCHASER</h1>
-    <p style="margin:0; font-size:12px; color:var(--green); letter-spacing:1px;">ROCKING M &middot; HIGH RISK. HIGH REWARD. &middot; Hybrid Scanner &middot; 45s Refresh</p>
+    <p style="margin:0; font-size:12px; color:var(--green); letter-spacing:1px;">ROCKING M &middot; HIGH RISK. HIGH REWARD. &middot; Multi-Chain ERC20 Scanner &middot; 45s Refresh</p>
   </div>
   <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-left:auto;">
     <a href="../cipher.html" class="nav-btn">&#9672; Cipher</a>
@@ -91,6 +91,13 @@ td {padding:10px; border-bottom:1px solid #c4cad2; font-family:'IBM Plex Mono',m
       <div><label>Max Token Age (min)</label><input class="finput" id="max-age" type="number" value="180"></div>
       <div><label>Min Score (0–100)</label><input class="finput" id="min-score" type="number" value="45"></div>
       <div><label>Re-entry Cooldown (min)</label><input class="finput" id="cooldown-mins" type="number" value="30" title="Minutes before re-entering a recently closed token"></div>
+    </div>
+
+    <div class="section-label" style="margin-top:16px;">ERC20 Trade Cost Settings</div>
+    <div class="setup-grid">
+      <div><label>Slippage (%)</label><input class="finput" id="slippage-pct" type="number" value="2" step="0.1" title="Fixed price impact applied on entry (against you) and exit (against you)"></div>
+      <div><label>Est. Buy Tax (%)</label><input class="finput" id="buy-tax-pct" type="number" value="3" step="0.1" title="Average ERC20 buy tax — reduces tokens received on entry"></div>
+      <div><label>Est. Sell Tax (%)</label><input class="finput" id="sell-tax-pct" type="number" value="3" step="0.1" title="Average ERC20 sell tax — reduces proceeds on exit"></div>
     </div>
 
     <div class="section-label" style="margin-top:16px;">Exit Strategy Settings</div>
@@ -173,13 +180,35 @@ const EXIT_CONFIG = {
 };
 
 const REFRESH_SECONDS  = 45;
-const SUPPORTED_CHAINS = ['solana', 'base', 'bsc'];
+// ERC20 / EVM chains only — Solana real-money trading lives in Forge.
+// Picked the highest-liquidity EVM chains GeckoTerminal + DexScreener both
+// cover well. Add/remove entries here if you want a different spread —
+// each chain costs one GeckoTerminal call per scan cycle (3s apart below),
+// so 7 chains × 3s ≈ 18s of delay, comfortably inside the 45s refresh window
+// and well under GeckoTerminal's free-tier rate limit.
+const SUPPORTED_CHAINS = ['eth', 'base', 'bsc', 'polygon', 'arbitrum', 'optimism', 'avax'];
 
-// GeckoTerminal network IDs
+// GeckoTerminal network IDs (used for discovery — /new_pools)
 const GECKO_CHAINS = {
-  solana: 'solana',
-  base:   'base',
-  bsc:    'bsc',
+  eth:      'eth',
+  base:     'base',
+  bsc:      'bsc',
+  polygon:  'polygon_pos',
+  arbitrum: 'arbitrum',
+  optimism: 'optimism',
+  avax:     'avax',
+};
+
+// DexScreener chain slugs (used for position monitoring — these differ
+// from GeckoTerminal's naming, e.g. 'eth' vs 'ethereum', 'avax' vs 'avalanche')
+const DEXSCREENER_CHAINS = {
+  eth:      'ethereum',
+  base:     'base',
+  bsc:      'bsc',
+  polygon:  'polygon',
+  arbitrum: 'arbitrum',
+  optimism: 'optimism',
+  avax:     'avalanche',
 };
 
 
@@ -245,9 +274,12 @@ const render = {
       return;
     }
     tbody.innerHTML = positions.map((p, i) => {
-      const currentValue = p.tokensHeld * p.currentPrice;
+      const netExitPrice = p.currentPrice
+        * (1 - (account?.slippagePct || 0) / 100)
+        * (1 - (account?.sellTaxPct  || 0) / 100);
+      const currentValue = p.tokensHeld * netExitPrice;
       const pnlUsd = currentValue - (p.tokensHeld * p.entryPrice);
-      const pnlPct = p.entryPrice ? ((p.currentPrice - p.entryPrice) / p.entryPrice) * 100 : 0;
+      const pnlPct = p.entryPrice ? ((netExitPrice - p.entryPrice) / p.entryPrice) * 100 : 0;
       const ageMin = Math.floor((Date.now() - p.enteredAt) / 60000);
       const cls    = pnlUsd >= 0 ? 'green' : 'red';
       return `<tr>
@@ -317,6 +349,9 @@ function initAccount() {
     maxAgeMin:         parseFloat(document.getElementById('max-age').value)       || 180,
     minScore:          parseInt(document.getElementById('min-score').value)       || 45,
     cooldownMins:      parseFloat(document.getElementById('cooldown-mins').value) || 30,
+    slippagePct:       parseFloat(document.getElementById('slippage-pct').value)  || 0,
+    buyTaxPct:         parseFloat(document.getElementById('buy-tax-pct').value)   || 0,
+    sellTaxPct:        parseFloat(document.getElementById('sell-tax-pct').value)  || 0,
   };
 
   // Read exit config from UI
@@ -415,7 +450,8 @@ async function updateAllPrices() {
   for (let p of positions) {
     if (!p.pairAddress) continue;
     try {
-      const res = await fetch(`https://api.dexscreener.com/latest/dex/pairs/${p.chain.toLowerCase()}/${p.pairAddress}`);
+      const dexChain = DEXSCREENER_CHAINS[p.chainKey] || p.chain.toLowerCase();
+      const res = await fetch(`https://api.dexscreener.com/latest/dex/pairs/${dexChain}/${p.pairAddress}`);
       if (res.status === 429) {
         addLog('⚠️ DexScreener rate limit — backing off', 'warn');
         break;
@@ -509,7 +545,7 @@ async function scanCycle() {
     }
 
     // Delay between chains to avoid rate limits on startup
-    if (i < SUPPORTED_CHAINS.length - 1) await sleep(2500);
+    if (i < SUPPORTED_CHAINS.length - 1) await sleep(3000);
   }
 }
 
@@ -528,19 +564,29 @@ async function attemptAutoEntry(pool, chain, score, reasons) {
   }
 
   const symbol     = (pool.name || 'TOKEN').split('/')[0].trim().substring(0, 12);
-  const entryPrice = parseFloat(pool.base_token_price_usd) || 0;
+  const marketPrice = parseFloat(pool.base_token_price_usd) || 0;
+  if (marketPrice <= 0) return;
+
+  // Slippage: buying pushes price up against you
+  const slippedPrice = marketPrice * (1 + (account.slippagePct || 0) / 100);
+  const tokensPreTax  = entrySize / slippedPrice;
+  // Buy tax: contract takes a cut of the tokens transferred
+  const tokensBought  = tokensPreTax * (1 - (account.buyTaxPct || 0) / 100);
+  // Effective entry price = what you actually paid per token received
+  // (keeps tokensHeld * entryPrice == cash spent, so PnL math stays clean)
+  const entryPrice    = tokensBought > 0 ? entrySize / tokensBought : 0;
   if (entryPrice <= 0) return;
 
-  const tokensBought = entrySize / entryPrice;
   account.balance   -= entrySize;
 
   positions.push({
     chain:        chain.toUpperCase(),
+    chainKey:     chain,
     symbol,
     pairAddress:  pool.address,
     entryPrice,
-    currentPrice: entryPrice,
-    peakPrice:    entryPrice,
+    currentPrice: marketPrice,
+    peakPrice:    marketPrice,
     tokensHeld:   tokensBought,
     enteredAt:    Date.now(),
     score,
@@ -549,7 +595,7 @@ async function attemptAutoEntry(pool, chain, score, reasons) {
     trailActive: false,
   });
 
-  addLog(`🟢 ENTRY: ${symbol} (${chain.toUpperCase()}) | ${format.tokens(tokensBought)} tokens @ ${format.price(entryPrice)} | Score ${score}`, 'ok');
+  addLog(`🟢 ENTRY: ${symbol} (${chain.toUpperCase()}) | ${format.tokens(tokensBought)} tokens @ ${format.price(entryPrice)} net (mkt ${format.price(marketPrice)}, ${account.slippagePct}% slip + ${account.buyTaxPct}% tax) | Score ${score}`, 'ok');
   render.all();
 }
 
@@ -615,9 +661,15 @@ function checkTimeBasedExits() {
 
 function closePartial(pos, sellFraction, reason) {
   const tokensToSell = pos.tokensHeld * sellFraction;
-  const sellValue    = tokensToSell * pos.currentPrice;
-  const costBasis    = tokensToSell * pos.entryPrice;
-  const pnl          = sellValue - costBasis;
+  // Slippage: selling pushes price down against you
+  const slippedPrice = pos.currentPrice * (1 - (account.slippagePct || 0) / 100);
+  const grossSellValue = tokensToSell * slippedPrice;
+  // Sell tax: contract takes a cut of the proceeds
+  const sellValue = grossSellValue * (1 - (account.sellTaxPct || 0) / 100);
+  const costBasis = tokensToSell * pos.entryPrice;
+  const pnl       = sellValue - costBasis;
+  // Net effective exit price — what you actually realized per token after slippage + tax
+  const netExitPrice = tokensToSell > 0 ? sellValue / tokensToSell : 0;
 
   pos.tokensHeld   -= tokensToSell;
   account.balance  += sellValue;
@@ -628,9 +680,9 @@ function closePartial(pos, sellFraction, reason) {
     chain:  pos.chain,
     symbol: pos.symbol,
     entry:  pos.entryPrice,
-    exit:   pos.currentPrice,
+    exit:   netExitPrice,
     pnl,
-    pnlPct: ((pos.currentPrice / pos.entryPrice) - 1) * 100,
+    pnlPct: costBasis ? (pnl / costBasis) * 100 : 0,
     reason,
   });
 
