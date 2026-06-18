@@ -369,12 +369,13 @@
 </div>
 
 <footer>
-  Cipher v2.1 &nbsp;·&nbsp; <a href="https://birdeye.so/data-api" target="_blank">Birdeye</a> + <a href="https://dexscreener.com" target="_blank">DexScreener</a> &nbsp;·&nbsp; Rocking M Crypto &nbsp;·&nbsp; <a href="/trailguide.html">Trail Guide</a>
+  Cipher v2.2 &nbsp;·&nbsp; <a href="https://birdeye.so/data-api" target="_blank">Birdeye</a> + <a href="https://www.geckoterminal.com" target="_blank">GeckoTerminal</a> &nbsp;·&nbsp; Rocking M Crypto &nbsp;·&nbsp; <a href="/trailguide.html">Trail Guide</a>
 </footer>
 
 <script>
 // ── Config ────────────────────────────────────────────────────
 const BIRDEYE_BASE = 'https://public-api.birdeye.so';
+const GECKO_BASE = 'https://gecko-proxy.ermccabee1.workers.dev/gecko/v2';
 const LIMIT = 40;
 
 let currentMode = 'trending';
@@ -437,7 +438,7 @@ function handleOverlayClick(e) {
 const MODE_META = {
   trending: { source: 'Birdeye', desc: 'Trending tokens ranked by activity', needsKey: true },
   volume:   { source: 'Birdeye', desc: 'Top tokens sorted by 24h volume', needsKey: true },
-  new:      { source: 'DexScreener', desc: 'New token pairs — max 60 min old, no key required', needsKey: false }
+  new:      { source: 'GeckoTerminal', desc: 'New pools per chain — max 60 min old, no key required', needsKey: false }
 };
 
 function setMode(mode) {
@@ -488,7 +489,7 @@ function calculateScore(token, mode) {
     // Birdeye volume — weight raw volume heavily
     score = (vol / 80000 * 60) + (liq / 80000 * 30);
   } else if (mode === 'new') {
-    // DexScreener new — freshness + momentum + liquidity
+    // New (GeckoTerminal) — freshness + momentum + liquidity
     const freshness = Math.max(0, (60 - age) * 0.8);
     score = freshness + (Math.abs(chg) * 2.5) + (liq / 40000 * 30) + (vol / 60000 * 20);
   }
@@ -574,76 +575,74 @@ async function fetchBirdeye(mode) {
   }));
 }
 
-// ── DexScreener Fetch ──────────────────────────────────────────
+// ── New Pools Fetch (GeckoTerminal, per-chain) ──────────────────
 async function fetchDexNew() {
   const chain = document.getElementById('chain-select').value;
   const minAge = parseFloat(document.getElementById('min-age').value) || 0;
   const maxAge = parseFloat(document.getElementById('max-age').value) || 60;
 
-  toast(`Scanning new tokens on ${chain}...`);
+  toast(`Scanning new pools on ${chain}...`);
 
-  // DexScreener chainId mapping
-  const chainMap = {
-    solana: 'solana', ethereum: 'ethereum', base: 'base', bsc: 'bsc',
-    arbitrum: 'arbitrum', optimism: 'optimism', polygon: 'polygon',
-    avalanche: 'avalanche', berachain: 'berachain', sonic: 'sonic',
-    zksync: 'zksync', sui: 'sui'
+  // GeckoTerminal network slug mapping
+  const geckoMap = {
+    solana: 'solana', ethereum: 'eth', base: 'base', bsc: 'bsc',
+    arbitrum: 'arbitrum', optimism: 'optimism', polygon: 'polygon_pos',
+    avalanche: 'avax', berachain: 'berachain', sonic: 'sonic',
+    zksync: 'zksync', sui: 'sui-network'
   };
-  const dexChain = chainMap[chain] || chain;
+  const slug = geckoMap[chain] || chain;
 
-  try {
-    // Fetch latest token profiles (no key required)
-    const res = await fetch(`https://api.dexscreener.com/token-profiles/latest/v1`);
-    if (!res.ok) throw new Error(`DexScreener error ${res.status}`);
-    const profiles = await res.json();
+  const tokens = [];
+  let page = 1;
+  const maxPages = 3; // 3 × 20 = 60 raw pools to filter from, capped to LIMIT after
 
-    // Filter to selected chain
-    const chainProfiles = (Array.isArray(profiles) ? profiles : [])
-      .filter(p => p.chainId?.toLowerCase() === dexChain.toLowerCase())
-      .slice(0, 50);
+  while (page <= maxPages && tokens.length < LIMIT) {
+    try {
+      const url = `${GECKO_BASE}/networks/${slug}/pools?page=${page}&include=base_token&sort=h24_volume_usd`;
+      const res = await fetch(url);
+      if (!res.ok) break;
+      const data = await res.json();
+      if (!data.data || !data.data.length) break;
 
-    // Fetch pair data for each token
-    const tokens = [];
-    for (const profile of chainProfiles) {
-      if (!profile.tokenAddress) continue;
-      try {
-        const pairRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${profile.tokenAddress}`);
-        if (!pairRes.ok) continue;
-        const pairData = await pairRes.json();
-        const pairs = pairData.pairs || [];
-        if (!pairs.length) continue;
+      const now = Date.now();
+      data.data.forEach(item => {
+        if (tokens.length >= LIMIT) return;
+        const a = item.attributes || {};
+        const createdAt = new Date(a.pool_created_at || 0).getTime();
+        const ageMinutes = Math.round((now - createdAt) / 60000);
 
-        // Use the highest liquidity pair
-        const best = pairs.sort((a, b) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0))[0];
-        const ageMinutes = best.pairCreatedAt
-          ? Math.round((Date.now() - best.pairCreatedAt) / 60000)
-          : 999;
+        // Age filter: must fall within min/max window
+        if (ageMinutes > maxAge || ageMinutes < minAge) return;
 
-        // Age filter: only keep tokens within min/max age range
-        if (ageMinutes > maxAge || ageMinutes < minAge) continue;
+        let symbol = '???';
+        if (a.base_token?.symbol) symbol = a.base_token.symbol;
+        else if (a.symbol) symbol = a.symbol;
+        else if (a.name) symbol = a.name.split('/')[0].trim();
 
         tokens.push({
-          chain: dexChain,
-          name: best.baseToken?.name || profile.description || 'Unknown',
-          symbol: best.baseToken?.symbol || '???',
-          price: parseFloat(best.priceUsd) || 0,
-          liquidity: parseFloat(best.liquidity?.usd) || 0,
-          volume24h: parseFloat(best.volume?.h24) || 0,
-          priceChange24h: parseFloat(best.priceChange?.h24) || 0,
+          chain: slug,
+          name: a.name || 'Unknown',
+          symbol,
+          price: parseFloat(a.base_token_price_usd) || 0,
+          liquidity: parseFloat(a.reserve_in_usd) || 0,
+          volume24h: parseFloat(a.volume_usd?.h24) || 0,
+          priceChange24h: parseFloat(a.price_change_percentage?.h24) || 0,
           ageMinutes,
-          address: profile.tokenAddress,
-          link: best.url || `https://dexscreener.com/${dexChain}/${best.pairAddress}`
+          address: a.address || '',
+          link: `https://www.geckoterminal.com/${slug}/pools/${a.address || ''}`
         });
+      });
 
-        if (tokens.length >= LIMIT) break;
-      } catch (e) { /* skip individual failures */ }
-      await new Promise(r => setTimeout(r, 200));
+      if (data.data.length < 20) break; // last page
+      page++;
+    } catch (e) {
+      console.warn(e);
+      break;
     }
-
-    return tokens;
-  } catch (e) {
-    throw new Error('DexScreener fetch failed: ' + e.message);
+    await new Promise(r => setTimeout(r, 600));
   }
+
+  return tokens;
 }
 
 // ── Main Scan ──────────────────────────────────────────────────
