@@ -29,39 +29,47 @@
   .brand-title{font-family:var(--sans);font-size:28px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#fff;line-height:1;}
   .brand-title span{color:var(--green-hi);}
   .brand-tagline{font-family:var(--mono);font-size:9px;color:#4a6070;letter-spacing:1px;margin-top:4px;line-height:1.6;}
-  .header-right{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .header-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
   .s-item{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
   .s-label{font-family:var(--mono);font-size:9px;color:#4a6070;letter-spacing:2px;text-transform:uppercase;}
   .s-val{font-family:var(--mono);font-size:13px;color:var(--green-hi);font-weight:600;}
   .btn-settings{background:transparent;border:1.5px solid #2a4060;color:#4a6070;padding:6px 12px;font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .15s;letter-spacing:1px;}
   .btn-settings:hover{border-color:var(--green-lt);color:var(--green-hi);}
-  .key-status{font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:2px;letter-spacing:1px;}
-  .key-status.set{background:#0a2a1a;color:var(--green-hi);border:1px solid var(--green);}
-  .key-status.unset{background:#2a1a0a;color:#cc8844;border:1px solid #cc6622;}
 
-  /* ── API Key Modal ── */
-  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:900;display:none;align-items:center;justify-content:center;}
+  /* ── Key Status Badges ── */
+  .key-badges{display:flex;gap:6px;align-items:center;}
+  .key-badge{font-family:var(--mono);font-size:9px;padding:3px 8px;letter-spacing:1px;border-radius:2px;white-space:nowrap;}
+  .key-badge.set{background:#0a2a1a;color:var(--green-hi);border:1px solid var(--green);}
+  .key-badge.unset{background:#2a1a0a;color:#cc8844;border:1px solid #cc6622;}
+
+  /* ── Modal ── */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:900;display:none;align-items:center;justify-content:center;padding:20px;}
   .modal-overlay.open{display:flex;}
-  .modal{background:var(--bg-header);border:1px solid var(--border2);border-top:3px solid var(--green-lt);padding:28px 32px;max-width:560px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.5);}
-  .modal-title{font-family:var(--sans);font-size:20px;font-weight:800;letter-spacing:3px;color:#fff;text-transform:uppercase;margin-bottom:6px;}
+  .modal{background:var(--bg-header);border:1px solid var(--border2);border-top:3px solid var(--green-lt);padding:28px 32px;max-width:600px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.5);max-height:90vh;overflow-y:auto;}
+  .modal-title{font-family:var(--sans);font-size:22px;font-weight:800;letter-spacing:3px;color:#fff;text-transform:uppercase;margin-bottom:4px;}
   .modal-title span{color:var(--green-hi);}
   .modal-sub{font-family:var(--mono);font-size:10px;color:#4a6070;letter-spacing:1px;margin-bottom:20px;line-height:1.7;}
-  .modal-steps{margin-bottom:20px;}
-  .step{display:flex;gap:12px;margin-bottom:12px;align-items:flex-start;}
-  .step-num{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--green-hi);background:#0a2a1a;border:1px solid var(--green);width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:2px;}
-  .step-text{font-family:var(--mono);font-size:10px;color:#8aacbc;letter-spacing:.5px;line-height:1.7;padding-top:3px;}
+  .modal-api-block{margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid #2a3a4a;}
+  .modal-api-block:last-of-type{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+  .modal-api-title{font-family:var(--sans);font-size:16px;font-weight:700;letter-spacing:2px;color:#fff;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+  .modal-api-title .api-badge{font-size:9px;padding:2px 8px;border-radius:2px;letter-spacing:1px;}
+  .modal-api-title .api-badge.birdeye{background:#0a2040;color:#6699ff;border:1px solid #2244aa;}
+  .modal-api-title .api-badge.cmc{background:#0a2a1a;color:var(--green-hi);border:1px solid var(--green);}
+  .steps{margin-bottom:14px;}
+  .step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;}
+  .step-num{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--green-hi);background:#0a2a1a;border:1px solid var(--green);width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:2px;}
+  .step-text{font-family:var(--mono);font-size:10px;color:#8aacbc;line-height:1.7;padding-top:2px;}
   .step-text a{color:var(--green-hi);text-decoration:underline;}
   .step-text strong{color:#fff;}
-  .modal-divider{border:none;border-top:1px solid #2a3a4a;margin:16px 0;}
-  .key-input-row{display:flex;gap:8px;margin-bottom:12px;}
+  .key-input-row{display:flex;gap:8px;margin-bottom:8px;}
   .key-input{font-family:var(--mono);font-size:12px;background:#0d1a24;border:1px solid var(--border2);color:#fff;padding:8px 12px;flex:1;outline:none;letter-spacing:1px;}
   .key-input:focus{border-color:var(--green-lt);}
-  .btn-save-key{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:2px;padding:8px 20px;background:var(--green);color:#fff;border:none;cursor:pointer;text-transform:uppercase;transition:all .15s;white-space:nowrap;}
+  .btn-save-key{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:2px;padding:8px 18px;background:var(--green);color:#fff;border:none;cursor:pointer;text-transform:uppercase;white-space:nowrap;}
   .btn-save-key:hover{background:var(--green-lt);}
-  .btn-clear-key{font-family:var(--mono);font-size:10px;padding:8px 14px;background:transparent;color:#cc4422;border:1px solid #cc4422;cursor:pointer;transition:all .15s;letter-spacing:1px;}
+  .btn-clear-key{font-family:var(--mono);font-size:10px;padding:8px 12px;background:transparent;color:#cc4422;border:1px solid #cc4422;cursor:pointer;letter-spacing:1px;}
   .btn-clear-key:hover{background:#cc4422;color:#fff;}
-  .modal-note{font-family:var(--mono);font-size:9px;color:#4a6070;letter-spacing:.5px;line-height:1.7;margin-top:8px;}
-  .btn-close-modal{font-family:var(--mono);font-size:10px;padding:6px 14px;background:transparent;color:#6b7a8a;border:1px solid #2a3a4a;cursor:pointer;transition:all .15s;margin-top:16px;letter-spacing:1px;}
+  .key-note{font-family:var(--mono);font-size:9px;color:#4a6070;line-height:1.7;margin-top:6px;}
+  .btn-close-modal{font-family:var(--mono);font-size:10px;padding:8px 16px;background:transparent;color:#6b7a8a;border:1px solid #2a3a4a;cursor:pointer;margin-top:20px;letter-spacing:1px;}
   .btn-close-modal:hover{color:#fff;border-color:#fff;}
 
   /* ── Shell ── */
@@ -70,26 +78,27 @@
 
   /* ── Mode Selector ── */
   .mode-selector{margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--blue);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
-  .mode-buttons{display:flex;gap:8px;flex-wrap:wrap;}
+  .mode-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
   .mode-btn{font-family:var(--mono);font-size:11px;letter-spacing:2px;padding:8px 16px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text-mid);cursor:pointer;transition:all .15s;text-transform:uppercase;}
   .mode-btn:hover{border-color:var(--blue);color:var(--blue);background:#eef5ff;}
   .mode-btn.active{border-color:var(--blue);background:var(--blue);color:#fff;}
-  .mode-source{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-top:8px;}
+  .mode-source{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;}
   .mode-source span{color:var(--green-hi);font-weight:600;}
 
   /* ── Chain + Filters ── */
   .chain-section{margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--green);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .chain-section.hidden{display:none;}
   .chain-select{font-family:var(--mono);font-size:12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 12px;width:100%;max-width:320px;outline:none;cursor:pointer;}
   .chain-select:focus{border-color:var(--green);}
   .filter-panel{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-top:3px solid var(--green);}
   .fgroup{display:flex;flex-direction:column;gap:4px;}
+  .fgroup.hidden{display:none;}
   .flabel{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;}
   .finput{font-family:var(--mono);font-size:12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 10px;outline:none;width:100%;}
   .finput:focus{border-color:var(--green);background:#fff;}
-  .fgroup.hidden{display:none;}
 
   /* ── Auto Scan ── */
-  .auto-section{margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--amber);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);display:none;}
+  .auto-section{display:none;margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--amber);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
   .auto-section.visible{display:block;}
   .auto-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
   .toggle{position:relative;width:38px;height:20px;cursor:pointer;flex-shrink:0;}
@@ -109,6 +118,11 @@
   .btn-run:hover{background:var(--green-lt);border-color:var(--green-lt);}
   .btn-run:disabled{opacity:.4;cursor:not-allowed;}
   .status-pill{font-family:var(--mono);font-size:11px;padding:4px 12px;border:1px solid var(--border);background:var(--bg3);color:var(--text-dim);}
+
+  /* ── No Key Banner ── */
+  .no-key-banner{display:none;align-items:center;gap:12px;padding:12px 16px;background:#2a1a0a;border:1px solid #cc6622;border-left:4px solid #cc6622;margin-bottom:16px;font-family:var(--mono);font-size:11px;color:#cc8844;}
+  .no-key-banner.visible{display:flex;}
+  .no-key-banner button{background:#cc6622;color:#fff;border:none;padding:5px 12px;cursor:pointer;font-family:var(--mono);font-size:10px;letter-spacing:1px;white-space:nowrap;}
 
   /* ── Stats ── */
   .stats-row{display:none;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
@@ -130,7 +144,7 @@
   .chain-solana{background:#9945ff;}
   .chain-eth,.chain-ethereum{background:#627ee1;}
   .chain-base{background:#0052ff;}
-  .chain-bsc{background:#f3ba2f;color:#000;}
+  .chain-bsc,.chain-bnb,.chain-binance-smart-chain{background:#f3ba2f;color:#000;}
   .chain-arbitrum{background:#28a0f0;}
   .chain-optimism{background:#ff0000;}
   .chain-polygon{background:#8247e5;}
@@ -144,16 +158,10 @@
   .chg-pos-low{color:#44bb66;}
   .chg-neg{color:#ff4444;}
   .chg-zero{color:var(--text-dim);}
-  .score-cell{font-weight:600;color:var(--green);}
   .score-high{color:#00aa00;font-weight:700;}
   .score-med{color:var(--green);font-weight:600;}
   .score-low{color:var(--amber);}
   .empty-msg{text-align:center;padding:60px;color:var(--text-dim);}
-
-  /* ── No Key Warning ── */
-  .no-key-banner{display:none;align-items:center;gap:12px;padding:12px 16px;background:#2a1a0a;border:1px solid #cc6622;border-left:4px solid #cc6622;margin-bottom:16px;font-family:var(--mono);font-size:11px;color:#cc8844;}
-  .no-key-banner.visible{display:flex;}
-  .no-key-banner button{background:#cc6622;color:#fff;border:none;padding:4px 12px;cursor:pointer;font-family:var(--mono);font-size:10px;letter-spacing:1px;}
 
   /* ── Toast ── */
   .toast{position:fixed;bottom:20px;right:20px;background:var(--green);color:#fff;padding:12px 20px;border-radius:3px;font-family:var(--mono);font-size:11px;box-shadow:0 4px 12px rgba(0,122,61,.3);z-index:1000;animation:slide-up .3s ease;}
@@ -175,37 +183,70 @@
 <!-- ── API Key Modal ── -->
 <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
   <div class="modal">
-    <div class="modal-title">BIRDEYE <span>API KEY</span></div>
-    <div class="modal-sub">Cipher uses Birdeye for Trending and Top Volume scans. Your key is stored locally in your browser and never sent anywhere except Birdeye's API.</div>
+    <div class="modal-title">API <span>KEYS</span></div>
+    <div class="modal-sub">Cipher uses two data sources — Birdeye for Trending and Top Volume, CoinMarketCap for New Tokens. Keys are stored locally in your browser only and never shared.</div>
 
-    <div class="modal-steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-text">Go to <a href="https://birdeye.so/data-api" target="_blank">birdeye.so/data-api</a> and click <strong>Get API Key</strong> or <strong>Start for Free</strong></div>
+    <!-- Birdeye Block -->
+    <div class="modal-api-block">
+      <div class="modal-api-title">
+        Birdeye
+        <span class="api-badge birdeye">TRENDING · TOP VOLUME</span>
       </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-text">Sign up with your email address. <strong>No credit card required</strong> for the free Standard tier.</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">Go to <a href="https://birdeye.so/data-api" target="_blank">birdeye.so/data-api</a> and click <strong>Get API Key</strong> or <strong>Start for Free</strong></div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">Sign up with your email. <strong>No credit card required</strong> for the free Standard tier (30,000 compute units/month).</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">Once logged in, go to your <strong>Dashboard</strong> — your API key is displayed there. Copy and paste it below.</div>
+        </div>
       </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-text">Once logged in, go to your <strong>Dashboard</strong>. Your API key will be displayed there — copy it.</div>
+      <div class="key-input-row">
+        <input type="password" class="key-input" id="birdeye-key-input" placeholder="Paste your Birdeye API key...">
+        <button class="btn-save-key" onclick="saveKey('birdeye')">Save</button>
+        <button class="btn-clear-key" onclick="clearKey('birdeye')">Clear</button>
       </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <div class="step-text">Paste your key below and click <strong>Save</strong>. The Standard (free) tier gives you <strong>30,000 compute units/month</strong> — plenty for manual scanning.</div>
-      </div>
+      <div class="key-note">Key saved to localStorage — local to this browser only. Re-enter if you clear browser data.</div>
     </div>
 
-    <hr class="modal-divider">
-
-    <div class="key-input-row">
-      <input type="password" class="key-input" id="key-input" placeholder="Paste your Birdeye API key here...">
-      <button class="btn-save-key" onclick="saveKey()">Save</button>
-      <button class="btn-clear-key" onclick="clearKey()">Clear</button>
+    <!-- CoinMarketCap Block -->
+    <div class="modal-api-block">
+      <div class="modal-api-title">
+        CoinMarketCap
+        <span class="api-badge cmc">NEW TOKENS</span>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">Go to <a href="https://pro.coinmarketcap.com/signup" target="_blank">pro.coinmarketcap.com/signup</a> and create a free account.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text"><strong>No credit card required.</strong> The free Basic tier gives you <strong>1 million credits/month</strong> — more than enough for scanning.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">After signing up, go to your <strong>API Dashboard</strong> at pro.coinmarketcap.com — your API key is shown at the top left. Copy it below.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-text">CMC covers <strong>all chains in a single call</strong> — Solana, Ethereum, BSC, Base, Arbitrum, Polygon, Avalanche and more simultaneously.</div>
+        </div>
+      </div>
+      <div class="key-input-row">
+        <input type="password" class="key-input" id="cmc-key-input" placeholder="Paste your CoinMarketCap API key...">
+        <button class="btn-save-key" onclick="saveKey('cmc')">Save</button>
+        <button class="btn-clear-key" onclick="clearKey('cmc')">Clear</button>
+      </div>
+      <div class="key-note">Key saved to localStorage — local to this browser only. Re-enter if you clear browser data.</div>
     </div>
-    <div class="modal-note">⚠ Your key is saved in <strong>localStorage</strong> — local to this browser only. If you clear browser data you'll need to re-enter it. Never share your API key with anyone.</div>
-    <div><button class="btn-close-modal" onclick="closeModal()">Close</button></div>
+
+    <button class="btn-close-modal" onclick="closeModal()">Close</button>
   </div>
 </div>
 
@@ -234,17 +275,20 @@
       <div class="s-label">Tokens Found</div>
       <div class="s-val" id="tok-count">0</div>
     </div>
-    <div id="key-status" class="key-status unset">NO API KEY</div>
-    <button class="btn-settings" onclick="openModal()">⚙ API KEY</button>
+    <div class="key-badges">
+      <div class="key-badge unset" id="birdeye-badge">Birdeye: NO KEY</div>
+      <div class="key-badge unset" id="cmc-badge">CMC: NO KEY</div>
+    </div>
+    <button class="btn-settings" onclick="openModal()">⚙ API KEYS</button>
   </div>
 </div>
 
 <div class="shell">
 
-  <!-- No Key Warning -->
+  <!-- No Key Banner -->
   <div class="no-key-banner" id="no-key-banner">
-    <span>⚠ Birdeye API key not set. Trending and Top Volume scans require a key.</span>
-    <button onclick="openModal()">Set API Key</button>
+    <span id="no-key-msg">⚠ API key required for this scan mode.</span>
+    <button onclick="openModal()">Set API Keys</button>
   </div>
 
   <!-- Mode Selector -->
@@ -255,11 +299,11 @@
       <button class="mode-btn" data-mode="volume" onclick="setMode('volume')">Top Volume</button>
       <button class="mode-btn" data-mode="new" onclick="setMode('new')">New Tokens</button>
     </div>
-    <div class="mode-source" id="mode-source">Source: <span>Birdeye</span> · Trending tokens ranked by activity</div>
+    <div class="mode-source" id="mode-source">Source: <span>Birdeye</span> · Trending tokens ranked by activity on selected chain</div>
   </div>
 
-  <!-- Chain Selector -->
-  <div class="chain-section">
+  <!-- Chain Selector (hidden for New Tokens mode) -->
+  <div class="chain-section" id="chain-section">
     <div class="sec-label">Chain</div>
     <select class="chain-select" id="chain-select">
       <option value="solana">Solana</option>
@@ -285,11 +329,11 @@
     </div>
     <div class="fgroup">
       <label class="flabel" for="min-score">Min Score</label>
-      <input type="number" class="finput" id="min-score" value="25" min="0" max="99" step="5">
+      <input type="number" class="finput" id="min-score" value="20" min="0" max="99" step="5">
     </div>
     <div class="fgroup hidden" id="min-age-group">
       <label class="flabel" for="min-age">Min Age (minutes)</label>
-      <input type="number" class="finput" id="min-age" value="0" min="0" max="60" step="1">
+      <input type="number" class="finput" id="min-age" value="0" min="0" max="59" step="1">
     </div>
     <div class="fgroup hidden" id="max-age-group">
       <label class="flabel" for="max-age">Max Age (minutes)</label>
@@ -361,7 +405,7 @@
         </tr>
       </thead>
       <tbody id="results-body">
-        <tr><td colspan="10" class="empty-msg">Select a chain and mode then click Scan Now.</td></tr>
+        <tr><td colspan="10" class="empty-msg">Select a mode and click Scan Now to begin.</td></tr>
       </tbody>
     </table>
   </div>
@@ -369,60 +413,86 @@
 </div>
 
 <footer>
-  Cipher v2.2 &nbsp;·&nbsp; <a href="https://birdeye.so/data-api" target="_blank">Birdeye</a> + <a href="https://www.geckoterminal.com" target="_blank">GeckoTerminal</a> &nbsp;·&nbsp; Rocking M Crypto &nbsp;·&nbsp; <a href="/trailguide.html">Trail Guide</a>
+  Cipher v2.2 &nbsp;·&nbsp;
+  <a href="https://birdeye.so/data-api" target="_blank">Birdeye</a> +
+  <a href="https://coinmarketcap.com/api/" target="_blank">CoinMarketCap</a> &nbsp;·&nbsp;
+  Rocking M Crypto &nbsp;·&nbsp;
+  <a href="/trailguide.html">Trail Guide</a> &nbsp;·&nbsp;
+  <a href="/craftsman.html">Craftsman</a>
 </footer>
 
 <script>
 // ── Config ────────────────────────────────────────────────────
 const BIRDEYE_BASE = 'https://public-api.birdeye.so';
-const GECKO_BASE = 'https://cipher-proxy.ermccabee1.workers.dev/gecko/v2';
+const CMC_BASE     = 'https://pro-api.coinmarketcap.com';
 const LIMIT = 40;
 
 let currentMode = 'trending';
 let pools = [];
 let autoTimer = null;
-let nextTick = null;
+let nextTick  = null;
 
-// ── API Key Management ─────────────────────────────────────────
-function getBirdeyeKey() {
-  return localStorage.getItem('rm_birdeye_key') || '';
-}
+// ── Key Management ─────────────────────────────────────────────
+function getKey(api)  { return localStorage.getItem(`rm_${api}_key`) || ''; }
 
-function saveKey() {
-  const val = document.getElementById('key-input').value.trim();
+function saveKey(api) {
+  const val = document.getElementById(`${api}-key-input`).value.trim();
   if (!val) { toast('Please paste your API key first'); return; }
-  localStorage.setItem('rm_birdeye_key', val);
-  updateKeyStatus();
-  toast('API key saved!');
-  closeModal();
+  localStorage.setItem(`rm_${api}_key`, val);
+  updateKeyBadges();
+  toast(`${api.toUpperCase()} key saved!`);
 }
 
-function clearKey() {
-  localStorage.removeItem('rm_birdeye_key');
-  document.getElementById('key-input').value = '';
-  updateKeyStatus();
-  toast('API key cleared');
+function clearKey(api) {
+  localStorage.removeItem(`rm_${api}_key`);
+  document.getElementById(`${api}-key-input`).value = '';
+  updateKeyBadges();
+  toast(`${api.toUpperCase()} key cleared`);
 }
 
-function updateKeyStatus() {
-  const key = getBirdeyeKey();
-  const statusEl = document.getElementById('key-status');
-  const bannerEl = document.getElementById('no-key-banner');
-  if (key) {
-    statusEl.textContent = 'API KEY SET';
-    statusEl.className = 'key-status set';
-    bannerEl.classList.remove('visible');
+function updateKeyBadges() {
+  const birdeyeEl = document.getElementById('birdeye-badge');
+  const cmcEl     = document.getElementById('cmc-badge');
+
+  if (getKey('birdeye')) {
+    birdeyeEl.textContent = 'Birdeye: SET';
+    birdeyeEl.className = 'key-badge set';
   } else {
-    statusEl.textContent = 'NO API KEY';
-    statusEl.className = 'key-status unset';
-    if (currentMode !== 'new') bannerEl.classList.add('visible');
+    birdeyeEl.textContent = 'Birdeye: NO KEY';
+    birdeyeEl.className = 'key-badge unset';
+  }
+
+  if (getKey('cmc')) {
+    cmcEl.textContent = 'CMC: SET';
+    cmcEl.className = 'key-badge set';
+  } else {
+    cmcEl.textContent = 'CMC: NO KEY';
+    cmcEl.className = 'key-badge unset';
+  }
+
+  checkKeyBanner();
+}
+
+function checkKeyBanner() {
+  const banner = document.getElementById('no-key-banner');
+  const msg    = document.getElementById('no-key-msg');
+  if (currentMode === 'new' && !getKey('cmc')) {
+    msg.textContent = '⚠ CoinMarketCap API key required for New Tokens scan.';
+    banner.classList.add('visible');
+  } else if ((currentMode === 'trending' || currentMode === 'volume') && !getKey('birdeye')) {
+    msg.textContent = '⚠ Birdeye API key required for Trending and Top Volume scans.';
+    banner.classList.add('visible');
+  } else {
+    banner.classList.remove('visible');
   }
 }
 
 // ── Modal ──────────────────────────────────────────────────────
 function openModal() {
-  const key = getBirdeyeKey();
-  if (key) document.getElementById('key-input').value = key;
+  const bKey = getKey('birdeye');
+  const cKey = getKey('cmc');
+  if (bKey) document.getElementById('birdeye-key-input').value = bKey;
+  if (cKey) document.getElementById('cmc-key-input').value = cKey;
   document.getElementById('modal-overlay').classList.add('open');
 }
 
@@ -436,9 +506,9 @@ function handleOverlayClick(e) {
 
 // ── Mode Handling ──────────────────────────────────────────────
 const MODE_META = {
-  trending: { source: 'Birdeye', desc: 'Trending tokens ranked by activity', needsKey: true },
-  volume:   { source: 'Birdeye', desc: 'Top tokens sorted by 24h volume', needsKey: true },
-  new:      { source: 'GeckoTerminal', desc: 'New pools per chain — max 60 min old, no key required', needsKey: false }
+  trending: { source: 'Birdeye',        desc: 'Trending tokens ranked by activity on selected chain' },
+  volume:   { source: 'Birdeye',        desc: 'Top tokens sorted by 24h volume on selected chain' },
+  new:      { source: 'CoinMarketCap',  desc: 'New DEX pairs across ALL chains — max 60 min old' }
 };
 
 function setMode(mode) {
@@ -448,6 +518,9 @@ function setMode(mode) {
 
   const meta = MODE_META[mode];
   document.getElementById('mode-source').innerHTML = `Source: <span>${meta.source}</span> · ${meta.desc}`;
+
+  // Chain selector — hidden for New Tokens (cross-chain automatically)
+  document.getElementById('chain-section').classList.toggle('hidden', mode === 'new');
 
   // Age filters — only for New Tokens
   document.getElementById('min-age-group').classList.toggle('hidden', mode !== 'new');
@@ -462,36 +535,31 @@ function setMode(mode) {
     stopAuto();
   }
 
-  // No-key banner
-  const bannerEl = document.getElementById('no-key-banner');
-  if (meta.needsKey && !getBirdeyeKey()) {
-    bannerEl.classList.add('visible');
-  } else {
-    bannerEl.classList.remove('visible');
-  }
-
+  checkKeyBanner();
   pools = [];
 }
 
 // ── Scoring ────────────────────────────────────────────────────
 function calculateScore(token, mode) {
-  const liq = token.liquidity || 0;
-  const vol = token.volume24h || 0;
-  const chg = token.priceChange24h || 0;
-  const age = token.ageMinutes || 999;
-
-  let score = 0;
+  const liq  = token.liquidity      || 0;
+  const vol  = token.volume24h      || 0;
+  const chg  = token.priceChange24h || 0;
+  const age  = token.ageMinutes     || 999;
+  let score  = 0;
 
   if (mode === 'trending') {
-    // Birdeye trending — no priceChange available, weight liquidity + volume + rank bonus
+    // Birdeye trending: no priceChange available — weight liq + vol
     score = (liq / 60000 * 45) + (vol / 120000 * 45);
   } else if (mode === 'volume') {
-    // Birdeye volume — weight raw volume heavily
+    // Birdeye volume: heavy volume weight
     score = (vol / 80000 * 60) + (liq / 80000 * 30);
   } else if (mode === 'new') {
-    // New (GeckoTerminal) — freshness + momentum + liquidity
-    const freshness = Math.max(0, (60 - age) * 0.8);
-    score = freshness + (Math.abs(chg) * 2.5) + (liq / 40000 * 30) + (vol / 60000 * 20);
+    // CMC new tokens: freshness + momentum + liquidity + volume
+    const freshBonus = Math.max(0, (60 - age) * 0.9); // Up to 54 pts for brand new
+    const momBonus   = Math.min(30, Math.abs(chg) * 1.5);
+    const liqBonus   = Math.min(15, liq / 10000 * 3);
+    const volBonus   = Math.min(10, vol / 20000 * 4);
+    score = freshBonus + momBonus + liqBonus + volBonus;
   }
 
   return Math.min(99, Math.round(score));
@@ -499,147 +567,112 @@ function calculateScore(token, mode) {
 
 // ── Birdeye Fetch ──────────────────────────────────────────────
 async function fetchBirdeye(mode) {
-  const key = getBirdeyeKey();
-  if (!key) {
-    openModal();
-    throw new Error('Birdeye API key required. Please add your key.');
-  }
+  const key = getKey('birdeye');
+  if (!key) { openModal(); throw new Error('Birdeye API key required.'); }
 
-  const chain = document.getElementById('chain-select').value;
+  const chain  = document.getElementById('chain-select').value;
   const sortBy = mode === 'volume' ? 'volume24hUSD' : 'rank';
   const sortType = mode === 'volume' ? 'desc' : 'asc';
 
   toast(`Scanning ${chain} on Birdeye...`);
 
-  // Birdeye max is 20 per call — 2 pages × 20 = 40 tokens
-  const allTokens = [];
-  const pages = 2;
-
-  for (let page = 0; page < pages; page++) {
-    const offset = page * 20;
-    const url = `${BIRDEYE_BASE}/defi/token_trending?sort_by=${sortBy}&sort_type=${sortType}&offset=${offset}&limit=20`;
-
+  const all = [];
+  // 2 pages × 20 = 40 tokens
+  for (let page = 0; page < 2; page++) {
+    const url = `${BIRDEYE_BASE}/defi/token_trending?sort_by=${sortBy}&sort_type=${sortType}&offset=${page * 20}&limit=20`;
     try {
       const res = await fetch(url, {
-        headers: {
-          'X-API-KEY': key,
-          'x-chain': chain,
-          'accept': 'application/json'
-        }
+        headers: { 'X-API-KEY': key, 'x-chain': chain, 'accept': 'application/json' }
       });
-
-      if (res.status === 401) {
-        openModal();
-        throw new Error('Invalid Birdeye API key. Please check your key.');
-      }
-      if (res.status === 403) {
-        throw new Error('Birdeye API access denied. Check your plan allows this endpoint.');
-      }
-      if (!res.ok) throw new Error(`Birdeye error ${res.status} on ${chain}`);
-
+      if (res.status === 401) { openModal(); throw new Error('Invalid Birdeye API key.'); }
+      if (!res.ok) throw new Error(`Birdeye error ${res.status}`);
       const json = await res.json();
       if (!json.success || !json.data?.tokens?.length) break;
-
-      allTokens.push(...json.data.tokens);
-
-      // Stop if we got fewer than 20 — no more pages
+      all.push(...json.data.tokens);
       if (json.data.tokens.length < 20) break;
-
     } catch (e) {
-      if (allTokens.length > 0) break; // Use what we have
+      if (all.length > 0) break;
       throw e;
     }
-
-    // Small delay between pages to respect rate limit
-    if (page < pages - 1) await new Promise(r => setTimeout(r, 300));
+    if (page < 1) await new Promise(r => setTimeout(r, 300));
   }
 
-  if (!allTokens.length) {
-    toast(`No data returned for ${chain}`);
-    return [];
-  }
+  if (!all.length) { toast(`No data for ${chain}`); return []; }
 
-  // Note: Birdeye trending only returns liquidity, volume24hUSD, rank, name, symbol, address
-  // No price or priceChange in this endpoint
-  return allTokens.map(t => ({
+  return all.map(t => ({
     chain,
-    name: t.name || 'Unknown',
-    symbol: t.symbol || '???',
-    price: 0, // Not in trending endpoint
-    liquidity: t.liquidity || 0,
-    volume24h: t.volume24hUSD || 0,
-    priceChange24h: 0, // Not in trending endpoint
-    ageMinutes: null,
-    address: t.address || '',
+    name:          t.name    || 'Unknown',
+    symbol:        t.symbol  || '???',
+    price:         0, // not in trending endpoint
+    liquidity:     t.liquidity    || 0,
+    volume24h:     t.volume24hUSD || 0,
+    priceChange24h: 0, // not in trending endpoint
+    ageMinutes:    null,
     link: `https://birdeye.so/token/${t.address}?chain=${chain}`
   }));
 }
 
-// ── New Pools Fetch (GeckoTerminal, per-chain) ──────────────────
-async function fetchDexNew() {
-  const chain = document.getElementById('chain-select').value;
+// ── CoinMarketCap Fetch (New Tokens, cross-chain) ──────────────
+async function fetchCMCNew() {
+  const key = getKey('cmc');
+  if (!key) { openModal(); throw new Error('CoinMarketCap API key required.'); }
+
   const minAge = parseFloat(document.getElementById('min-age').value) || 0;
   const maxAge = parseFloat(document.getElementById('max-age').value) || 60;
 
-  toast(`Scanning new pools on ${chain}...`);
+  toast(`Scanning new tokens across all chains (CMC)...`);
 
-  // GeckoTerminal network slug mapping
-  const geckoMap = {
-    solana: 'solana', ethereum: 'eth', base: 'base', bsc: 'bsc',
-    arbitrum: 'arbitrum', optimism: 'optimism', polygon: 'polygon_pos',
-    avalanche: 'avax', berachain: 'berachain', sonic: 'sonic',
-    zksync: 'zksync', sui: 'sui-network'
-  };
-  const slug = geckoMap[chain] || chain;
+  // CMC /v4/dex/spot-pairs/latest — no network filter = all chains
+  const url = `${CMC_BASE}/v4/dex/spot-pairs/latest?sort=date_added&sort_dir=desc&limit=100&aux=liquidity_score,price_change_24h`;
 
-  const tokens = [];
-  let page = 1;
-  const maxPages = 3; // 3 × 20 = 60 raw pools to filter from, capped to LIMIT after
-
-  while (page <= maxPages && tokens.length < LIMIT) {
-    try {
-      const url = `${GECKO_BASE}/networks/${slug}/pools?page=${page}&include=base_token&sort=h24_volume_usd`;
-      const res = await fetch(url);
-      if (!res.ok) break;
-      const data = await res.json();
-      if (!data.data || !data.data.length) break;
-
-      const now = Date.now();
-      data.data.forEach(item => {
-        if (tokens.length >= LIMIT) return;
-        const a = item.attributes || {};
-        const createdAt = new Date(a.pool_created_at || 0).getTime();
-        const ageMinutes = Math.round((now - createdAt) / 60000);
-
-        // Age filter: must fall within min/max window
-        if (ageMinutes > maxAge || ageMinutes < minAge) return;
-
-        let symbol = '???';
-        if (a.base_token?.symbol) symbol = a.base_token.symbol;
-        else if (a.symbol) symbol = a.symbol;
-        else if (a.name) symbol = a.name.split('/')[0].trim();
-
-        tokens.push({
-          chain: slug,
-          name: a.name || 'Unknown',
-          symbol,
-          price: parseFloat(a.base_token_price_usd) || 0,
-          liquidity: parseFloat(a.reserve_in_usd) || 0,
-          volume24h: parseFloat(a.volume_usd?.h24) || 0,
-          priceChange24h: parseFloat(a.price_change_percentage?.h24) || 0,
-          ageMinutes,
-          address: a.address || '',
-          link: `https://www.geckoterminal.com/${slug}/pools/${a.address || ''}`
-        });
-      });
-
-      if (data.data.length < 20) break; // last page
-      page++;
-    } catch (e) {
-      console.warn(e);
-      break;
+  const res = await fetch(url, {
+    headers: {
+      'X-CMC_PRO_API_KEY': key,
+      'Accept': 'application/json'
     }
-    await new Promise(r => setTimeout(r, 600));
+  });
+
+  if (res.status === 401) { openModal(); throw new Error('Invalid CoinMarketCap API key.'); }
+  if (res.status === 403) throw new Error('CMC plan does not include DEX endpoint. Check your plan.');
+  if (!res.ok) throw new Error(`CoinMarketCap error ${res.status}`);
+
+  const json = await res.json();
+  if (!json.data?.length) { toast('No new token data from CMC'); return []; }
+
+  const now = Date.now();
+  const tokens = [];
+
+  json.data.forEach(pair => {
+    if (tokens.length >= LIMIT) return;
+
+    const dateAdded  = new Date(pair.date_added || 0).getTime();
+    const ageMinutes = Math.round((now - dateAdded) / 60000);
+
+    // Apply age window filter
+    if (ageMinutes < minAge || ageMinutes > maxAge) return;
+
+    const base    = pair.market_pair_base || {};
+    const network = pair.platform?.slug   || pair.platform?.name || 'unknown';
+    const liq     = parseFloat(pair.quote?.USD?.effective_liquidity || pair.liquidity || 0);
+    const vol24h  = parseFloat(pair.quote?.USD?.volume_24h || 0);
+    const chg24h  = parseFloat(pair.quote?.USD?.percent_change_24h || pair.price_change_24h || 0);
+    const price   = parseFloat(pair.quote?.USD?.price || 0);
+
+    tokens.push({
+      chain:          network,
+      name:           pair.market_pair || base.name || 'Unknown',
+      symbol:         base.symbol || '???',
+      price,
+      liquidity:      liq,
+      volume24h:      vol24h,
+      priceChange24h: chg24h,
+      ageMinutes,
+      link: `https://coinmarketcap.com/dexscan/${network}/${pair.market_pair_id || ''}`
+    });
+  });
+
+  if (!tokens.length) {
+    toast(`No new tokens found in ${minAge}-${maxAge} min window. Try widening the age range.`);
   }
 
   return tokens;
@@ -658,12 +691,12 @@ async function runScan() {
   try {
     let raw = [];
     if (currentMode === 'new') {
-      raw = await fetchDexNew();
+      raw = await fetchCMCNew();
     } else {
       raw = await fetchBirdeye(currentMode);
     }
 
-    // Score, filter, sort, cap at 100
+    // Score, filter, sort, cap
     pools = raw
       .map(t => ({ ...t, score: calculateScore(t, currentMode) }))
       .filter(p => p.liquidity >= minLiq && p.score >= minScore)
@@ -672,7 +705,6 @@ async function runScan() {
 
     renderTable();
     updateStats();
-
     document.getElementById('tok-count').textContent = pools.length;
     document.getElementById('last-scan').textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
 
@@ -690,31 +722,39 @@ async function runScan() {
 function renderTable() {
   const tbody = document.getElementById('results-body');
   if (!pools.length) {
-    tbody.innerHTML = `<tr><td colspan="10" class="empty-msg">No results. Try lowering filters or switching chain.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="10" class="empty-msg">No results. Try lowering filters or widening the age window.</td></tr>`;
     return;
   }
 
   tbody.innerHTML = pools.map(p => {
-    const chainKey = p.chain.toLowerCase().replace(/\s/g, '');
+    const chainKey   = (p.chain || 'unknown').toLowerCase().replace(/[\s_]/g, '-');
     const chainClass = `chain-${chainKey}`;
-    const chgClass = p.priceChange24h >= 25 ? 'chg-pos-high' : p.priceChange24h >= 5 ? 'chg-pos-med' : p.priceChange24h > 0 ? 'chg-pos-low' : p.priceChange24h < 0 ? 'chg-neg' : 'chg-zero';
+    const chgClass   = p.priceChange24h >= 25 ? 'chg-pos-high'
+                     : p.priceChange24h >= 5  ? 'chg-pos-med'
+                     : p.priceChange24h > 0   ? 'chg-pos-low'
+                     : p.priceChange24h < 0   ? 'chg-neg'
+                     : 'chg-zero';
     const scoreClass = p.score >= 70 ? 'score-high' : p.score >= 40 ? 'score-med' : 'score-low';
-    const age = p.ageMinutes !== null && p.ageMinutes < 999 ? `${p.ageMinutes}m` : '—';
-    const price = p.price
-      ? p.price < 0.0001 ? p.price.toExponential(3)
-      : p.price < 1 ? p.price.toFixed(6)
-      : p.price.toFixed(4)
+    const age        = p.ageMinutes !== null && p.ageMinutes < 999 ? `${p.ageMinutes}m` : '—';
+    const price      = p.price
+      ? p.price < 0.000001 ? p.price.toExponential(2)
+      : p.price < 0.01     ? p.price.toFixed(6)
+      : p.price < 1        ? p.price.toFixed(4)
+      : p.price.toFixed(2)
+      : '—';
+    const chgTxt = p.priceChange24h
+      ? (p.priceChange24h > 0 ? '+' : '') + p.priceChange24h.toFixed(1) + '%'
       : '—';
 
     return `<tr>
-      <td><span class="chain-col ${chainClass}">${p.chain.toUpperCase()}</span></td>
-      <td>${p.name}</td>
+      <td><span class="chain-col ${chainClass}">${(p.chain || 'UNK').toUpperCase()}</span></td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;">${p.name}</td>
       <td><strong>${p.symbol}</strong></td>
       <td>${age}</td>
       <td>$${price}</td>
       <td>$${fmtNum(p.liquidity)}</td>
       <td>$${fmtNum(p.volume24h)}</td>
-      <td class="${chgClass}">${p.priceChange24h ? (p.priceChange24h > 0 ? '+' : '') + p.priceChange24h.toFixed(1) + '%' : '—'}</td>
+      <td class="${chgClass}">${chgTxt}</td>
       <td class="${scoreClass}">${p.score}</td>
       <td><a href="${p.link}" target="_blank" style="color:var(--green);text-decoration:underline;">View</a></td>
     </tr>`;
@@ -730,10 +770,10 @@ function updateStats() {
   const avgChg   = pools.reduce((s, p) => s + (p.priceChange24h || 0), 0) / pools.length;
   const totLiq   = pools.reduce((s, p) => s + (p.liquidity || 0), 0);
 
-  document.getElementById('stat-count').textContent  = pools.length;
-  document.getElementById('stat-score').textContent  = avgScore;
-  document.getElementById('stat-chg').textContent    = (avgChg > 0 ? '+' : '') + avgChg.toFixed(1) + '%';
-  document.getElementById('stat-liq').textContent    = '$' + fmtNum(totLiq);
+  document.getElementById('stat-count').textContent = pools.length;
+  document.getElementById('stat-score').textContent = avgScore;
+  document.getElementById('stat-chg').textContent   = (avgChg > 0 ? '+' : '') + avgChg.toFixed(1) + '%';
+  document.getElementById('stat-liq').textContent   = '$' + fmtNum(totLiq);
 }
 
 function fmtNum(n) {
@@ -745,11 +785,7 @@ function fmtNum(n) {
 
 // ── Auto Scan ──────────────────────────────────────────────────
 function toggleAuto() {
-  if (document.getElementById('auto-toggle').checked) {
-    startAuto();
-  } else {
-    stopAuto();
-  }
+  document.getElementById('auto-toggle').checked ? startAuto() : stopAuto();
 }
 
 function startAuto() {
@@ -758,17 +794,14 @@ function startAuto() {
   const nextTime = Date.now() + ms;
   const pill = document.getElementById('next-scan-pill');
   pill.classList.add('visible');
-
   clearTimeout(autoTimer);
   clearInterval(nextTick);
-
   nextTick = setInterval(() => {
     const rem = Math.max(0, nextTime - Date.now());
     const m = Math.floor(rem / 60000);
     const s = Math.floor((rem % 60000) / 1000);
     document.getElementById('next-scan').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
   }, 1000);
-
   autoTimer = setTimeout(() => {
     clearInterval(nextTick);
     if (document.getElementById('auto-toggle').checked) startAuto();
@@ -794,7 +827,7 @@ function toast(msg) {
 }
 
 // ── Init ───────────────────────────────────────────────────────
-updateKeyStatus();
+updateKeyBadges();
 setMode('trending');
 </script>
 </body>
