@@ -618,13 +618,13 @@ async function fetchCMCNew() {
 
   toast(`Scanning new tokens across all chains (CMC)...`);
 
-  // All supported chains in a single call using comma-separated network_slug
+  // All 8 supported chains in one call
   const chains = 'ethereum,solana,bsc,base,arbitrum,optimism,polygon,avalanche';
 
-  // Valid aux fields for spot-pairs/latest
+  // Valid sort options: volume_24h, liquidity, no_of_transactions_24h, percent_change_24h
+  // We sort by liquidity to get established pools, then filter by age client-side
   const aux = 'pool_created,num_transactions_24h,24h_no_of_buys,24h_no_of_sells';
-
-  const url = `${CMC_BASE}/v4/dex/spot-pairs/latest?network_slug=${chains}&sort=date_added&sort_dir=desc&limit=100&aux=${aux}`;
+  const url = `${CMC_BASE}/v4/dex/spot-pairs/latest?network_slug=${chains}&sort=liquidity&sort_dir=desc&limit=100&aux=${encodeURIComponent(aux)}`;
 
   const res = await fetch(url, {
     headers: {
@@ -850,6 +850,8 @@ function toast(msg) {
 // ── Init ───────────────────────────────────────────────────────
 updateKeyBadges();
 setMode('trending');
+// Ensure chain section visible on load (not hidden)
+document.getElementById('chain-section').classList.remove('hidden');
 </script>
 </body>
 </html>
