@@ -555,12 +555,15 @@ function calculateScore(token, mode) {
     // Birdeye volume: heavy volume weight
     score = (vol / 80000 * 60) + (liq / 80000 * 30);
   } else if (mode === 'new') {
-    // CMC new tokens: freshness + momentum + liquidity + volume
-    const freshBonus = Math.max(0, (60 - age) * 0.9); // Up to 54 pts for brand new
-    const momBonus   = Math.min(30, Math.abs(chg) * 1.5);
-    const liqBonus   = Math.min(15, liq / 10000 * 3);
-    const volBonus   = Math.min(10, vol / 20000 * 4);
-    score = freshBonus + momBonus + liqBonus + volBonus;
+    // CMC new tokens: freshness + momentum + liquidity + volume + buy pressure
+    const freshBonus  = Math.max(0, (60 - age) * 0.8);
+    const momBonus    = Math.min(25, Math.abs(chg) * 1.2);
+    const liqBonus    = Math.min(15, liq / 10000 * 3);
+    const volBonus    = Math.min(10, vol / 20000 * 4);
+    const buys        = token.buys  || 0;
+    const sells       = token.sells || 0;
+    const buyPressure = (buys + sells) > 0 ? Math.min(10, (buys / (buys + sells)) * 10) : 0;
+    score = freshBonus + momBonus + liqBonus + volBonus + buyPressure;
   }
 
   return Math.min(99, Math.round(score));
@@ -623,9 +626,13 @@ async function fetchCMCNew() {
 
   toast(`Scanning new tokens across all chains (CMC)...`);
 
-  // /v4/dex/spot-pairs/latest — valid sort options: volume, liquidity, num_transactions
-  // We fetch by liquidity descending then filter by age client-side
-  const url = `${CMC_BASE}/v4/dex/spot-pairs/latest?sort=date_added&sort_dir=desc&limit=100`;
+  // All supported chains in a single call using comma-separated network_slug
+  const chains = 'ethereum,solana,bsc,base,arbitrum,optimism,polygon,avalanche';
+
+  // Valid aux fields for spot-pairs/latest
+  const aux = 'pool_created,num_transactions_24h,24h_no_of_buys,24h_no_of_sells';
+
+  const url = `${CMC_BASE}/v4/dex/spot-pairs/latest?network_slug=${chains}&sort=date_added&sort_dir=desc&limit=100&aux=${aux}`;
 
   const res = await fetch(url, {
     headers: {
@@ -635,17 +642,15 @@ async function fetchCMCNew() {
   });
 
   if (res.status === 401) { openModal(); throw new Error('Invalid CoinMarketCap API key.'); }
-  if (res.status === 403) throw new Error('CMC plan does not include DEX endpoint. Upgrade your plan at pro.coinmarketcap.com.');
-  if (res.status === 400) {
-    // Log full error for debugging
+  if (res.status === 403) throw new Error('CMC plan does not include DEX endpoint. Upgrade at pro.coinmarketcap.com.');
+  if (!res.ok) {
     const errJson = await res.json().catch(() => ({}));
-    console.error('CMC 400 error:', errJson);
-    throw new Error('CMC request error: ' + (errJson?.status?.error_message || res.status));
+    console.error('CMC error:', errJson);
+    throw new Error('CMC error: ' + (errJson?.status?.error_message || res.status));
   }
-  if (!res.ok) throw new Error(`CoinMarketCap error ${res.status}`);
 
   const json = await res.json();
-  console.log('CMC raw response:', json);
+  console.log('CMC raw response sample:', json?.data?.[0]);
 
   if (!json.data?.length) {
     toast('No new token data from CMC');
@@ -658,22 +663,26 @@ async function fetchCMCNew() {
   json.data.forEach(pair => {
     if (tokens.length >= LIMIT) return;
 
-    // Try multiple date fields CMC might use
-    const dateStr = pair.date_added || pair.first_historical_data || pair.last_updated || null;
-    const dateAdded  = dateStr ? new Date(dateStr).getTime() : 0;
-    const ageMinutes = dateAdded ? Math.round((now - dateAdded) / 60000) : 999;
+    // pool_created is the aux field for when the pool was created
+    const createdStr = pair.pool_created || pair.date_added || pair.last_updated || null;
+    const createdAt  = createdStr ? new Date(createdStr).getTime() : 0;
+    const ageMinutes = createdAt ? Math.round((now - createdAt) / 60000) : 999;
 
-    // Apply age window filter
+    // Age window filter
     if (ageMinutes < minAge || ageMinutes > maxAge) return;
 
-    // Extract fields from CMC response structure
-    const network  = pair.platform?.slug || pair.network_slug || pair.platform?.name || 'unknown';
-    const base     = pair.market_pair_base || {};
-    const quote    = pair.quote?.USD || pair.quote?.usd || {};
-    const liq      = parseFloat(quote.effective_liquidity || pair.liquidity || 0);
-    const vol24h   = parseFloat(quote.volume_24h || pair.volume_24h || 0);
-    const chg24h   = parseFloat(quote.percent_change_24h || pair.percent_change_24h || 0);
-    const price    = parseFloat(quote.price || pair.price || 0);
+    const network = pair.network_slug || pair.platform?.slug || 'unknown';
+    const base    = pair.market_pair_base || {};
+    const quote   = pair.quote?.USD || pair.quote?.usd || {};
+    const liq     = parseFloat(pair.liq_usd || quote.effective_liquidity || 0);
+    const vol24h  = parseFloat(quote.volume_24h || pair.volume_24h || 0);
+    const chg24h  = parseFloat(quote.percent_change_24h || 0);
+    const price   = parseFloat(quote.price || pair.price || 0);
+
+    // Buy/sell pressure from aux fields
+    const buys  = parseInt(pair['24h_no_of_buys']  || 0);
+    const sells = parseInt(pair['24h_no_of_sells'] || 0);
+    const txns  = parseInt(pair.num_transactions_24h || buys + sells || 0);
 
     tokens.push({
       chain:          network,
@@ -683,6 +692,9 @@ async function fetchCMCNew() {
       liquidity:      liq,
       volume24h:      vol24h,
       priceChange24h: chg24h,
+      buys,
+      sells,
+      txns,
       ageMinutes,
       link: `https://coinmarketcap.com/dexscan/${network}/${pair.contract_address || ''}`
     });
