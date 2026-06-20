@@ -631,14 +631,22 @@ async function fetchGeckoNew() {
 
   while (page <= maxPages && tokens.length < LIMIT) {
     try {
-      const url = `${GECKO_BASE}/networks/${slug}/pools?page=${page}&include=base_token&sort=pool_created_at_desc`;
+      const url = `${GECKO_BASE}/networks/${slug}/new_pools?page=${page}&include=base_token`;
       console.log(`Gecko page ${page}:`, url);
 
-      const res = await fetch(url);
+      const res = await fetch(url, {
+        headers: { 'Accept': 'application/json;version=20230203' }
+      });
       if (!res.ok) { console.warn(`Gecko ${res.status} p${page}`); break; }
 
       const data = await res.json();
       if (!data.data?.length) break;
+
+      // Build a lookup map from the included array for base token symbols
+      const includedMap = {};
+      (data.included || []).forEach(inc => {
+        if (inc.type === 'token') includedMap[inc.id] = inc.attributes || {};
+      });
 
       const now = Date.now();
       data.data.forEach(item => {
@@ -648,9 +656,14 @@ async function fetchGeckoNew() {
         const ageMinutes = createdAt ? Math.round((now - createdAt) / 60000) : 999;
         if (ageMinutes < minAge || ageMinutes > maxAge) return;
 
+        // Token symbol: look up from included, fall back to splitting pool name
         let symbol = '???';
-        if (a.base_token?.symbol) symbol = a.base_token.symbol;
-        else if (a.name)          symbol = a.name.split('/')[0].trim();
+        const baseTokenId = item.relationships?.base_token?.data?.id;
+        if (baseTokenId && includedMap[baseTokenId]?.symbol) {
+          symbol = includedMap[baseTokenId].symbol;
+        } else if (a.name) {
+          symbol = a.name.split('/')[0].trim();
+        }
 
         tokens.push({
           chain,
