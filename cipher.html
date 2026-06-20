@@ -325,11 +325,11 @@
     </div>
     <div class="fgroup hidden" id="min-age-group">
       <label class="flabel" for="min-age">Min Age (minutes)</label>
-      <input type="number" class="finput" id="min-age" value="0" min="0" max="59" step="1">
+      <input type="number" class="finput" id="min-age" value="0" min="0" step="1">
     </div>
     <div class="fgroup hidden" id="max-age-group">
       <label class="flabel" for="max-age">Max Age (minutes)</label>
-      <input type="number" class="finput" id="max-age" value="60" min="1" max="60" step="1">
+      <input type="number" class="finput" id="max-age" value="1440" min="1" step="60">
     </div>
   </div>
 
@@ -501,7 +501,7 @@ function handleOverlayClick(e) {
 const MODE_META = {
   trending: { source: 'Birdeye',        desc: 'Trending tokens ranked by activity on selected chain' },
   volume:   { source: 'Birdeye',        desc: 'Top tokens sorted by 24h volume on selected chain' },
-  new:      { source: 'CoinMarketCap',  desc: 'New DEX pairs on selected chain — max 60 min old' }
+  new:      { source: 'CoinMarketCap',  desc: 'New DEX pairs on selected chain — filter by age in minutes' }
 };
 
 function setMode(mode) {
@@ -673,28 +673,27 @@ async function fetchCMCNew() {
   json.data.forEach(pair => {
     if (tokens.length >= LIMIT) return;
 
-    // Try multiple date fields for pool creation time
-    const createdStr = pair.pool_created || pair.date_added || null;
+    // created_at is the pool creation date
+    const createdStr = pair.created_at || pair.pool_created || null;
     const createdAt  = createdStr ? new Date(createdStr).getTime() : 0;
     const ageMinutes = createdAt ? Math.round((now - createdAt) / 60000) : 999;
 
     // Age window filter
     if (ageMinutes < minAge || ageMinutes > maxAge) return;
 
-    // Parse fields — CMC structure varies, try multiple paths
-    const base   = pair.market_pair_base || pair.base_asset || {};
-    const quote  = pair.quote?.USD || pair.quote?.usd || pair.quotes?.USD || {};
-    const liq    = parseFloat(pair.liquidity_score || pair.liq_usd || quote.effective_liquidity || quote.liquidity || 0);
-    const vol24h = parseFloat(quote.volume_24h || pair.volume_24h || 0);
-    const chg24h = parseFloat(quote.percent_change_24h || pair.percent_change_24h || 0);
-    const price  = parseFloat(quote.price || pair.price_usd || pair.price || 0);
+    // quote is an ARRAY — use first element
+    const q     = Array.isArray(pair.quote) ? pair.quote[0] : (pair.quote?.USD || pair.quote?.usd || {});
+    const liq   = parseFloat(q.liquidity || 0);
+    const vol24h = parseFloat(q.volume_24h || 0);
+    const chg24h = parseFloat(q.percent_change_price_24h || q.percent_change_24h || 0);
+    const price  = parseFloat(q.price || 0);
     const buys   = parseInt(pair['24h_no_of_buys']  || 0);
     const sells  = parseInt(pair['24h_no_of_sells'] || 0);
 
     tokens.push({
-      chain:          networkSlug,
-      name:           pair.market_pair || base.name || base.symbol || 'Unknown',
-      symbol:         base.symbol || '???',
+      chain:          (pair.network_slug || networkSlug).toLowerCase(),
+      name:           pair.name || pair.base_asset_name || 'Unknown',
+      symbol:         pair.base_asset_symbol || '???',
       price,
       liquidity:      liq,
       volume24h:      vol24h,
@@ -702,12 +701,12 @@ async function fetchCMCNew() {
       buys,
       sells,
       ageMinutes,
-      link: `https://coinmarketcap.com/dexscan/${networkSlug}/${pair.contract_address || pair.pair_address || ''}`
+      link: `https://coinmarketcap.com/dexscan/${networkSlug.toLowerCase()}/${pair.contract_address || ''}`
     });
   });
 
   if (!tokens.length) {
-    toast(`No tokens found in ${minAge}-${maxAge}m window on ${chain}. Try widening age range or lowering filters.`);
+    toast(`No tokens in ${minAge}-${maxAge}m window on ${chain}. Try widening age range or lowering min liquidity.`);
   } else {
     toast(`Found ${tokens.length} new tokens on ${chain}`);
   }
