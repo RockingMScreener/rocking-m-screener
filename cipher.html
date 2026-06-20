@@ -302,6 +302,7 @@
   <div class="chain-section" id="chain-section">
     <div class="sec-label">Chain</div>
     <select class="chain-select" id="chain-select">
+      <option value="all">⚡ All Chains</option>
       <option value="solana">Solana</option>
       <option value="ethereum">Ethereum</option>
       <option value="base">Base</option>
@@ -558,19 +559,15 @@ function calculateScore(token, mode) {
   return Math.min(99, Math.round(score));
 }
 
-// ── Birdeye Fetch ──────────────────────────────────────────────
-async function fetchBirdeye(mode) {
+// ── Birdeye Fetch (single chain) ───────────────────────────────
+async function fetchBirdeyeChain(mode, chain) {
   const key = getKey('birdeye');
   if (!key) { openModal(); throw new Error('Birdeye API key required.'); }
 
-  const chain  = document.getElementById('chain-select').value;
-  const sortBy = mode === 'volume' ? 'volume24hUSD' : 'rank';
+  const sortBy   = mode === 'volume' ? 'volume24hUSD' : 'rank';
   const sortType = mode === 'volume' ? 'desc' : 'asc';
 
-  toast(`Scanning ${chain} on Birdeye...`);
-
   const all = [];
-  // 2 pages × 20 = 40 tokens
   for (let page = 0; page < 2; page++) {
     const url = `${BIRDEYE_BASE}/defi/token_trending?sort_by=${sortBy}&sort_type=${sortType}&offset=${page * 20}&limit=20`;
     try {
@@ -585,46 +582,63 @@ async function fetchBirdeye(mode) {
       if (json.data.tokens.length < 20) break;
     } catch (e) {
       if (all.length > 0) break;
-      throw e;
+      else throw e;
     }
     if (page < 1) await new Promise(r => setTimeout(r, 300));
   }
-
-  if (!all.length) { toast(`No data for ${chain}`); return []; }
 
   return all.map(t => ({
     chain,
     name:          t.name    || 'Unknown',
     symbol:        t.symbol  || '???',
-    price:         0, // not in trending endpoint
+    price:         0,
     liquidity:     t.liquidity    || 0,
     volume24h:     t.volume24hUSD || 0,
-    priceChange24h: 0, // not in trending endpoint
+    priceChange24h: 0,
     ageMinutes:    null,
     link: `https://birdeye.so/token/${t.address}?chain=${chain}`
   }));
 }
 
+const BIRDEYE_CHAINS = ['solana','ethereum','base','bsc','arbitrum','optimism','polygon','avalanche'];
+
+async function fetchBirdeye(mode) {
+  const selected = document.getElementById('chain-select').value;
+  if (selected !== 'all') {
+    toast('Scanning ' + selected + ' on Birdeye...');
+    return fetchBirdeyeChain(mode, selected);
+  }
+  // All chains - sequential with delay to respect rate limits
+  toast('Scanning all chains on Birdeye...');
+  const results = [];
+  for (let i = 0; i < BIRDEYE_CHAINS.length; i++) {
+    const c = BIRDEYE_CHAINS[i];
+    document.getElementById('status-text').textContent = 'Scanning ' + c + ' (' + (i+1) + '/' + BIRDEYE_CHAINS.length + ')...';
+    try {
+      const tokens = await fetchBirdeyeChain(mode, c);
+      results.push(...tokens);
+    } catch (e) {
+      console.warn('Birdeye skip ' + c + ':', e.message);
+    }
+    if (i < BIRDEYE_CHAINS.length - 1) await new Promise(r => setTimeout(r, 400));
+  }
+  return results;
+}
+
 // ── New Tokens Fetch (GeckoTerminal, per-chain) ────────────────
-async function fetchGeckoNew() {
-  const minAge = parseFloat(document.getElementById('min-age').value) || 0;
-  const maxAge = parseFloat(document.getElementById('max-age').value) || 60;
-  const chain  = document.getElementById('chain-select').value;
+const GECKO_CHAIN_MAP = {
+  solana:    'solana',
+  ethereum:  'eth',
+  base:      'base',
+  bsc:       'bsc',
+  arbitrum:  'arbitrum',
+  optimism:  'optimism',
+  polygon:   'polygon_pos',
+  avalanche: 'avax'
+};
 
-  const geckoMap = {
-    solana:    'solana',
-    ethereum:  'eth',
-    base:      'base',
-    bsc:       'bsc',
-    arbitrum:  'arbitrum',
-    optimism:  'optimism',
-    polygon:   'polygon_pos',
-    avalanche: 'avax'
-  };
-  const slug = geckoMap[chain] || chain;
-
-  toast(`Scanning new pools on ${chain}...`);
-
+async function fetchGeckoChain(chain, minAge, maxAge) {
+  const slug = GECKO_CHAIN_MAP[chain] || chain;
   const tokens = [];
   let page = 1;
   const maxPages = 3;
@@ -687,12 +701,40 @@ async function fetchGeckoNew() {
     await new Promise(r => setTimeout(r, 600));
   }
 
-  if (!tokens.length) {
-    toast(`No new pools in ${minAge}-${maxAge}m window on ${chain}. Try widening Max Age.`);
-  } else {
-    toast(`Found ${tokens.length} new pools on ${chain}`);
-  }
   return tokens;
+}
+
+async function fetchGeckoNew() {
+  const minAge   = parseFloat(document.getElementById('min-age').value) || 0;
+  const maxAge   = parseFloat(document.getElementById('max-age').value) || 60;
+  const selected = document.getElementById('chain-select').value;
+
+  if (selected !== 'all') {
+    toast('Scanning new pools on ' + selected + '...');
+    const tokens = await fetchGeckoChain(selected, minAge, maxAge);
+    if (!tokens.length) toast('No new pools in ' + minAge + '-' + maxAge + 'm window on ' + selected + '. Try widening Max Age.');
+    else toast('Found ' + tokens.length + ' new pools on ' + selected);
+    return tokens;
+  }
+
+  // All chains
+  toast('Scanning new pools across all chains...');
+  const allChains = Object.keys(GECKO_CHAIN_MAP);
+  const results = [];
+  for (let i = 0; i < allChains.length; i++) {
+    const c = allChains[i];
+    document.getElementById('status-text').textContent = 'Scanning ' + c + ' (' + (i+1) + '/' + allChains.length + ')...';
+    try {
+      const tokens = await fetchGeckoChain(c, minAge, maxAge);
+      results.push(...tokens);
+    } catch (e) {
+      console.warn('Gecko skip ' + c + ':', e.message);
+    }
+    if (i < allChains.length - 1) await new Promise(r => setTimeout(r, 800));
+  }
+  if (!results.length) toast('No new pools found across any chain. Try widening Max Age.');
+  else toast('Found ' + results.length + ' new pools across all chains');
+  return results;
 }
 
 // ── Main Scan ──────────────────────────────────────────────────
