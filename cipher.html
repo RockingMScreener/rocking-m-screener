@@ -329,7 +329,7 @@
     </div>
     <div class="fgroup hidden" id="max-age-group">
       <label class="flabel" for="max-age">Max Age (minutes)</label>
-      <input type="number" class="finput" id="max-age" value="1440" min="1" step="60">
+      <input type="number" class="finput" id="max-age" value="60" min="1" step="1">
     </div>
   </div>
 
@@ -469,10 +469,7 @@ function updateKeyBadges() {
 function checkKeyBanner() {
   const banner = document.getElementById('no-key-banner');
   const msg    = document.getElementById('no-key-msg');
-  if (currentMode === 'new' && !getKey('cmc')) {
-    msg.textContent = '⚠ CoinMarketCap API key required for New Tokens scan.';
-    banner.classList.add('visible');
-  } else if ((currentMode === 'trending' || currentMode === 'volume') && !getKey('birdeye')) {
+  if ((currentMode === 'trending' || currentMode === 'volume') && !getKey('birdeye')) {
     msg.textContent = '⚠ Birdeye API key required for Trending and Top Volume scans.';
     banner.classList.add('visible');
   } else {
@@ -501,7 +498,7 @@ function handleOverlayClick(e) {
 const MODE_META = {
   trending: { source: 'Birdeye',        desc: 'Trending tokens ranked by activity on selected chain' },
   volume:   { source: 'Birdeye',        desc: 'Top tokens sorted by 24h volume on selected chain' },
-  new:      { source: 'CoinMarketCap',  desc: 'New DEX pairs on selected chain — filter by age in minutes' }
+  new:      { source: 'GeckoTerminal', desc: 'New pools on selected chain — filter by age in minutes, no key required' }
 };
 
 function setMode(mode) {
@@ -608,121 +605,80 @@ async function fetchBirdeye(mode) {
   }));
 }
 
-// ── CoinMarketCap Fetch (New Tokens, cross-chain) ──────────────
-async function fetchCMCNew() {
-  const key = getKey('cmc');
-  if (!key) { openModal(); throw new Error('CoinMarketCap API key required.'); }
-
+// ── New Tokens Fetch (GeckoTerminal, per-chain) ────────────────
+async function fetchGeckoNew() {
   const minAge = parseFloat(document.getElementById('min-age').value) || 0;
   const maxAge = parseFloat(document.getElementById('max-age').value) || 60;
+  const chain  = document.getElementById('chain-select').value;
 
-  // CMC free tier: one chain at a time
-  const chain = document.getElementById('chain-select').value;
-
-  // CMC requires BOTH network_slug AND dex_slug
-  // Map each chain to its dominant DEX slug on CMC
-  const chainDexMap = {
-    solana:    { network: 'solana',   dex: 'raydium' },
-    ethereum:  { network: 'ethereum', dex: 'uniswap-v3' },
-    base:      { network: 'base',     dex: 'uniswap-v3-base' },
-    bsc:       { network: 'bsc',      dex: 'pancakeswap-v3-bsc' },
-    arbitrum:  { network: 'arbitrum', dex: 'uniswap-v3-arbitrum' },
-    optimism:  { network: 'optimism', dex: 'uniswap-v3-optimism' },
-    polygon:   { network: 'polygon',  dex: 'uniswap-v3-polygon' },
-    avalanche: { network: 'avalanche',dex: 'uniswap-v3-avalanche' }
+  const geckoMap = {
+    solana:    'solana',
+    ethereum:  'eth',
+    base:      'base',
+    bsc:       'bsc',
+    arbitrum:  'arbitrum',
+    optimism:  'optimism',
+    polygon:   'polygon_pos',
+    avalanche: 'avax'
   };
+  const slug = geckoMap[chain] || chain;
 
-  const chainConfig = chainDexMap[chain] || { network: chain, dex: 'uniswap-v3' };
-  const networkSlug = chainConfig.network;
-  const dexSlug     = chainConfig.dex;
-
-  toast(`Scanning new tokens on ${chain} via ${dexSlug}...`);
-
-  // Sort by volume to get active pools, then sort newest first client-side
-  const url = `${CMC_BASE}/v4/dex/spot-pairs/latest?network_slug=${networkSlug}&dex_slug=${dexSlug}&sort=volume_24h&sort_dir=desc&limit=100&aux=pool_created,24h_no_of_buys,24h_no_of_sells`;
-
-  console.log('CMC URL:', url);
-
-  const res = await fetch(url, {
-    headers: {
-      'X-CMC_PRO_API_KEY': key,
-      'Accept': 'application/json'
-    }
-  });
-
-  if (res.status === 401) { openModal(); throw new Error('Invalid CoinMarketCap API key.'); }
-  if (res.status === 403) throw new Error('CMC plan does not include DEX endpoint. Upgrade at pro.coinmarketcap.com.');
-  if (!res.ok) {
-    const errJson = await res.json().catch(() => ({}));
-    console.error('CMC full error:', JSON.stringify(errJson));
-    throw new Error('CMC error: ' + (errJson?.status?.error_message || res.status));
-  }
-
-  const json = await res.json();
-  console.log('CMC response status:', json?.status);
-  console.log('CMC data count:', json?.data?.length);
-  console.log('CMC first item:', JSON.stringify(json?.data?.[0]));
-
-  if (!json.data?.length) {
-    toast(`No data returned from CMC for ${chain}`);
-    return [];
-  }
-
-  const now = Date.now();
-
-  // Sort all pairs by created_at newest first — CMC doesn't support date sorting natively
-  const sorted = [...json.data].sort((a, b) => {
-    const aDate = new Date(a.created_at || 0).getTime();
-    const bDate = new Date(b.created_at || 0).getTime();
-    return bDate - aDate;
-  });
-
-  // Log newest and oldest for debugging
-  const newestAge = sorted[0]?.created_at ? Math.round((now - new Date(sorted[0].created_at).getTime()) / 60000) : 999;
-  const oldestAge = sorted[sorted.length-1]?.created_at ? Math.round((now - new Date(sorted[sorted.length-1].created_at).getTime()) / 60000) : 999;
-  console.log(`CMC age range: newest=${newestAge}m, oldest=${oldestAge}m (${Math.round(oldestAge/1440)}d)`);
-  console.log(`Age filter: ${minAge}m - ${maxAge}m`);
+  toast(`Scanning new pools on ${chain}...`);
 
   const tokens = [];
+  let page = 1;
+  const maxPages = 3;
 
-  sorted.forEach(pair => {
-    if (tokens.length >= LIMIT) return;
+  while (page <= maxPages && tokens.length < LIMIT) {
+    try {
+      const url = `${GECKO_BASE}/networks/${slug}/pools?page=${page}&include=base_token&sort=pool_created_at_desc`;
+      console.log(`Gecko page ${page}:`, url);
 
-    const createdStr = pair.created_at || null;
-    const createdAt  = createdStr ? new Date(createdStr).getTime() : 0;
-    const ageMinutes = createdAt ? Math.round((now - createdAt) / 60000) : 999;
+      const res = await fetch(url);
+      if (!res.ok) { console.warn(`Gecko ${res.status} p${page}`); break; }
 
-    if (ageMinutes < minAge || ageMinutes > maxAge) return;
+      const data = await res.json();
+      if (!data.data?.length) break;
 
-    const q      = Array.isArray(pair.quote) ? pair.quote[0] : (pair.quote?.USD || pair.quote?.usd || {});
-    const liq    = parseFloat(q.liquidity || 0);
-    const vol24h = parseFloat(q.volume_24h || 0);
-    const chg24h = parseFloat(q.percent_change_price_24h || q.percent_change_24h || 0);
-    const price  = parseFloat(q.price || 0);
-    const buys   = parseInt(pair['24h_no_of_buys']  || 0);
-    const sells  = parseInt(pair['24h_no_of_sells'] || 0);
+      const now = Date.now();
+      data.data.forEach(item => {
+        if (tokens.length >= LIMIT) return;
+        const a = item.attributes || {};
+        const createdAt  = a.pool_created_at ? new Date(a.pool_created_at).getTime() : 0;
+        const ageMinutes = createdAt ? Math.round((now - createdAt) / 60000) : 999;
+        if (ageMinutes < minAge || ageMinutes > maxAge) return;
 
-    tokens.push({
-      chain:          (pair.network_slug || networkSlug).toLowerCase(),
-      name:           pair.name || pair.base_asset_name || 'Unknown',
-      symbol:         pair.base_asset_symbol || '???',
-      price,
-      liquidity:      liq,
-      volume24h:      vol24h,
-      priceChange24h: chg24h,
-      buys,
-      sells,
-      ageMinutes,
-      link: `https://coinmarketcap.com/dexscan/${networkSlug.toLowerCase()}/${pair.contract_address || ''}`
-    });
-  });
+        let symbol = '???';
+        if (a.base_token?.symbol) symbol = a.base_token.symbol;
+        else if (a.name)          symbol = a.name.split('/')[0].trim();
 
-  if (!tokens.length) {
-    toast(`No tokens in ${minAge}-${maxAge}m window on ${chain}. Newest pool in batch was ${newestAge}m old — try widening Max Age.`);
-  } else {
-    toast(`Found ${tokens.length} tokens on ${chain}`);
+        tokens.push({
+          chain,
+          name:           a.name || 'Unknown',
+          symbol,
+          price:          parseFloat(a.base_token_price_usd) || 0,
+          liquidity:      parseFloat(a.reserve_in_usd)       || 0,
+          volume24h:      parseFloat(a.volume_usd?.h24)      || 0,
+          priceChange24h: parseFloat(a.price_change_percentage?.h24) || 0,
+          ageMinutes,
+          link: `https://www.geckoterminal.com/${slug}/pools/${a.address || ''}`
+        });
+      });
+
+      if (data.data.length < 20) break;
+      page++;
+    } catch (e) {
+      console.warn('Gecko error:', e.message);
+      break;
+    }
+    await new Promise(r => setTimeout(r, 600));
   }
 
+  if (!tokens.length) {
+    toast(`No new pools in ${minAge}-${maxAge}m window on ${chain}. Try widening Max Age.`);
+  } else {
+    toast(`Found ${tokens.length} new pools on ${chain}`);
+  }
   return tokens;
 }
 
@@ -739,7 +695,7 @@ async function runScan() {
   try {
     let raw = [];
     if (currentMode === 'new') {
-      raw = await fetchCMCNew();
+      raw = await fetchGeckoNew();
     } else {
       raw = await fetchBirdeye(currentMode);
     }
