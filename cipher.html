@@ -638,7 +638,8 @@ async function fetchCMCNew() {
 
   toast(`Scanning new tokens on ${chain} via ${dexSlug}...`);
 
-  const url = `${CMC_BASE}/v4/dex/spot-pairs/latest?network_slug=${networkSlug}&dex_slug=${dexSlug}&sort=no_of_transactions_24h&sort_dir=desc&limit=100&aux=pool_created,24h_no_of_buys,24h_no_of_sells`;
+  // Sort by volume to get active pools, then sort newest first client-side
+  const url = `${CMC_BASE}/v4/dex/spot-pairs/latest?network_slug=${networkSlug}&dex_slug=${dexSlug}&sort=volume_24h&sort_dir=desc&limit=100&aux=pool_created,24h_no_of_buys,24h_no_of_sells`;
 
   console.log('CMC URL:', url);
 
@@ -668,22 +669,33 @@ async function fetchCMCNew() {
   }
 
   const now = Date.now();
+
+  // Sort all pairs by created_at newest first — CMC doesn't support date sorting natively
+  const sorted = [...json.data].sort((a, b) => {
+    const aDate = new Date(a.created_at || 0).getTime();
+    const bDate = new Date(b.created_at || 0).getTime();
+    return bDate - aDate;
+  });
+
+  // Log newest and oldest for debugging
+  const newestAge = sorted[0]?.created_at ? Math.round((now - new Date(sorted[0].created_at).getTime()) / 60000) : 999;
+  const oldestAge = sorted[sorted.length-1]?.created_at ? Math.round((now - new Date(sorted[sorted.length-1].created_at).getTime()) / 60000) : 999;
+  console.log(`CMC age range: newest=${newestAge}m, oldest=${oldestAge}m (${Math.round(oldestAge/1440)}d)`);
+  console.log(`Age filter: ${minAge}m - ${maxAge}m`);
+
   const tokens = [];
 
-  json.data.forEach(pair => {
+  sorted.forEach(pair => {
     if (tokens.length >= LIMIT) return;
 
-    // created_at is the pool creation date
-    const createdStr = pair.created_at || pair.pool_created || null;
+    const createdStr = pair.created_at || null;
     const createdAt  = createdStr ? new Date(createdStr).getTime() : 0;
     const ageMinutes = createdAt ? Math.round((now - createdAt) / 60000) : 999;
 
-    // Age window filter
     if (ageMinutes < minAge || ageMinutes > maxAge) return;
 
-    // quote is an ARRAY — use first element
-    const q     = Array.isArray(pair.quote) ? pair.quote[0] : (pair.quote?.USD || pair.quote?.usd || {});
-    const liq   = parseFloat(q.liquidity || 0);
+    const q      = Array.isArray(pair.quote) ? pair.quote[0] : (pair.quote?.USD || pair.quote?.usd || {});
+    const liq    = parseFloat(q.liquidity || 0);
     const vol24h = parseFloat(q.volume_24h || 0);
     const chg24h = parseFloat(q.percent_change_price_24h || q.percent_change_24h || 0);
     const price  = parseFloat(q.price || 0);
@@ -706,9 +718,9 @@ async function fetchCMCNew() {
   });
 
   if (!tokens.length) {
-    toast(`No tokens in ${minAge}-${maxAge}m window on ${chain}. Try widening age range or lowering min liquidity.`);
+    toast(`No tokens in ${minAge}-${maxAge}m window on ${chain}. Newest pool in batch was ${newestAge}m old — try widening Max Age.`);
   } else {
-    toast(`Found ${tokens.length} new tokens on ${chain}`);
+    toast(`Found ${tokens.length} tokens on ${chain}`);
   }
 
   return tokens;
