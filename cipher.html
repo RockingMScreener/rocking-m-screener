@@ -619,19 +619,26 @@ async function fetchCMCNew() {
   // CMC free tier: one chain at a time
   const chain = document.getElementById('chain-select').value;
 
-  // Map our chain names to CMC network slugs
-  const cmcSlugMap = {
-    solana: 'solana', ethereum: 'ethereum', base: 'base',
-    bsc: 'bsc', arbitrum: 'arbitrum', optimism: 'optimism',
-    polygon: 'polygon', avalanche: 'avalanche'
+  // CMC requires BOTH network_slug AND dex_slug
+  // Map each chain to its dominant DEX slug on CMC
+  const chainDexMap = {
+    solana:    { network: 'solana',   dex: 'raydium' },
+    ethereum:  { network: 'ethereum', dex: 'uniswap-v3' },
+    base:      { network: 'base',     dex: 'uniswap-v3-base' },
+    bsc:       { network: 'bsc',      dex: 'pancakeswap-v3-bsc' },
+    arbitrum:  { network: 'arbitrum', dex: 'uniswap-v3-arbitrum' },
+    optimism:  { network: 'optimism', dex: 'uniswap-v3-optimism' },
+    polygon:   { network: 'polygon',  dex: 'uniswap-v3-polygon' },
+    avalanche: { network: 'avalanche',dex: 'uniswap-v3-avalanche' }
   };
-  const networkSlug = cmcSlugMap[chain] || chain;
 
-  toast(`Scanning new tokens on ${chain} (CMC)...`);
+  const chainConfig = chainDexMap[chain] || { network: chain, dex: 'uniswap-v3' };
+  const networkSlug = chainConfig.network;
+  const dexSlug     = chainConfig.dex;
 
-  // Sort by no_of_transactions_24h to catch active new pools
-  // aux fields for age and buy/sell data
-  const url = `${CMC_BASE}/v4/dex/spot-pairs/latest?network_slug=${networkSlug}&sort=no_of_transactions_24h&sort_dir=desc&limit=100&aux=pool_created,24h_no_of_buys,24h_no_of_sells`;
+  toast(`Scanning new tokens on ${chain} via ${dexSlug}...`);
+
+  const url = `${CMC_BASE}/v4/dex/spot-pairs/latest?network_slug=${networkSlug}&dex_slug=${dexSlug}&sort=no_of_transactions_24h&sort_dir=desc&limit=100&aux=pool_created,24h_no_of_buys,24h_no_of_sells`;
 
   console.log('CMC URL:', url);
 
