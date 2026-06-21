@@ -627,7 +627,7 @@ async function fetchGeckoNew() {
 
   const tokens = [];
   let page = 1;
-  const maxPages = 2; // Reduced to limit rate limit hits
+  const maxPages = 1; // Single page only — avoids rate limits, 20 new pools is sufficient
   const maxRetries = 2;
 
   while (page <= maxPages && tokens.length < LIMIT) {
@@ -721,6 +721,7 @@ async function runScan() {
   const minScore = parseFloat(document.getElementById('min-score').value)  || 0;
 
   try {
+    const limit = currentMode === 'new' ? 20 : LIMIT;
     let raw = [];
     if (currentMode === 'new') {
       raw = await fetchGeckoNew();
@@ -733,7 +734,7 @@ async function runScan() {
       .map(t => ({ ...t, score: calculateScore(t, currentMode) }))
       .filter(p => p.liquidity >= minLiq && p.score >= minScore)
       .sort((a, b) => b.score - a.score)
-      .slice(0, LIMIT);
+      .slice(0, limit);
 
     renderTable();
     updateStats();
