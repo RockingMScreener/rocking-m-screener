@@ -302,7 +302,6 @@
   <div class="chain-section" id="chain-section">
     <div class="sec-label">Chain</div>
     <select class="chain-select" id="chain-select">
-      <option value="all">⚡ All Chains</option>
       <option value="solana">Solana</option>
       <option value="ethereum">Ethereum</option>
       <option value="base">Base</option>
@@ -418,7 +417,7 @@
 // ── Config ────────────────────────────────────────────────────
 const BIRDEYE_BASE = 'https://public-api.birdeye.so';
 const CMC_BASE     = 'https://cipher-proxy.ermccabee1.workers.dev/cmc';
-const GECKO_BASE   = 'https://api.geckoterminal.com/api/v2';
+const GECKO_BASE   = 'https://cipher-proxy.ermccabee1.workers.dev/gecko/v2';
 const LIMIT = 40;
 
 let currentMode = 'trending';
@@ -559,15 +558,19 @@ function calculateScore(token, mode) {
   return Math.min(99, Math.round(score));
 }
 
-// ── Birdeye Fetch (single chain) ───────────────────────────────
-async function fetchBirdeyeChain(mode, chain) {
+// ── Birdeye Fetch ──────────────────────────────────────────────
+async function fetchBirdeye(mode) {
   const key = getKey('birdeye');
   if (!key) { openModal(); throw new Error('Birdeye API key required.'); }
 
-  const sortBy   = mode === 'volume' ? 'volume24hUSD' : 'rank';
+  const chain  = document.getElementById('chain-select').value;
+  const sortBy = mode === 'volume' ? 'volume24hUSD' : 'rank';
   const sortType = mode === 'volume' ? 'desc' : 'asc';
 
+  toast(`Scanning ${chain} on Birdeye...`);
+
   const all = [];
+  // 2 pages × 20 = 40 tokens
   for (let page = 0; page < 2; page++) {
     const url = `${BIRDEYE_BASE}/defi/token_trending?sort_by=${sortBy}&sort_type=${sortType}&offset=${page * 20}&limit=20`;
     try {
@@ -582,85 +585,65 @@ async function fetchBirdeyeChain(mode, chain) {
       if (json.data.tokens.length < 20) break;
     } catch (e) {
       if (all.length > 0) break;
-      else throw e;
+      throw e;
     }
-    if (page < 1) await new Promise(r => setTimeout(r, 300));
+    if (page < 1) await new Promise(r => setTimeout(r, 1500));
   }
+
+  if (!all.length) { toast(`No data for ${chain}`); return []; }
 
   return all.map(t => ({
     chain,
     name:          t.name    || 'Unknown',
     symbol:        t.symbol  || '???',
-    price:         0,
+    price:         0, // not in trending endpoint
     liquidity:     t.liquidity    || 0,
     volume24h:     t.volume24hUSD || 0,
-    priceChange24h: 0,
+    priceChange24h: 0, // not in trending endpoint
     ageMinutes:    null,
     link: `https://birdeye.so/token/${t.address}?chain=${chain}`
   }));
 }
 
-const BIRDEYE_CHAINS = ['solana','ethereum','base','bsc','arbitrum','optimism','polygon','avalanche'];
-
-async function fetchBirdeye(mode) {
-  const selected = document.getElementById('chain-select').value;
-  if (selected !== 'all') {
-    toast('Scanning ' + selected + ' on Birdeye...');
-    return fetchBirdeyeChain(mode, selected);
-  }
-  // All chains - sequential with delay to respect rate limits
-  toast('Scanning all chains on Birdeye...');
-  const results = [];
-  for (let i = 0; i < BIRDEYE_CHAINS.length; i++) {
-    const c = BIRDEYE_CHAINS[i];
-    document.getElementById('status-text').textContent = 'Scanning ' + c + ' (' + (i+1) + '/' + BIRDEYE_CHAINS.length + ')...';
-    try {
-      const tokens = await fetchBirdeyeChain(mode, c);
-      results.push(...tokens);
-    } catch (e) {
-      console.warn('Birdeye skip ' + c + ':', e.message);
-    }
-    if (i < BIRDEYE_CHAINS.length - 1) await new Promise(r => setTimeout(r, 400));
-  }
-  return results;
-}
-
 // ── New Tokens Fetch (GeckoTerminal, per-chain) ────────────────
-const GECKO_CHAIN_MAP = {
-  solana:    'solana',
-  ethereum:  'eth',
-  base:      'base',
-  bsc:       'bsc',
-  arbitrum:  'arbitrum',
-  optimism:  'optimism',
-  polygon:   'polygon_pos',
-  avalanche: 'avax'
-};
+async function fetchGeckoNew() {
+  const minAge = parseFloat(document.getElementById('min-age').value) || 0;
+  const maxAge = parseFloat(document.getElementById('max-age').value) || 60;
+  const chain  = document.getElementById('chain-select').value;
 
-async function fetchGeckoChain(chain, minAge, maxAge) {
-  const slug = GECKO_CHAIN_MAP[chain] || chain;
+  const geckoMap = {
+    solana:    'solana',
+    ethereum:  'eth',
+    base:      'base',
+    bsc:       'bsc',
+    arbitrum:  'arbitrum',
+    optimism:  'optimism',
+    polygon:   'polygon_pos',
+    avalanche: 'avax'
+  };
+  const slug = geckoMap[chain] || chain;
+
+  toast(`Scanning new pools on ${chain}...`);
+
   const tokens = [];
   let page = 1;
   const maxPages = 3;
 
   while (page <= maxPages && tokens.length < LIMIT) {
     try {
-      const url = `${GECKO_BASE}/networks/${slug}/new_pools?page=${page}&include=base_token`;
+      const url = `${GECKO_BASE}/networks/${slug}/pools?page=${page}&include=base_token&sort=pool_created_at_desc`;
       console.log(`Gecko page ${page}:`, url);
 
-      const res = await fetch(url, {
-        headers: { 'Accept': 'application/json;version=20230203' }
-      });
+      const res = await fetch(url);
+      if (res.status === 429) {
+        console.warn(`Gecko rate limited on page ${page} — waiting 3s...`);
+        await new Promise(r => setTimeout(r, 3000));
+        continue; // retry same page
+      }
       if (!res.ok) { console.warn(`Gecko ${res.status} p${page}`); break; }
 
       const data = await res.json();
       if (!data.data?.length) break;
-
-      // Build a lookup map from the included array for base token symbols
-      const includedMap = {};
-      (data.included || []).forEach(inc => {
-        if (inc.type === 'token') includedMap[inc.id] = inc.attributes || {};
-      });
 
       const now = Date.now();
       data.data.forEach(item => {
@@ -670,14 +653,9 @@ async function fetchGeckoChain(chain, minAge, maxAge) {
         const ageMinutes = createdAt ? Math.round((now - createdAt) / 60000) : 999;
         if (ageMinutes < minAge || ageMinutes > maxAge) return;
 
-        // Token symbol: look up from included, fall back to splitting pool name
         let symbol = '???';
-        const baseTokenId = item.relationships?.base_token?.data?.id;
-        if (baseTokenId && includedMap[baseTokenId]?.symbol) {
-          symbol = includedMap[baseTokenId].symbol;
-        } else if (a.name) {
-          symbol = a.name.split('/')[0].trim();
-        }
+        if (a.base_token?.symbol) symbol = a.base_token.symbol;
+        else if (a.name)          symbol = a.name.split('/')[0].trim();
 
         tokens.push({
           chain,
@@ -698,43 +676,15 @@ async function fetchGeckoChain(chain, minAge, maxAge) {
       console.warn('Gecko error:', e.message);
       break;
     }
-    await new Promise(r => setTimeout(r, 600));
+    await new Promise(r => setTimeout(r, 1500));
   }
 
+  if (!tokens.length) {
+    toast(`No new pools in ${minAge}-${maxAge}m window on ${chain}. Try widening Max Age.`);
+  } else {
+    toast(`Found ${tokens.length} new pools on ${chain}`);
+  }
   return tokens;
-}
-
-async function fetchGeckoNew() {
-  const minAge   = parseFloat(document.getElementById('min-age').value) || 0;
-  const maxAge   = parseFloat(document.getElementById('max-age').value) || 60;
-  const selected = document.getElementById('chain-select').value;
-
-  if (selected !== 'all') {
-    toast('Scanning new pools on ' + selected + '...');
-    const tokens = await fetchGeckoChain(selected, minAge, maxAge);
-    if (!tokens.length) toast('No new pools in ' + minAge + '-' + maxAge + 'm window on ' + selected + '. Try widening Max Age.');
-    else toast('Found ' + tokens.length + ' new pools on ' + selected);
-    return tokens;
-  }
-
-  // All chains
-  toast('Scanning new pools across all chains...');
-  const allChains = Object.keys(GECKO_CHAIN_MAP);
-  const results = [];
-  for (let i = 0; i < allChains.length; i++) {
-    const c = allChains[i];
-    document.getElementById('status-text').textContent = 'Scanning ' + c + ' (' + (i+1) + '/' + allChains.length + ')...';
-    try {
-      const tokens = await fetchGeckoChain(c, minAge, maxAge);
-      results.push(...tokens);
-    } catch (e) {
-      console.warn('Gecko skip ' + c + ':', e.message);
-    }
-    if (i < allChains.length - 1) await new Promise(r => setTimeout(r, 800));
-  }
-  if (!results.length) toast('No new pools found across any chain. Try widening Max Age.');
-  else toast('Found ' + results.length + ' new pools across all chains');
-  return results;
 }
 
 // ── Main Scan ──────────────────────────────────────────────────
