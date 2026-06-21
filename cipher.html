@@ -627,21 +627,42 @@ async function fetchGeckoNew() {
 
   const tokens = [];
   let page = 1;
-  const maxPages = 3;
+  const maxPages = 2; // Reduced to limit rate limit hits
+  const maxRetries = 2;
 
   while (page <= maxPages && tokens.length < LIMIT) {
-    try {
-      const url = `${GECKO_BASE}/networks/${slug}/pools?page=${page}&include=base_token&sort=pool_created_at_desc`;
-      console.log(`Gecko page ${page}:`, url);
+    // /new_pools is sorted by created_at by default — no sort param needed
+    const url = `${GECKO_BASE}/networks/${slug}/new_pools?page=${page}&include=base_token`;
+    console.log(`Gecko page ${page}:`, url);
 
-      const res = await fetch(url);
-      if (res.status === 429) {
-        console.warn(`Gecko rate limited on page ${page} — waiting 3s...`);
-        await new Promise(r => setTimeout(r, 3000));
-        continue; // retry same page
+    let res = null;
+    let retries = 0;
+
+    // Retry loop for 429s
+    while (retries <= maxRetries) {
+      try {
+        res = await fetch(url);
+        if (res.status === 429) {
+          retries++;
+          const wait = retries * 5000; // 5s, 10s
+          console.warn(`Gecko 429 — retry ${retries} in ${wait/1000}s`);
+          toast(`Rate limited — waiting ${wait/1000}s...`);
+          await new Promise(r => setTimeout(r, wait));
+          continue;
+        }
+        break; // Got a non-429 response
+      } catch (e) {
+        console.warn('Gecko fetch error:', e.message);
+        break;
       }
-      if (!res.ok) { console.warn(`Gecko ${res.status} p${page}`); break; }
+    }
 
+    if (!res || !res.ok) {
+      console.warn(`Gecko ${res?.status} p${page} — stopping`);
+      break;
+    }
+
+    try {
       const data = await res.json();
       if (!data.data?.length) break;
 
@@ -673,10 +694,12 @@ async function fetchGeckoNew() {
       if (data.data.length < 20) break;
       page++;
     } catch (e) {
-      console.warn('Gecko error:', e.message);
+      console.warn('Gecko parse error:', e.message);
       break;
     }
-    await new Promise(r => setTimeout(r, 1500));
+
+    // Delay between pages
+    if (page <= maxPages) await new Promise(r => setTimeout(r, 2000));
   }
 
   if (!tokens.length) {
