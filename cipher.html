@@ -318,7 +318,7 @@
   <div class="filter-panel">
     <div class="fgroup">
       <label class="flabel" for="min-liq">Min Liquidity (USD)</label>
-      <input type="number" class="finput" id="min-liq" value="8000" min="0" step="1000">
+      <input type="number" class="finput" id="min-liq" value="1000" min="0" step="500">
     </div>
     <div class="fgroup">
       <label class="flabel" for="min-score">Min Score</label>
@@ -676,11 +676,6 @@ function filterGeckoPools(allPools, slug, minAge, maxAge) {
   const tokens = [];
   const filterByChain = slug && slug !== 'all';
 
-  // Debug: log all pool chains in the batch
-  const chainsSeen = [...new Set(allPools.map(item => (item.id || '').split('_')[0]))];
-  console.log('Chains in global batch:', chainsSeen);
-  console.log(`Filtering for chain: ${slug}, filterByChain: ${filterByChain}`);
-
   allPools.forEach(item => {
     if (tokens.length >= 20) return;
     const a = item.attributes || {};
@@ -692,14 +687,7 @@ function filterGeckoPools(allPools, slug, minAge, maxAge) {
 
     const createdAt  = a.pool_created_at ? new Date(a.pool_created_at).getTime() : 0;
     const ageMinutes = createdAt ? Math.round((now - createdAt) / 60000) : 999;
-
-    // Debug log every pool that passes chain filter
-    console.log(`Pool: ${a.name} | chain: ${poolChain} | age: ${ageMinutes}m | liq: $${parseFloat(a.reserve_in_usd||0).toFixed(0)}`);
-
-    if (ageMinutes < minAge || ageMinutes > maxAge) {
-      console.log(`  → FILTERED OUT by age (${ageMinutes}m not in ${minAge}-${maxAge}m)`);
-      return;
-    }
+    if (ageMinutes < minAge || ageMinutes > maxAge) return;
 
     let symbol = '???';
     if (a.base_token?.symbol) symbol = a.base_token.symbol;
@@ -719,10 +707,8 @@ function filterGeckoPools(allPools, slug, minAge, maxAge) {
   });
 
   const chainLabel = filterByChain ? slug : 'all chains';
-  console.log(`Result: ${tokens.length} tokens passed age filter for ${chainLabel}`);
-
   if (!tokens.length) {
-    toast(`No new pools in ${minAge}-${maxAge}m window on ${chainLabel}. Try widening Max Age.`);
+    toast(`No new pools in ${minAge}-${maxAge}m window on ${chainLabel}. Try widening Max Age or lowering Min Liquidity.`);
   } else {
     toast(`Found ${tokens.length} new pools on ${chainLabel}`);
   }
