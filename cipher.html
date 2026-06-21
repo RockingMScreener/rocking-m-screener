@@ -676,20 +676,30 @@ function filterGeckoPools(allPools, slug, minAge, maxAge) {
   const tokens = [];
   const filterByChain = slug && slug !== 'all';
 
+  // Debug: log all pool chains in the batch
+  const chainsSeen = [...new Set(allPools.map(item => (item.id || '').split('_')[0]))];
+  console.log('Chains in global batch:', chainsSeen);
+  console.log(`Filtering for chain: ${slug}, filterByChain: ${filterByChain}`);
+
   allPools.forEach(item => {
     if (tokens.length >= 20) return;
     const a = item.attributes || {};
 
-    // Extract chain from pool id (format: chain_address)
     const poolId    = item.id || '';
     const poolChain = poolId.split('_')[0] || 'unknown';
 
-    // Filter to selected chain — skip if All Chains
     if (filterByChain && poolChain !== slug) return;
 
     const createdAt  = a.pool_created_at ? new Date(a.pool_created_at).getTime() : 0;
     const ageMinutes = createdAt ? Math.round((now - createdAt) / 60000) : 999;
-    if (ageMinutes < minAge || ageMinutes > maxAge) return;
+
+    // Debug log every pool that passes chain filter
+    console.log(`Pool: ${a.name} | chain: ${poolChain} | age: ${ageMinutes}m | liq: $${parseFloat(a.reserve_in_usd||0).toFixed(0)}`);
+
+    if (ageMinutes < minAge || ageMinutes > maxAge) {
+      console.log(`  → FILTERED OUT by age (${ageMinutes}m not in ${minAge}-${maxAge}m)`);
+      return;
+    }
 
     let symbol = '???';
     if (a.base_token?.symbol) symbol = a.base_token.symbol;
@@ -709,6 +719,8 @@ function filterGeckoPools(allPools, slug, minAge, maxAge) {
   });
 
   const chainLabel = filterByChain ? slug : 'all chains';
+  console.log(`Result: ${tokens.length} tokens passed age filter for ${chainLabel}`);
+
   if (!tokens.length) {
     toast(`No new pools in ${minAge}-${maxAge}m window on ${chainLabel}. Try widening Max Age.`);
   } else {
