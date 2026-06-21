@@ -302,6 +302,7 @@
   <div class="chain-section" id="chain-section">
     <div class="sec-label">Chain</div>
     <select class="chain-select" id="chain-select">
+      <option value="all">All Chains</option>
       <option value="solana">Solana</option>
       <option value="ethereum">Ethereum</option>
       <option value="base">Base</option>
@@ -563,7 +564,10 @@ async function fetchBirdeye(mode) {
   const key = getKey('birdeye');
   if (!key) { openModal(); throw new Error('Birdeye API key required.'); }
 
-  const chain  = document.getElementById('chain-select').value;
+  const chainVal = document.getElementById('chain-select').value;
+  // Birdeye requires a specific chain — default to solana if All Chains selected
+  const chain = chainVal === 'all' ? 'solana' : chainVal;
+  if (chainVal === 'all') toast('Birdeye requires a specific chain — defaulting to Solana. Switch to New Tokens for All Chains.');
   const sortBy = mode === 'volume' ? 'volume24hUSD' : 'rank';
   const sortType = mode === 'volume' ? 'desc' : 'asc';
 
@@ -670,6 +674,7 @@ async function fetchGeckoNew() {
 function filterGeckoPools(allPools, slug, minAge, maxAge) {
   const now = Date.now();
   const tokens = [];
+  const filterByChain = slug && slug !== 'all';
 
   allPools.forEach(item => {
     if (tokens.length >= 20) return;
@@ -679,8 +684,8 @@ function filterGeckoPools(allPools, slug, minAge, maxAge) {
     const poolId    = item.id || '';
     const poolChain = poolId.split('_')[0] || 'unknown';
 
-    // Filter to selected chain
-    if (slug && poolChain !== slug) return;
+    // Filter to selected chain — skip if All Chains
+    if (filterByChain && poolChain !== slug) return;
 
     const createdAt  = a.pool_created_at ? new Date(a.pool_created_at).getTime() : 0;
     const ageMinutes = createdAt ? Math.round((now - createdAt) / 60000) : 999;
@@ -703,10 +708,11 @@ function filterGeckoPools(allPools, slug, minAge, maxAge) {
     });
   });
 
+  const chainLabel = filterByChain ? slug : 'all chains';
   if (!tokens.length) {
-    toast(`No new pools in ${minAge}-${maxAge}m window for ${slug}. Try widening Max Age or switching chain.`);
+    toast(`No new pools in ${minAge}-${maxAge}m window on ${chainLabel}. Try widening Max Age.`);
   } else {
-    toast(`Found ${tokens.length} new pools`);
+    toast(`Found ${tokens.length} new pools on ${chainLabel}`);
   }
   return tokens;
 }
