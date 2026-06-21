@@ -605,107 +605,108 @@ async function fetchBirdeye(mode) {
   }));
 }
 
-// ── New Tokens Fetch (GeckoTerminal, per-chain) ────────────────
+// ── New Tokens Fetch (GeckoTerminal, global new pools) ────────────────
+const geckoCache = { data: null, timestamp: 0 };
+
 async function fetchGeckoNew() {
   const minAge = parseFloat(document.getElementById('min-age').value) || 0;
   const maxAge = parseFloat(document.getElementById('max-age').value) || 60;
   const chain  = document.getElementById('chain-select').value;
 
   const geckoMap = {
-    solana:    'solana',
-    ethereum:  'eth',
-    base:      'base',
-    bsc:       'bsc',
-    arbitrum:  'arbitrum',
-    optimism:  'optimism',
-    polygon:   'polygon_pos',
-    avalanche: 'avax'
+    solana:    'solana',    ethereum: 'eth',
+    base:      'base',      bsc:      'bsc',
+    arbitrum:  'arbitrum',  optimism: 'optimism',
+    polygon:   'polygon_pos', avalanche: 'avax'
   };
   const slug = geckoMap[chain] || chain;
 
-  toast(`Scanning new pools on ${chain}...`);
-
-  const tokens = [];
-  let page = 1;
-  const maxPages = 1; // Single page only — avoids rate limits, 20 new pools is sufficient
-  const maxRetries = 2;
-
-  while (page <= maxPages && tokens.length < LIMIT) {
-    // /new_pools is sorted by created_at by default — no sort param needed
-    const url = `${GECKO_BASE}/networks/${slug}/new_pools?page=${page}&include=base_token`;
-    console.log(`Gecko page ${page}:`, url);
-
-    let res = null;
-    let retries = 0;
-
-    // Retry loop for 429s
-    while (retries <= maxRetries) {
-      try {
-        res = await fetch(url);
-        if (res.status === 429) {
-          retries++;
-          const wait = retries * 5000; // 5s, 10s
-          console.warn(`Gecko 429 — retry ${retries} in ${wait/1000}s`);
-          toast(`Rate limited — waiting ${wait/1000}s...`);
-          await new Promise(r => setTimeout(r, wait));
-          continue;
-        }
-        break; // Got a non-429 response
-      } catch (e) {
-        console.warn('Gecko fetch error:', e.message);
-        break;
-      }
-    }
-
-    if (!res || !res.ok) {
-      console.warn(`Gecko ${res?.status} p${page} — stopping`);
-      break;
-    }
-
-    try {
-      const data = await res.json();
-      if (!data.data?.length) break;
-
-      const now = Date.now();
-      data.data.forEach(item => {
-        if (tokens.length >= LIMIT) return;
-        const a = item.attributes || {};
-        const createdAt  = a.pool_created_at ? new Date(a.pool_created_at).getTime() : 0;
-        const ageMinutes = createdAt ? Math.round((now - createdAt) / 60000) : 999;
-        if (ageMinutes < minAge || ageMinutes > maxAge) return;
-
-        let symbol = '???';
-        if (a.base_token?.symbol) symbol = a.base_token.symbol;
-        else if (a.name)          symbol = a.name.split('/')[0].trim();
-
-        tokens.push({
-          chain,
-          name:           a.name || 'Unknown',
-          symbol,
-          price:          parseFloat(a.base_token_price_usd) || 0,
-          liquidity:      parseFloat(a.reserve_in_usd)       || 0,
-          volume24h:      parseFloat(a.volume_usd?.h24)      || 0,
-          priceChange24h: parseFloat(a.price_change_percentage?.h24) || 0,
-          ageMinutes,
-          link: `https://www.geckoterminal.com/${slug}/pools/${a.address || ''}`
-        });
-      });
-
-      if (data.data.length < 20) break;
-      page++;
-    } catch (e) {
-      console.warn('Gecko parse error:', e.message);
-      break;
-    }
-
-    // Delay between pages
-    if (page <= maxPages) await new Promise(r => setTimeout(r, 2000));
+  // Use cached data if fresh (within 90s) — avoids repeat API hits
+  const now = Date.now();
+  if (geckoCache.data && (now - geckoCache.timestamp) < 90000) {
+    toast('Using cached new pools data...');
+    return filterGeckoPools(geckoCache.data, slug, minAge, maxAge);
   }
 
+  toast(`Fetching new pools (GeckoTerminal)...`);
+
+  // Single global call — returns newest pools across ALL networks
+  const url = `${GECKO_BASE}/networks/new_pools?include=base_token`;
+  console.log('Gecko new pools:', url);
+
+  let res;
+  try {
+    res = await fetch(url);
+  } catch (e) {
+    throw new Error('Gecko fetch failed: ' + e.message);
+  }
+
+  if (res.status === 429) {
+    // Wait 10s and try once more
+    toast('Rate limited — waiting 10s...');
+    await new Promise(r => setTimeout(r, 10000));
+    try {
+      res = await fetch(url);
+    } catch (e) {
+      throw new Error('Gecko still unavailable after retry');
+    }
+  }
+
+  if (!res.ok) throw new Error(`Gecko error ${res.status}`);
+
+  const data = await res.json();
+  if (!data.data?.length) {
+    toast('No new pools returned from GeckoTerminal');
+    return [];
+  }
+
+  // Cache the raw response
+  geckoCache.data      = data.data;
+  geckoCache.timestamp = now;
+
+  return filterGeckoPools(data.data, slug, minAge, maxAge);
+}
+
+function filterGeckoPools(allPools, slug, minAge, maxAge) {
+  const now = Date.now();
+  const tokens = [];
+
+  allPools.forEach(item => {
+    if (tokens.length >= 20) return;
+    const a = item.attributes || {};
+
+    // Extract chain from pool id (format: chain_address)
+    const poolId    = item.id || '';
+    const poolChain = poolId.split('_')[0] || 'unknown';
+
+    // Filter to selected chain
+    if (slug && poolChain !== slug) return;
+
+    const createdAt  = a.pool_created_at ? new Date(a.pool_created_at).getTime() : 0;
+    const ageMinutes = createdAt ? Math.round((now - createdAt) / 60000) : 999;
+    if (ageMinutes < minAge || ageMinutes > maxAge) return;
+
+    let symbol = '???';
+    if (a.base_token?.symbol) symbol = a.base_token.symbol;
+    else if (a.name)          symbol = a.name.split('/')[0].trim();
+
+    tokens.push({
+      chain:          poolChain,
+      name:           a.name || 'Unknown',
+      symbol,
+      price:          parseFloat(a.base_token_price_usd) || 0,
+      liquidity:      parseFloat(a.reserve_in_usd)       || 0,
+      volume24h:      parseFloat(a.volume_usd?.h24)      || 0,
+      priceChange24h: parseFloat(a.price_change_percentage?.h24) || 0,
+      ageMinutes,
+      link: `https://www.geckoterminal.com/${poolChain}/pools/${a.address || ''}`
+    });
+  });
+
   if (!tokens.length) {
-    toast(`No new pools in ${minAge}-${maxAge}m window on ${chain}. Try widening Max Age.`);
+    toast(`No new pools in ${minAge}-${maxAge}m window for ${slug}. Try widening Max Age or switching chain.`);
   } else {
-    toast(`Found ${tokens.length} new pools on ${chain}`);
+    toast(`Found ${tokens.length} new pools`);
   }
   return tokens;
 }
