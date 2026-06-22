@@ -576,26 +576,25 @@ async function fetchBirdeye(mode) {
   const chain = chainVal === 'all' ? 'solana' : chainVal;
   if (chainVal === 'all') toast('Birdeye requires a specific chain — defaulting to Solana.');
 
-  // Sort field for each mode
-  const sortBy = mode === 'volume' ? 'v24hUSD' : 'v24hChangePercent';
+  const sortBy   = mode === 'volume' ? 'volume24hUSD' : 'rank';
+  const sortType = mode === 'volume' ? 'desc' : 'asc';
 
   toast(`Scanning ${chain} on Birdeye...`);
 
   const all = [];
-  // 2 pages × 20 = 40 tokens
   for (let page = 0; page < 2; page++) {
-    const url = `${BIRDEYE_BASE}/defi/v3/token/list?sort_by=${sortBy}&sort_type=desc&offset=${page * 20}&limit=20&min_liquidity=1000`;
+    const url = `${BIRDEYE_BASE}/defi/token_trending?sort_by=${sortBy}&sort_type=${sortType}&offset=${page * 20}&limit=20`;
     try {
       const res = await fetch(url, {
         headers: { 'X-API-KEY': key, 'x-chain': chain, 'accept': 'application/json' }
       });
       if (res.status === 401) { openModal(); throw new Error('Invalid Birdeye API key.'); }
-      if (res.status === 429) { toast('Birdeye rate limit — try again in a moment'); break; }
+      if (res.status === 429) { toast('Birdeye rate limit — try again shortly'); break; }
       if (!res.ok) throw new Error(`Birdeye error ${res.status}`);
       const json = await res.json();
-      if (!json.success || !json.data?.items?.length) break;
-      all.push(...json.data.items);
-      if (json.data.items.length < 20) break;
+      if (!json.success || !json.data?.tokens?.length) break;
+      all.push(...json.data.tokens);
+      if (json.data.tokens.length < 20) break;
     } catch (e) {
       if (all.length > 0) break;
       throw e;
@@ -605,17 +604,39 @@ async function fetchBirdeye(mode) {
 
   if (!all.length) { toast(`No data for ${chain}`); return []; }
 
-  return all.map(t => ({
-    chain,
-    name:           t.name   || 'Unknown',
-    symbol:         t.symbol || '???',
-    price:          t.price  || 0,
-    liquidity:      t.liquidity   || 0,
-    volume24h:      t.v24hUSD     || 0,
-    priceChange24h: t.v24hChangePercent || 0,
-    ageMinutes:     null,
-    link: `https://birdeye.so/token/${t.address}?chain=${chain}`
-  }));
+  // Fetch prices for all tokens in one call using multi_price endpoint
+  const addresses = all.map(t => t.address).filter(Boolean).join(',');
+  let priceMap = {};
+  if (addresses) {
+    try {
+      const priceRes = await fetch(`${BIRDEYE_BASE}/defi/multi_price?list_address=${addresses}`, {
+        headers: { 'X-API-KEY': key, 'x-chain': chain, 'accept': 'application/json' }
+      });
+      if (priceRes.ok) {
+        const priceJson = await priceRes.json();
+        if (priceJson.success && priceJson.data) {
+          priceMap = priceJson.data;
+        }
+      }
+    } catch (e) {
+      console.warn('Price fetch failed, continuing without prices:', e.message);
+    }
+  }
+
+  return all.map(t => {
+    const priceData = priceMap[t.address] || {};
+    return {
+      chain,
+      name:           t.name   || 'Unknown',
+      symbol:         t.symbol || '???',
+      price:          priceData.value || 0,
+      liquidity:      t.liquidity    || 0,
+      volume24h:      t.volume24hUSD || 0,
+      priceChange24h: priceData.priceChange24h || 0,
+      ageMinutes:     null,
+      link: `https://birdeye.so/token/${t.address}?chain=${chain}`
+    };
+  });
 }
 
 // ── New Tokens Fetch (GeckoTerminal, global new pools) ────────────────
