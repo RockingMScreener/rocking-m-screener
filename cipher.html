@@ -497,8 +497,8 @@ function handleOverlayClick(e) {
 
 // ── Mode Handling ──────────────────────────────────────────────
 const MODE_META = {
-  trending: { source: 'Birdeye',        desc: 'Trending tokens ranked by activity on selected chain' },
-  volume:   { source: 'Birdeye',        desc: 'Top tokens sorted by 24h volume on selected chain' },
+  trending: { source: 'Birdeye', desc: 'Trending tokens by rank — liquidity & volume shown (price requires Lite+ plan)' },
+  volume:   { source: 'Birdeye', desc: 'Top tokens by 24h volume — liquidity & volume shown (price requires Lite+ plan)' },
   new:      { source: 'GeckoTerminal', desc: 'New pools on selected chain — filter by age in minutes, no key required' }
 };
 
@@ -604,39 +604,19 @@ async function fetchBirdeye(mode) {
 
   if (!all.length) { toast(`No data for ${chain}`); return []; }
 
-  // Fetch prices for all tokens in one call using multi_price endpoint
-  const addresses = all.map(t => t.address).filter(Boolean).join(',');
-  let priceMap = {};
-  if (addresses) {
-    try {
-      const priceRes = await fetch(`${BIRDEYE_BASE}/defi/multi_price?list_address=${addresses}`, {
-        headers: { 'X-API-KEY': key, 'x-chain': chain, 'accept': 'application/json' }
-      });
-      if (priceRes.ok) {
-        const priceJson = await priceRes.json();
-        if (priceJson.success && priceJson.data) {
-          priceMap = priceJson.data;
-        }
-      }
-    } catch (e) {
-      console.warn('Price fetch failed, continuing without prices:', e.message);
-    }
-  }
-
-  return all.map(t => {
-    const priceData = priceMap[t.address] || {};
-    return {
-      chain,
-      name:           t.name   || 'Unknown',
-      symbol:         t.symbol || '???',
-      price:          priceData.value || 0,
-      liquidity:      t.liquidity    || 0,
-      volume24h:      t.volume24hUSD || 0,
-      priceChange24h: priceData.priceChange24h || 0,
-      ageMinutes:     null,
-      link: `https://birdeye.so/token/${t.address}?chain=${chain}`
-    };
-  });
+  // Note: token_trending on Standard free tier returns rank, liquidity, volume only
+  // Price and 24h change require Lite/Starter plan (multi_price endpoint)
+  return all.map(t => ({
+    chain,
+    name:           t.name   || 'Unknown',
+    symbol:         t.symbol || '???',
+    price:          null, // requires Lite+ plan
+    liquidity:      t.liquidity    || 0,
+    volume24h:      t.volume24hUSD || 0,
+    priceChange24h: null, // requires Lite+ plan
+    ageMinutes:     null, // not in trending endpoint
+    link: `https://birdeye.so/token/${t.address}?chain=${chain}`
+  }));
 }
 
 // ── New Tokens Fetch (GeckoTerminal, global new pools) ────────────────
@@ -804,22 +784,26 @@ function renderTable() {
                      : 'chg-zero';
     const scoreClass = p.score >= 70 ? 'score-high' : p.score >= 40 ? 'score-med' : 'score-low';
     const age        = p.ageMinutes !== null && p.ageMinutes < 999 ? `${p.ageMinutes}m` : '—';
-    const price      = p.price
-      ? p.price < 0.000001 ? p.price.toExponential(2)
-      : p.price < 0.01     ? p.price.toFixed(6)
-      : p.price < 1        ? p.price.toFixed(4)
-      : p.price.toFixed(2)
-      : '—';
-    const chgTxt = p.priceChange24h
-      ? (p.priceChange24h > 0 ? '+' : '') + p.priceChange24h.toFixed(1) + '%'
-      : '—';
+    const price = p.price === null
+      ? '—'
+      : p.price
+        ? p.price < 0.000001 ? p.price.toExponential(2)
+        : p.price < 0.01     ? p.price.toFixed(6)
+        : p.price < 1        ? p.price.toFixed(4)
+        : p.price.toFixed(2)
+        : '—';
+    const chgTxt = p.priceChange24h === null
+      ? '—'
+      : p.priceChange24h
+        ? (p.priceChange24h > 0 ? '+' : '') + p.priceChange24h.toFixed(1) + '%'
+        : '—';
 
     return `<tr>
       <td><span class="chain-col ${chainClass}">${(p.chain || 'UNK').toUpperCase()}</span></td>
       <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;">${p.name}</td>
       <td><strong>${p.symbol}</strong></td>
       <td>${age}</td>
-      <td>$${price}</td>
+      <td>${p.price === null ? '—' : '$' + price}</td>
       <td>$${fmtNum(p.liquidity)}</td>
       <td>$${fmtNum(p.volume24h)}</td>
       <td class="${chgClass}">${chgTxt}</td>
