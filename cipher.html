@@ -539,17 +539,25 @@ function calculateScore(token, mode) {
   let score  = 0;
 
   if (mode === 'trending') {
-    // Birdeye trending: no priceChange available — weight liq + vol
-    score = (liq / 60000 * 45) + (vol / 120000 * 45);
+    // Trending: vol change % is the key signal — now available from v3 API
+    // Normalize: 100% vol change = 30pts, $1M liq = 35pts, $500K vol = 35pts
+    const momPts = Math.min(30, Math.abs(chg) * 0.3);
+    const liqPts = Math.min(35, (liq / 1000000) * 35);
+    const volPts = Math.min(35, (vol / 500000) * 35);
+    score = momPts + liqPts + volPts;
   } else if (mode === 'volume') {
-    // Birdeye volume: heavy volume weight
-    score = (vol / 80000 * 60) + (liq / 80000 * 30);
+    // Volume: raw volume is king + liquidity backing + price change bonus
+    // Normalize: $5M vol = 60pts, $2M liq = 30pts, chg = up to 10pts
+    const volPts = Math.min(60, (vol / 5000000) * 60);
+    const liqPts = Math.min(30, (liq / 2000000) * 30);
+    const chgPts = Math.min(10, Math.abs(chg) * 0.1);
+    score = volPts + liqPts + chgPts;
   } else if (mode === 'new') {
-    // CMC new tokens: freshness + momentum + liquidity + volume + buy pressure
+    // New tokens: freshness + momentum + liquidity + volume + buy pressure
     const freshBonus  = Math.max(0, (60 - age) * 0.8);
     const momBonus    = Math.min(25, Math.abs(chg) * 1.2);
-    const liqBonus    = Math.min(15, liq / 10000 * 3);
-    const volBonus    = Math.min(10, vol / 20000 * 4);
+    const liqBonus    = Math.min(15, (liq / 10000) * 3);
+    const volBonus    = Math.min(10, (vol / 20000) * 4);
     const buys        = token.buys  || 0;
     const sells       = token.sells || 0;
     const buyPressure = (buys + sells) > 0 ? Math.min(10, (buys / (buys + sells)) * 10) : 0;
@@ -565,28 +573,29 @@ async function fetchBirdeye(mode) {
   if (!key) { openModal(); throw new Error('Birdeye API key required.'); }
 
   const chainVal = document.getElementById('chain-select').value;
-  // Birdeye requires a specific chain — default to solana if All Chains selected
   const chain = chainVal === 'all' ? 'solana' : chainVal;
-  if (chainVal === 'all') toast('Birdeye requires a specific chain — defaulting to Solana. Switch to New Tokens for All Chains.');
-  const sortBy = mode === 'volume' ? 'volume24hUSD' : 'rank';
-  const sortType = mode === 'volume' ? 'desc' : 'asc';
+  if (chainVal === 'all') toast('Birdeye requires a specific chain — defaulting to Solana.');
+
+  // Sort field for each mode
+  const sortBy = mode === 'volume' ? 'v24hUSD' : 'v24hChangePercent';
 
   toast(`Scanning ${chain} on Birdeye...`);
 
   const all = [];
   // 2 pages × 20 = 40 tokens
   for (let page = 0; page < 2; page++) {
-    const url = `${BIRDEYE_BASE}/defi/token_trending?sort_by=${sortBy}&sort_type=${sortType}&offset=${page * 20}&limit=20`;
+    const url = `${BIRDEYE_BASE}/defi/v3/token/list?sort_by=${sortBy}&sort_type=desc&offset=${page * 20}&limit=20&min_liquidity=1000`;
     try {
       const res = await fetch(url, {
         headers: { 'X-API-KEY': key, 'x-chain': chain, 'accept': 'application/json' }
       });
       if (res.status === 401) { openModal(); throw new Error('Invalid Birdeye API key.'); }
+      if (res.status === 429) { toast('Birdeye rate limit — try again in a moment'); break; }
       if (!res.ok) throw new Error(`Birdeye error ${res.status}`);
       const json = await res.json();
-      if (!json.success || !json.data?.tokens?.length) break;
-      all.push(...json.data.tokens);
-      if (json.data.tokens.length < 20) break;
+      if (!json.success || !json.data?.items?.length) break;
+      all.push(...json.data.items);
+      if (json.data.items.length < 20) break;
     } catch (e) {
       if (all.length > 0) break;
       throw e;
@@ -598,13 +607,13 @@ async function fetchBirdeye(mode) {
 
   return all.map(t => ({
     chain,
-    name:          t.name    || 'Unknown',
-    symbol:        t.symbol  || '???',
-    price:         0, // not in trending endpoint
-    liquidity:     t.liquidity    || 0,
-    volume24h:     t.volume24hUSD || 0,
-    priceChange24h: 0, // not in trending endpoint
-    ageMinutes:    null,
+    name:           t.name   || 'Unknown',
+    symbol:         t.symbol || '???',
+    price:          t.price  || 0,
+    liquidity:      t.liquidity   || 0,
+    volume24h:      t.v24hUSD     || 0,
+    priceChange24h: t.v24hChangePercent || 0,
+    ageMinutes:     null,
     link: `https://birdeye.so/token/${t.address}?chain=${chain}`
   }));
 }
