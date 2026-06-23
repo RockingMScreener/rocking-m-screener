@@ -35,9 +35,6 @@
   .s-val{font-family:var(--mono);font-size:13px;color:var(--green-hi);font-weight:600;}
   .btn-settings{background:transparent;border:1.5px solid #2a4060;color:#4a6070;padding:6px 12px;font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .15s;letter-spacing:1px;}
   .btn-settings:hover{border-color:var(--green-lt);color:var(--green-hi);}
-
-  /* ── Key Status Badges ── */
-  .key-badges{display:flex;gap:6px;align-items:center;}
   .key-badge{font-family:var(--mono);font-size:9px;padding:3px 8px;letter-spacing:1px;border-radius:2px;white-space:nowrap;}
   .key-badge.set{background:#0a2a1a;color:var(--green-hi);border:1px solid var(--green);}
   .key-badge.unset{background:#2a1a0a;color:#cc8844;border:1px solid #cc6622;}
@@ -45,30 +42,23 @@
   /* ── Modal ── */
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:900;display:none;align-items:center;justify-content:center;padding:20px;}
   .modal-overlay.open{display:flex;}
-  .modal{background:var(--bg-header);border:1px solid var(--border2);border-top:3px solid var(--green-lt);padding:28px 32px;max-width:600px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.5);max-height:90vh;overflow-y:auto;}
+  .modal{background:var(--bg-header);border:1px solid var(--border2);border-top:3px solid var(--green-lt);padding:28px 32px;max-width:580px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.5);max-height:90vh;overflow-y:auto;}
   .modal-title{font-family:var(--sans);font-size:22px;font-weight:800;letter-spacing:3px;color:#fff;text-transform:uppercase;margin-bottom:4px;}
   .modal-title span{color:var(--green-hi);}
   .modal-sub{font-family:var(--mono);font-size:10px;color:#4a6070;letter-spacing:1px;margin-bottom:20px;line-height:1.7;}
-  .modal-api-block{margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid #2a3a4a;}
-  .modal-api-block:last-of-type{border-bottom:none;margin-bottom:0;padding-bottom:0;}
-  .modal-api-title{font-family:var(--sans);font-size:16px;font-weight:700;letter-spacing:2px;color:#fff;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
-  .modal-api-title .api-badge{font-size:9px;padding:2px 8px;border-radius:2px;letter-spacing:1px;}
-  .modal-api-title .api-badge.birdeye{background:#0a2040;color:#6699ff;border:1px solid #2244aa;}
-  .modal-api-title .api-badge.cmc{background:#0a2a1a;color:var(--green-hi);border:1px solid var(--green);}
-  .steps{margin-bottom:14px;}
   .step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;}
   .step-num{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--green-hi);background:#0a2a1a;border:1px solid var(--green);width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:2px;}
   .step-text{font-family:var(--mono);font-size:10px;color:#8aacbc;line-height:1.7;padding-top:2px;}
   .step-text a{color:var(--green-hi);text-decoration:underline;}
   .step-text strong{color:#fff;}
-  .key-input-row{display:flex;gap:8px;margin-bottom:8px;}
+  .key-input-row{display:flex;gap:8px;margin:14px 0 8px;}
   .key-input{font-family:var(--mono);font-size:12px;background:#0d1a24;border:1px solid var(--border2);color:#fff;padding:8px 12px;flex:1;outline:none;letter-spacing:1px;}
   .key-input:focus{border-color:var(--green-lt);}
-  .btn-save-key{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:2px;padding:8px 18px;background:var(--green);color:#fff;border:none;cursor:pointer;text-transform:uppercase;white-space:nowrap;}
+  .btn-save-key{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:2px;padding:8px 18px;background:var(--green);color:#fff;border:none;cursor:pointer;text-transform:uppercase;}
   .btn-save-key:hover{background:var(--green-lt);}
-  .btn-clear-key{font-family:var(--mono);font-size:10px;padding:8px 12px;background:transparent;color:#cc4422;border:1px solid #cc4422;cursor:pointer;letter-spacing:1px;}
+  .btn-clear-key{font-family:var(--mono);font-size:10px;padding:8px 12px;background:transparent;color:#cc4422;border:1px solid #cc4422;cursor:pointer;}
   .btn-clear-key:hover{background:#cc4422;color:#fff;}
-  .key-note{font-family:var(--mono);font-size:9px;color:#4a6070;line-height:1.7;margin-top:6px;}
+  .key-note{font-family:var(--mono);font-size:9px;color:#4a6070;line-height:1.7;}
   .btn-close-modal{font-family:var(--mono);font-size:10px;padding:8px 16px;background:transparent;color:#6b7a8a;border:1px solid #2a3a4a;cursor:pointer;margin-top:20px;letter-spacing:1px;}
   .btn-close-modal:hover{color:#fff;border-color:#fff;}
 
@@ -87,7 +77,6 @@
 
   /* ── Chain + Filters ── */
   .chain-section{margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--green);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
-  .chain-section.hidden{display:none;}
   .chain-select{font-family:var(--mono);font-size:12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 12px;width:100%;max-width:320px;outline:none;cursor:pointer;}
   .chain-select:focus{border-color:var(--green);}
   .filter-panel{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-top:3px solid var(--green);}
@@ -98,7 +87,7 @@
   .finput:focus{border-color:var(--green);background:#fff;}
 
   /* ── Auto Scan ── */
-  .auto-section{display:none;margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--amber);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .auto-section{display:none;margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--amber);padding:14px 16px;}
   .auto-section.visible{display:block;}
   .auto-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
   .toggle{position:relative;width:38px;height:20px;cursor:pointer;flex-shrink:0;}
@@ -144,11 +133,12 @@
   .chain-solana{background:#9945ff;}
   .chain-eth,.chain-ethereum{background:#627ee1;}
   .chain-base{background:#0052ff;}
-  .chain-bsc,.chain-bnb,.chain-binance-smart-chain{background:#f3ba2f;color:#000;}
+  .chain-bsc,.chain-bnb,.chain-bsc-testnet{background:#f3ba2f;color:#000;}
   .chain-arbitrum{background:#28a0f0;}
-  .chain-optimism{background:#ff0000;}
-  .chain-polygon{background:#8247e5;}
+  .chain-optimism,.chain-optimistic-ethereum{background:#ff0000;}
+  .chain-polygon,.chain-polygon-pos{background:#8247e5;}
   .chain-avalanche{background:#e84142;}
+  .chain-multi{background:#4a6070;}
   .chg-pos-high{color:#00aa00;font-weight:600;}
   .chg-pos-med{color:#00cc66;font-weight:600;}
   .chg-pos-low{color:#44bb66;}
@@ -179,70 +169,33 @@
 <!-- ── API Key Modal ── -->
 <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
   <div class="modal">
-    <div class="modal-title">API <span>KEYS</span></div>
-    <div class="modal-sub">Cipher uses two data sources — Birdeye for Trending and Top Volume, CoinMarketCap for New Tokens. Keys are stored locally in your browser only and never shared.</div>
+    <div class="modal-title">COINGECKO <span>API KEY</span></div>
+    <div class="modal-sub">Cipher uses CoinGecko's onchain API (powered by GeckoTerminal) for all three scan modes — trending pools, top volume pools, and new pools. Full price, 24h change, liquidity, volume, age, and buy/sell data. Your key is stored locally in your browser only.</div>
 
-    <!-- Birdeye Block -->
-    <div class="modal-api-block">
-      <div class="modal-api-title">
-        Birdeye
-        <span class="api-badge birdeye">TRENDING · TOP VOLUME</span>
-      </div>
-      <div class="steps">
-        <div class="step">
-          <div class="step-num">1</div>
-          <div class="step-text">Go to <a href="https://birdeye.so/data-api" target="_blank">birdeye.so/data-api</a> and click <strong>Get API Key</strong> or <strong>Start for Free</strong></div>
-        </div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-text">Sign up with your email. <strong>No credit card required</strong> for the free Standard tier (30,000 compute units/month).</div>
-        </div>
-        <div class="step">
-          <div class="step-num">3</div>
-          <div class="step-text">Once logged in, go to your <strong>Dashboard</strong> — your API key is displayed there. Copy and paste it below.</div>
-        </div>
-      </div>
-      <div class="key-input-row">
-        <input type="password" class="key-input" id="birdeye-key-input" placeholder="Paste your Birdeye API key...">
-        <button class="btn-save-key" onclick="saveKey('birdeye')">Save</button>
-        <button class="btn-clear-key" onclick="clearKey('birdeye')">Clear</button>
-      </div>
-      <div class="key-note">Key saved to localStorage — local to this browser only. Re-enter if you clear browser data.</div>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">Go to <a href="https://www.coingecko.com/en/api" target="_blank">coingecko.com/en/api</a> and click <strong>Get Your API Key</strong></div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">Sign up for the <strong>Demo plan (free)</strong> — no credit card required. Gives you 100 calls/minute, more than enough for Cipher.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">Once logged in go to <strong>Dashboard → API Keys</strong> — copy your Demo API key and paste it below.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text">This key covers <strong>all three scan modes</strong> — Trending, Top Volume, and New Tokens. No second key needed.</div>
     </div>
 
-    <!-- CoinMarketCap Block -->
-    <div class="modal-api-block">
-      <div class="modal-api-title">
-        CoinMarketCap
-        <span class="api-badge cmc">NEW TOKENS</span>
-      </div>
-      <div class="steps">
-        <div class="step">
-          <div class="step-num">1</div>
-          <div class="step-text">Go to <a href="https://pro.coinmarketcap.com/signup" target="_blank">pro.coinmarketcap.com/signup</a> and create a free account.</div>
-        </div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-text"><strong>No credit card required.</strong> The free Basic tier gives you <strong>1 million credits/month</strong> — more than enough for scanning.</div>
-        </div>
-        <div class="step">
-          <div class="step-num">3</div>
-          <div class="step-text">After signing up, go to your <strong>API Dashboard</strong> at pro.coinmarketcap.com — your API key is shown at the top left. Copy it below.</div>
-        </div>
-        <div class="step">
-          <div class="step-num">4</div>
-          <div class="step-text">CMC covers <strong>all chains in a single call</strong> — Solana, Ethereum, BSC, Base, Arbitrum, Polygon, Avalanche and more simultaneously.</div>
-        </div>
-      </div>
-      <div class="key-input-row">
-        <input type="password" class="key-input" id="cmc-key-input" placeholder="Paste your CoinMarketCap API key...">
-        <button class="btn-save-key" onclick="saveKey('cmc')">Save</button>
-        <button class="btn-clear-key" onclick="clearKey('cmc')">Clear</button>
-      </div>
-      <div class="key-note">Key saved to localStorage — local to this browser only. Re-enter if you clear browser data.</div>
+    <div class="key-input-row">
+      <input type="password" class="key-input" id="cg-key-input" placeholder="Paste your CoinGecko Demo API key...">
+      <button class="btn-save-key" onclick="saveKey()">Save</button>
+      <button class="btn-clear-key" onclick="clearKey()">Clear</button>
     </div>
-
-    <button class="btn-close-modal" onclick="closeModal()">Close</button>
+    <div class="key-note">⚠ Saved to localStorage — local to this browser only. Re-enter if you clear browser data. Never share your API key.</div>
+    <div><button class="btn-close-modal" onclick="closeModal()">Close</button></div>
   </div>
 </div>
 
@@ -271,11 +224,8 @@
       <div class="s-label">Tokens Found</div>
       <div class="s-val" id="tok-count">0</div>
     </div>
-    <div class="key-badges">
-      <div class="key-badge unset" id="birdeye-badge">Birdeye: NO KEY</div>
-      <div class="key-badge unset" id="cmc-badge">CMC: NO KEY</div>
-    </div>
-    <button class="btn-settings" onclick="openModal()">⚙ API KEYS</button>
+    <div class="key-badge unset" id="cg-badge">CoinGecko: NO KEY</div>
+    <button class="btn-settings" onclick="openModal()">⚙ API KEY</button>
   </div>
 </div>
 
@@ -283,8 +233,8 @@
 
   <!-- No Key Banner -->
   <div class="no-key-banner" id="no-key-banner">
-    <span id="no-key-msg">⚠ API key required for this scan mode.</span>
-    <button onclick="openModal()">Set API Keys</button>
+    <span>⚠ CoinGecko API key required for all scan modes.</span>
+    <button onclick="openModal()">Set API Key</button>
   </div>
 
   <!-- Mode Selector -->
@@ -295,22 +245,22 @@
       <button class="mode-btn" data-mode="volume" onclick="setMode('volume')">Top Volume</button>
       <button class="mode-btn" data-mode="new" onclick="setMode('new')">New Tokens</button>
     </div>
-    <div class="mode-source" id="mode-source">Source: <span>Birdeye</span> · Trending tokens ranked by activity on selected chain</div>
+    <div class="mode-source" id="mode-source">Source: <span>CoinGecko Onchain</span> · Trending pools by activity on selected chain — full price, change, volume, liquidity</div>
   </div>
 
-  <!-- Chain Selector (hidden for New Tokens mode) -->
+  <!-- Chain Selector -->
   <div class="chain-section" id="chain-section">
     <div class="sec-label">Chain</div>
-    <select class="chain-select" id="chain-select">
+    <select class="chain-select" id="chain-select" onchange="onChainChange()">
       <option value="all">All Chains</option>
       <option value="solana">Solana</option>
-      <option value="ethereum">Ethereum</option>
+      <option value="eth">Ethereum</option>
       <option value="base">Base</option>
       <option value="bsc">BSC</option>
       <option value="arbitrum">Arbitrum</option>
-      <option value="optimism">Optimism</option>
-      <option value="polygon">Polygon</option>
-      <option value="avalanche">Avalanche</option>
+      <option value="optimism">optimism</option>
+      <option value="polygon_pos">Polygon</option>
+      <option value="avax">Avalanche</option>
     </select>
   </div>
 
@@ -392,13 +342,16 @@
           <th>Price</th>
           <th>Liquidity</th>
           <th>24h Vol</th>
-          <th>24h Chg</th>
+          <th>5m %</th>
+          <th>1h %</th>
+          <th>24h %</th>
+          <th>Buys/Sells</th>
           <th>Score</th>
           <th>Link</th>
         </tr>
       </thead>
       <tbody id="results-body">
-        <tr><td colspan="10" class="empty-msg">Select a mode and click Scan Now to begin.</td></tr>
+        <tr><td colspan="13" class="empty-msg">Set your CoinGecko API key then click Scan Now.</td></tr>
       </tbody>
     </table>
   </div>
@@ -406,9 +359,8 @@
 </div>
 
 <footer>
-  Cipher v2.2 &nbsp;·&nbsp;
-  <a href="https://birdeye.so/data-api" target="_blank">Birdeye</a> +
-  <a href="https://coinmarketcap.com/api/" target="_blank">CoinMarketCap</a> &nbsp;·&nbsp;
+  Cipher v3.0 &nbsp;·&nbsp;
+  <a href="https://www.coingecko.com/en/api" target="_blank">CoinGecko Onchain API</a> &nbsp;·&nbsp;
   Rocking M Crypto &nbsp;·&nbsp;
   <a href="/trailguide.html">Trail Guide</a> &nbsp;·&nbsp;
   <a href="/craftsman.html">Craftsman</a>
@@ -416,340 +368,251 @@
 
 <script>
 // ── Config ────────────────────────────────────────────────────
-const BIRDEYE_BASE = 'https://public-api.birdeye.so';
-const CMC_BASE     = 'https://cipher-proxy.ermccabee1.workers.dev/cmc';
-const GECKO_BASE   = 'https://cipher-proxy.ermccabee1.workers.dev/gecko/v2';
-const LIMIT = 40;
+// CoinGecko Demo API — same data as GeckoTerminal, keyed access
+// 100 calls/min, CORS headers included, no proxy needed
+const CG_BASE  = 'https://api.coingecko.com/api/v3/onchain';
+const LIMIT    = 40;
+const CG_CACHE = {};  // { key: { data, ts } }
 
-let currentMode = 'trending';
-let pools = [];
-let autoTimer = null;
-let nextTick  = null;
+let currentMode  = 'trending';
+let pools        = [];
+let autoTimer    = null;
+let nextTick     = null;
 
 // ── Key Management ─────────────────────────────────────────────
-function getKey(api)  { return localStorage.getItem(`rm_${api}_key`) || ''; }
+function getKey() { return localStorage.getItem('rm_coingecko_key') || ''; }
 
-function saveKey(api) {
-  const val = document.getElementById(`${api}-key-input`).value.trim();
+function saveKey() {
+  const val = document.getElementById('cg-key-input').value.trim();
   if (!val) { toast('Please paste your API key first'); return; }
-  localStorage.setItem(`rm_${api}_key`, val);
-  updateKeyBadges();
-  toast(`${api.toUpperCase()} key saved!`);
+  localStorage.setItem('rm_coingecko_key', val);
+  updateKeyBadge();
+  toast('CoinGecko API key saved!');
+  closeModal();
 }
 
-function clearKey(api) {
-  localStorage.removeItem(`rm_${api}_key`);
-  document.getElementById(`${api}-key-input`).value = '';
-  updateKeyBadges();
-  toast(`${api.toUpperCase()} key cleared`);
+function clearKey() {
+  localStorage.removeItem('rm_coingecko_key');
+  document.getElementById('cg-key-input').value = '';
+  updateKeyBadge();
+  toast('API key cleared');
 }
 
-function updateKeyBadges() {
-  const birdeyeEl = document.getElementById('birdeye-badge');
-  const cmcEl     = document.getElementById('cmc-badge');
-
-  if (getKey('birdeye')) {
-    birdeyeEl.textContent = 'Birdeye: SET';
-    birdeyeEl.className = 'key-badge set';
-  } else {
-    birdeyeEl.textContent = 'Birdeye: NO KEY';
-    birdeyeEl.className = 'key-badge unset';
-  }
-
-  if (getKey('cmc')) {
-    cmcEl.textContent = 'CMC: SET';
-    cmcEl.className = 'key-badge set';
-  } else {
-    cmcEl.textContent = 'CMC: NO KEY';
-    cmcEl.className = 'key-badge unset';
-  }
-
-  checkKeyBanner();
-}
-
-function checkKeyBanner() {
+function updateKeyBadge() {
+  const el = document.getElementById('cg-badge');
   const banner = document.getElementById('no-key-banner');
-  const msg    = document.getElementById('no-key-msg');
-  if ((currentMode === 'trending' || currentMode === 'volume') && !getKey('birdeye')) {
-    msg.textContent = '⚠ Birdeye API key required for Trending and Top Volume scans.';
-    banner.classList.add('visible');
-  } else {
+  if (getKey()) {
+    el.textContent = 'CoinGecko: SET';
+    el.className = 'key-badge set';
     banner.classList.remove('visible');
+  } else {
+    el.textContent = 'CoinGecko: NO KEY';
+    el.className = 'key-badge unset';
+    banner.classList.add('visible');
   }
 }
 
 // ── Modal ──────────────────────────────────────────────────────
 function openModal() {
-  const bKey = getKey('birdeye');
-  const cKey = getKey('cmc');
-  if (bKey) document.getElementById('birdeye-key-input').value = bKey;
-  if (cKey) document.getElementById('cmc-key-input').value = cKey;
+  const k = getKey();
+  if (k) document.getElementById('cg-key-input').value = k;
   document.getElementById('modal-overlay').classList.add('open');
 }
-
-function closeModal() {
-  document.getElementById('modal-overlay').classList.remove('open');
-}
-
-function handleOverlayClick(e) {
-  if (e.target === document.getElementById('modal-overlay')) closeModal();
-}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+function handleOverlayClick(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
 
 // ── Mode Handling ──────────────────────────────────────────────
 const MODE_META = {
-  trending: { source: 'Birdeye', desc: 'Trending tokens by rank — liquidity & volume shown (price requires Lite+ plan)' },
-  volume:   { source: 'Birdeye', desc: 'Top tokens by 24h volume — liquidity & volume shown (price requires Lite+ plan)' },
-  new:      { source: 'GeckoTerminal', desc: 'New pools on selected chain — filter by age in minutes, no key required' }
+  trending: 'Trending pools by activity · price, 24h change, buys/sells — selected chain or all chains',
+  volume:   'Top pools by 24h volume · price, 24h change, buys/sells — selected chain or all chains',
+  new:      'Newest pools in the last hour · filter by age, chain, liquidity — fresh launches only'
 };
 
 function setMode(mode) {
   currentMode = mode;
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
   document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
-
-  const meta = MODE_META[mode];
-  document.getElementById('mode-source').innerHTML = `Source: <span>${meta.source}</span> · ${meta.desc}`;
-
-  // Chain selector — visible for ALL modes
-  document.getElementById('chain-section').classList.remove('hidden');
-
-  // Age filters — only for New Tokens
+  document.getElementById('mode-source').innerHTML = `Source: <span>CoinGecko Onchain</span> · ${MODE_META[mode]}`;
   document.getElementById('min-age-group').classList.toggle('hidden', mode !== 'new');
   document.getElementById('max-age-group').classList.toggle('hidden', mode !== 'new');
-
-  // Auto scan — only for New Tokens
   const autoSection = document.getElementById('auto-section');
-  if (mode === 'new') {
-    autoSection.classList.add('visible');
-  } else {
-    autoSection.classList.remove('visible');
-    stopAuto();
-  }
-
-  checkKeyBanner();
+  if (mode === 'new') { autoSection.classList.add('visible'); }
+  else { autoSection.classList.remove('visible'); stopAuto(); }
   pools = [];
 }
 
-// ── Scoring ────────────────────────────────────────────────────
-function calculateScore(token, mode) {
-  const liq  = token.liquidity      || 0;
-  const vol  = token.volume24h      || 0;
-  const chg  = token.priceChange24h || 0;
-  const age  = token.ageMinutes     || 999;
-  let score  = 0;
-
-  if (mode === 'trending') {
-    // Trending: vol change % is the key signal — now available from v3 API
-    // Normalize: 100% vol change = 30pts, $1M liq = 35pts, $500K vol = 35pts
-    const momPts = Math.min(30, Math.abs(chg) * 0.3);
-    const liqPts = Math.min(35, (liq / 1000000) * 35);
-    const volPts = Math.min(35, (vol / 500000) * 35);
-    score = momPts + liqPts + volPts;
-  } else if (mode === 'volume') {
-    // Volume: raw volume is king + liquidity backing + price change bonus
-    // Normalize: $5M vol = 60pts, $2M liq = 30pts, chg = up to 10pts
-    const volPts = Math.min(60, (vol / 5000000) * 60);
-    const liqPts = Math.min(30, (liq / 2000000) * 30);
-    const chgPts = Math.min(10, Math.abs(chg) * 0.1);
-    score = volPts + liqPts + chgPts;
-  } else if (mode === 'new') {
-    // New tokens: freshness + momentum + liquidity + volume + buy pressure
-    const freshBonus  = Math.max(0, (60 - age) * 0.8);
-    const momBonus    = Math.min(25, Math.abs(chg) * 1.2);
-    const liqBonus    = Math.min(15, (liq / 10000) * 3);
-    const volBonus    = Math.min(10, (vol / 20000) * 4);
-    const buys        = token.buys  || 0;
-    const sells       = token.sells || 0;
-    const buyPressure = (buys + sells) > 0 ? Math.min(10, (buys / (buys + sells)) * 10) : 0;
-    score = freshBonus + momBonus + liqBonus + volBonus + buyPressure;
-  }
-
-  return Math.min(99, Math.round(score));
+function onChainChange() {
+  // Clear cache when chain changes so we re-fetch
+  Object.keys(CG_CACHE).forEach(k => delete CG_CACHE[k]);
 }
 
-// ── Birdeye Fetch ──────────────────────────────────────────────
-async function fetchBirdeye(mode) {
-  const key = getKey('birdeye');
-  if (!key) { openModal(); throw new Error('Birdeye API key required.'); }
+// ── CoinGecko Onchain Fetch ───────────────────────────────────
+async function cgFetch(url) {
+  const key = getKey();
+  if (!key) { openModal(); throw new Error('CoinGecko API key required.'); }
 
-  const chainVal = document.getElementById('chain-select').value;
-  const chain = chainVal === 'all' ? 'solana' : chainVal;
-  if (chainVal === 'all') toast('Birdeye requires a specific chain — defaulting to Solana.');
-
-  const sortBy   = mode === 'volume' ? 'volume24hUSD' : 'rank';
-  const sortType = mode === 'volume' ? 'desc' : 'asc';
-
-  toast(`Scanning ${chain} on Birdeye...`);
-
-  const all = [];
-  for (let page = 0; page < 2; page++) {
-    const url = `${BIRDEYE_BASE}/defi/token_trending?sort_by=${sortBy}&sort_type=${sortType}&offset=${page * 20}&limit=20`;
-    try {
-      const res = await fetch(url, {
-        headers: { 'X-API-KEY': key, 'x-chain': chain, 'accept': 'application/json' }
-      });
-      if (res.status === 401) { openModal(); throw new Error('Invalid Birdeye API key.'); }
-      if (res.status === 429) { toast('Birdeye rate limit — try again shortly'); break; }
-      if (!res.ok) throw new Error(`Birdeye error ${res.status}`);
-      const json = await res.json();
-      if (!json.success || !json.data?.tokens?.length) break;
-      all.push(...json.data.tokens);
-      if (json.data.tokens.length < 20) break;
-    } catch (e) {
-      if (all.length > 0) break;
-      throw e;
-    }
-    if (page < 1) await new Promise(r => setTimeout(r, 1500));
+  // Check 90s cache
+  if (CG_CACHE[url] && Date.now() - CG_CACHE[url].ts < 90000) {
+    return CG_CACHE[url].data;
   }
 
-  if (!all.length) { toast(`No data for ${chain}`); return []; }
-
-  // Note: token_trending on Standard free tier returns rank, liquidity, volume only
-  // Price and 24h change require Lite/Starter plan (multi_price endpoint)
-  return all.map(t => ({
-    chain,
-    name:           t.name   || 'Unknown',
-    symbol:         t.symbol || '???',
-    price:          null, // requires Lite+ plan
-    liquidity:      t.liquidity    || 0,
-    volume24h:      t.volume24hUSD || 0,
-    priceChange24h: null, // requires Lite+ plan
-    ageMinutes:     null, // not in trending endpoint
-    link: `https://birdeye.so/token/${t.address}?chain=${chain}`
-  }));
-}
-
-// ── New Tokens Fetch (GeckoTerminal, global new pools) ────────────────
-const geckoCache = { data: null, timestamp: 0 };
-
-async function fetchGeckoNew() {
-  const minAge = parseFloat(document.getElementById('min-age').value) || 0;
-  const maxAge = parseFloat(document.getElementById('max-age').value) || 60;
-  const chain  = document.getElementById('chain-select').value;
-
-  const geckoMap = {
-    solana:    'solana',    ethereum: 'eth',
-    base:      'base',      bsc:      'bsc',
-    arbitrum:  'arbitrum',  optimism: 'optimism',
-    polygon:   'polygon_pos', avalanche: 'avax'
-  };
-  const slug = geckoMap[chain] || chain;
-
-  // Use cached data if fresh (within 90s) — avoids repeat API hits
-  const now = Date.now();
-  if (geckoCache.data && (now - geckoCache.timestamp) < 90000) {
-    toast('Using cached new pools data...');
-    return filterGeckoPools(geckoCache.data, slug, minAge, maxAge);
-  }
-
-  toast(`Fetching new pools (GeckoTerminal)...`);
-
-  // Single global call — returns newest pools across ALL networks
-  const url = `${GECKO_BASE}/networks/new_pools?include=base_token`;
-  console.log('Gecko new pools:', url);
-
-  let res;
-  try {
-    res = await fetch(url);
-  } catch (e) {
-    throw new Error('Gecko fetch failed: ' + e.message);
-  }
-
-  if (res.status === 429) {
-    // Wait 10s and try once more
-    toast('Rate limited — waiting 10s...');
-    await new Promise(r => setTimeout(r, 10000));
-    try {
-      res = await fetch(url);
-    } catch (e) {
-      throw new Error('Gecko still unavailable after retry');
-    }
-  }
-
-  if (!res.ok) throw new Error(`Gecko error ${res.status}`);
-
-  const data = await res.json();
-  if (!data.data?.length) {
-    toast('No new pools returned from GeckoTerminal');
-    return [];
-  }
-
-  // Cache the raw response
-  geckoCache.data      = data.data;
-  geckoCache.timestamp = now;
-
-  return filterGeckoPools(data.data, slug, minAge, maxAge);
-}
-
-function filterGeckoPools(allPools, slug, minAge, maxAge) {
-  const now = Date.now();
-  const tokens = [];
-  const filterByChain = slug && slug !== 'all';
-
-  allPools.forEach(item => {
-    if (tokens.length >= 20) return;
-    const a = item.attributes || {};
-
-    const poolId    = item.id || '';
-    const poolChain = poolId.split('_')[0] || 'unknown';
-
-    if (filterByChain && poolChain !== slug) return;
-
-    const createdAt  = a.pool_created_at ? new Date(a.pool_created_at).getTime() : 0;
-    const ageMinutes = createdAt ? Math.round((now - createdAt) / 60000) : 999;
-    if (ageMinutes < minAge || ageMinutes > maxAge) return;
-
-    let symbol = '???';
-    if (a.base_token?.symbol) symbol = a.base_token.symbol;
-    else if (a.name)          symbol = a.name.split('/')[0].trim();
-
-    tokens.push({
-      chain:          poolChain,
-      name:           a.name || 'Unknown',
-      symbol,
-      price:          parseFloat(a.base_token_price_usd) || 0,
-      liquidity:      parseFloat(a.reserve_in_usd)       || 0,
-      volume24h:      parseFloat(a.volume_usd?.h24)      || 0,
-      priceChange24h: parseFloat(a.price_change_percentage?.h24) || 0,
-      ageMinutes,
-      link: `https://www.geckoterminal.com/${poolChain}/pools/${a.address || ''}`
-    });
+  const res = await fetch(url, {
+    headers: { 'x-cg-demo-api-key': key, 'accept': 'application/json' }
   });
 
-  const chainLabel = filterByChain ? slug : 'all chains';
-  if (!tokens.length) {
-    toast(`No new pools in ${minAge}-${maxAge}m window on ${chainLabel}. Try widening Max Age or lowering Min Liquidity.`);
-  } else {
-    toast(`Found ${tokens.length} new pools on ${chainLabel}`);
+  if (res.status === 401) { openModal(); throw new Error('Invalid CoinGecko API key. Please check your key.'); }
+  if (res.status === 429) throw new Error('CoinGecko rate limit — wait 60s and try again.');
+  if (!res.ok) throw new Error(`CoinGecko error ${res.status}`);
+
+  const json = await res.json();
+  CG_CACHE[url] = { data: json, ts: Date.now() };
+  return json;
+}
+
+// Parse a GeckoTerminal-format pool object into our token structure
+function parsePool(item, defaultChain) {
+  const a = item.attributes || {};
+
+  // Extract chain from pool id (format: chain_address) or relationships
+  const poolId    = item.id || '';
+  const chain     = item.relationships?.network?.data?.id
+                  || poolId.split('_')[0]
+                  || defaultChain
+                  || 'unknown';
+
+  let symbol = '???';
+  if (a.base_token_symbol)   symbol = a.base_token_symbol;
+  else if (a.name)            symbol = a.name.split('/')[0].trim();
+
+  const price    = parseFloat(a.base_token_price_usd) || 0;
+  const liq      = parseFloat(a.reserve_in_usd)       || 0;
+  const vol24h   = parseFloat(a.volume_usd?.h24)      || 0;
+  const chg5m    = parseFloat(a.price_change_percentage?.m5)  || 0;
+  const chg1h    = parseFloat(a.price_change_percentage?.h1)  || 0;
+  const chg24h   = parseFloat(a.price_change_percentage?.h24) || 0;
+  const buys1h   = a.transactions?.h1?.buys   || 0;
+  const sells1h  = a.transactions?.h1?.sells  || 0;
+  const createdAt = a.pool_created_at ? new Date(a.pool_created_at).getTime() : 0;
+  const ageMinutes = createdAt ? Math.round((Date.now() - createdAt) / 60000) : null;
+
+  return {
+    chain, name: a.name || 'Unknown', symbol,
+    price, liquidity: liq, volume24h: vol24h,
+    chg5m, chg1h, chg24h,
+    buys: buys1h, sells: sells1h,
+    ageMinutes,
+    link: `https://www.geckoterminal.com/${chain}/pools/${a.address || ''}`
+  };
+}
+
+// ── Scan Functions ────────────────────────────────────────────
+async function scanTrending(chain) {
+  // /onchain/networks/{network}/trending_pools  OR
+  // /onchain/networks/trending_pools (all networks)
+  const endpoint = chain === 'all'
+    ? `${CG_BASE}/networks/trending_pools?include=base_token&page=1`
+    : `${CG_BASE}/networks/${chain}/trending_pools?include=base_token&page=1`;
+
+  toast(`Scanning trending pools${chain === 'all' ? ' (all chains)' : ' on ' + chain}...`);
+  const json = await cgFetch(endpoint);
+  return (json.data || []).map(p => parsePool(p, chain));
+}
+
+async function scanVolume(chain) {
+  // Top pools sorted by 24h volume
+  const endpoint = chain === 'all'
+    ? `${CG_BASE}/networks/trending_pools?include=base_token&page=1`
+    : `${CG_BASE}/networks/${chain}/pools?include=base_token&page=1`;
+
+  toast(`Scanning top volume${chain === 'all' ? ' (all chains)' : ' on ' + chain}...`);
+  const json = await cgFetch(endpoint);
+
+  // Sort by 24h volume descending
+  const pools = (json.data || []).map(p => parsePool(p, chain));
+  return pools.sort((a, b) => b.volume24h - a.volume24h);
+}
+
+async function scanNewTokens(chain, minAge, maxAge) {
+  // New pools — global or per-chain
+  const endpoint = chain === 'all'
+    ? `${CG_BASE}/networks/new_pools?include=base_token&page=1`
+    : `${CG_BASE}/networks/${chain}/new_pools?include=base_token&page=1`;
+
+  toast(`Scanning new pools${chain === 'all' ? ' (all chains)' : ' on ' + chain}...`);
+  const json = await cgFetch(endpoint);
+
+  const now = Date.now();
+  return (json.data || []).map(p => parsePool(p, chain)).filter(p => {
+    if (p.ageMinutes === null) return false;
+    return p.ageMinutes >= minAge && p.ageMinutes <= maxAge;
+  });
+}
+
+// ── Scoring ────────────────────────────────────────────────────
+function score(token, mode) {
+  const liq   = token.liquidity || 0;
+  const vol   = token.volume24h || 0;
+  const chg24 = token.chg24h   || 0;
+  const chg1h = token.chg1h    || 0;
+  const chg5m = token.chg5m    || 0;
+  const buys  = token.buys     || 0;
+  const sells = token.sells    || 0;
+  const age   = token.ageMinutes || 999;
+  let s = 0;
+
+  if (mode === 'trending') {
+    // Momentum across timeframes + volume relative to liquidity + buy pressure
+    const mom   = Math.min(30, Math.abs(chg1h) * 1.5 + Math.abs(chg5m) * 2);
+    const vol_r = Math.min(30, (vol / Math.max(liq, 1)) * 30);  // vol/liq ratio
+    const liq_s = Math.min(20, Math.log10(Math.max(liq, 1)) * 4);
+    const buyprs = (buys + sells) > 0 ? Math.min(20, (buys / (buys + sells)) * 20) : 0;
+    s = mom + vol_r + liq_s + buyprs;
+  } else if (mode === 'volume') {
+    // Raw volume strength + liquidity depth + price momentum
+    const vol_s = Math.min(50, Math.log10(Math.max(vol, 1)) * 8);
+    const liq_s = Math.min(25, Math.log10(Math.max(liq, 1)) * 4);
+    const mom   = Math.min(25, Math.abs(chg24) * 0.5);
+    s = vol_s + liq_s + mom;
+  } else if (mode === 'new') {
+    // Freshness + early momentum + buy pressure + minimum liquidity signal
+    const fresh  = Math.max(0, (60 - age) * 0.7);
+    const mom    = Math.min(25, Math.abs(chg5m) * 3 + Math.abs(chg1h) * 1.5);
+    const liq_s  = Math.min(15, Math.log10(Math.max(liq, 1)) * 3);
+    const buyprs = (buys + sells) > 0 ? Math.min(15, (buys / (buys + sells)) * 15) : 0;
+    s = fresh + mom + liq_s + buyprs;
   }
-  return tokens;
+
+  return Math.min(99, Math.round(s));
 }
 
 // ── Main Scan ──────────────────────────────────────────────────
 async function runScan() {
+  const key = getKey();
+  if (!key) { openModal(); return; }
+
   const btn = document.getElementById('btn-run');
   btn.disabled = true;
   btn.textContent = 'Scanning...';
   document.getElementById('status-text').textContent = 'Scanning...';
 
+  const chain    = document.getElementById('chain-select').value;
   const minLiq   = parseFloat(document.getElementById('min-liq').value)   || 0;
   const minScore = parseFloat(document.getElementById('min-score').value)  || 0;
+  const minAge   = parseFloat(document.getElementById('min-age').value)    || 0;
+  const maxAge   = parseFloat(document.getElementById('max-age').value)    || 60;
 
   try {
-    const limit = currentMode === 'new' ? 20 : LIMIT;
     let raw = [];
-    if (currentMode === 'new') {
-      raw = await fetchGeckoNew();
-    } else {
-      raw = await fetchBirdeye(currentMode);
-    }
 
-    // Score, filter, sort, cap
+    if (currentMode === 'trending')     raw = await scanTrending(chain);
+    else if (currentMode === 'volume')  raw = await scanVolume(chain);
+    else if (currentMode === 'new')     raw = await scanNewTokens(chain, minAge, maxAge);
+
     pools = raw
-      .map(t => ({ ...t, score: calculateScore(t, currentMode) }))
+      .map(t => ({ ...t, score: score(t, currentMode) }))
       .filter(p => p.liquidity >= minLiq && p.score >= minScore)
       .sort((a, b) => b.score - a.score)
-      .slice(0, limit);
+      .slice(0, LIMIT);
 
     renderTable();
     updateStats();
@@ -770,43 +633,44 @@ async function runScan() {
 function renderTable() {
   const tbody = document.getElementById('results-body');
   if (!pools.length) {
-    tbody.innerHTML = `<tr><td colspan="10" class="empty-msg">No results. Try lowering filters or widening the age window.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="13" class="empty-msg">No results. Try lowering filters or widening age range.</td></tr>`;
     return;
   }
 
   tbody.innerHTML = pools.map(p => {
     const chainKey   = (p.chain || 'unknown').toLowerCase().replace(/[\s_]/g, '-');
     const chainClass = `chain-${chainKey}`;
-    const chgClass   = p.priceChange24h >= 25 ? 'chg-pos-high'
-                     : p.priceChange24h >= 5  ? 'chg-pos-med'
-                     : p.priceChange24h > 0   ? 'chg-pos-low'
-                     : p.priceChange24h < 0   ? 'chg-neg'
-                     : 'chg-zero';
+    const age        = p.ageMinutes !== null ? `${p.ageMinutes}m` : '—';
+    const priceTxt   = p.price
+      ? p.price < 0.000001 ? p.price.toExponential(2)
+      : p.price < 0.01     ? p.price.toFixed(6)
+      : p.price < 1        ? p.price.toFixed(4)
+      : p.price.toFixed(2)
+      : '—';
+
+    const fChg = (v) => {
+      if (v === null || v === undefined) return '<span class="chg-zero">—</span>';
+      const cls = v >= 10 ? 'chg-pos-high' : v >= 2 ? 'chg-pos-med' : v > 0 ? 'chg-pos-low' : v < 0 ? 'chg-neg' : 'chg-zero';
+      return `<span class="${cls}">${v > 0 ? '+' : ''}${v.toFixed(1)}%</span>`;
+    };
+
     const scoreClass = p.score >= 70 ? 'score-high' : p.score >= 40 ? 'score-med' : 'score-low';
-    const age        = p.ageMinutes !== null && p.ageMinutes < 999 ? `${p.ageMinutes}m` : '—';
-    const price = p.price === null
-      ? '—'
-      : p.price
-        ? p.price < 0.000001 ? p.price.toExponential(2)
-        : p.price < 0.01     ? p.price.toFixed(6)
-        : p.price < 1        ? p.price.toFixed(4)
-        : p.price.toFixed(2)
-        : '—';
-    const chgTxt = p.priceChange24h === null
-      ? '—'
-      : p.priceChange24h
-        ? (p.priceChange24h > 0 ? '+' : '') + p.priceChange24h.toFixed(1) + '%'
-        : '—';
+    const buyRatio   = (p.buys + p.sells) > 0
+      ? `<span style="color:var(--green)">${p.buys}</span>/<span style="color:#ff4444">${p.sells}</span>`
+      : '—';
 
     return `<tr>
       <td><span class="chain-col ${chainClass}">${(p.chain || 'UNK').toUpperCase()}</span></td>
-      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;">${p.name}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;">${p.name}</td>
       <td><strong>${p.symbol}</strong></td>
       <td>${age}</td>
-      <td>${p.price === null ? '—' : '$' + price}</td>
+      <td>${p.price ? '$' + priceTxt : '—'}</td>
       <td>$${fmtNum(p.liquidity)}</td>
       <td>$${fmtNum(p.volume24h)}</td>
-      <td class="${chgClass}">${chgTxt}</td>
+      <td>${fChg(p.chg5m)}</td>
+      <td>${fChg(p.chg1h)}</td>
+      <td>${fChg(p.chg24h)}</td>
+      <td>${buyRatio}</td>
       <td class="${scoreClass}">${p.score}</td>
       <td><a href="${p.link}" target="_blank" style="color:var(--green);text-decoration:underline;">View</a></td>
     </tr>`;
@@ -817,11 +681,9 @@ function updateStats() {
   const row = document.getElementById('stats-row');
   if (!pools.length) { row.classList.remove('visible'); return; }
   row.classList.add('visible');
-
   const avgScore = Math.round(pools.reduce((s, p) => s + p.score, 0) / pools.length);
-  const avgChg   = pools.reduce((s, p) => s + (p.priceChange24h || 0), 0) / pools.length;
+  const avgChg   = pools.reduce((s, p) => s + (p.chg24h || 0), 0) / pools.length;
   const totLiq   = pools.reduce((s, p) => s + (p.liquidity || 0), 0);
-
   document.getElementById('stat-count').textContent = pools.length;
   document.getElementById('stat-score').textContent = avgScore;
   document.getElementById('stat-chg').textContent   = (avgChg > 0 ? '+' : '') + avgChg.toFixed(1) + '%';
@@ -836,22 +698,20 @@ function fmtNum(n) {
 }
 
 // ── Auto Scan ──────────────────────────────────────────────────
-function toggleAuto() {
-  document.getElementById('auto-toggle').checked ? startAuto() : stopAuto();
-}
+function toggleAuto() { document.getElementById('auto-toggle').checked ? startAuto() : stopAuto(); }
 
 function startAuto() {
   const ms = parseInt(document.getElementById('auto-interval').value) * 1000;
+  // Clear cache so each auto-scan hits fresh data
+  Object.keys(CG_CACHE).forEach(k => delete CG_CACHE[k]);
   runScan();
   const nextTime = Date.now() + ms;
   const pill = document.getElementById('next-scan-pill');
   pill.classList.add('visible');
-  clearTimeout(autoTimer);
-  clearInterval(nextTick);
+  clearTimeout(autoTimer); clearInterval(nextTick);
   nextTick = setInterval(() => {
     const rem = Math.max(0, nextTime - Date.now());
-    const m = Math.floor(rem / 60000);
-    const s = Math.floor((rem % 60000) / 1000);
+    const m = Math.floor(rem / 60000), s = Math.floor((rem % 60000) / 1000);
     document.getElementById('next-scan').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
   }, 1000);
   autoTimer = setTimeout(() => {
@@ -861,28 +721,26 @@ function startAuto() {
 }
 
 function stopAuto() {
-  clearTimeout(autoTimer);
-  clearInterval(nextTick);
-  const toggle = document.getElementById('auto-toggle');
-  if (toggle) toggle.checked = false;
-  const pill = document.getElementById('next-scan-pill');
-  if (pill) pill.classList.remove('visible');
+  clearTimeout(autoTimer); clearInterval(nextTick);
+  const t = document.getElementById('auto-toggle');
+  if (t) t.checked = false;
+  const p = document.getElementById('next-scan-pill');
+  if (p) p.classList.remove('visible');
 }
 
 // ── Toast ──────────────────────────────────────────────────────
 function toast(msg) {
   const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = msg;
+  t.className = 'toast'; t.textContent = msg;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 3500);
 }
 
 // ── Init ───────────────────────────────────────────────────────
-updateKeyBadges();
+updateKeyBadge();
 setMode('trending');
-// Ensure chain section visible on load (not hidden)
-document.getElementById('chain-section').classList.remove('hidden');
+const k = getKey();
+if (k) document.getElementById('cg-key-input').value = k;
 </script>
 </body>
 </html>
