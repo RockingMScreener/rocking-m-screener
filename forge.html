@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Forge — Solana Real Money Testing</title>
+<title>Forge V2.0 — Solana Real Money Trading</title>
 <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Barlow+Condensed:wght@300;400;600;700;800&display=swap');
@@ -33,9 +33,6 @@ td {padding:10px; border-bottom:1px solid #c4cad2;}
 .remi-log {background:#1a2330; color:#a0c0a0; padding:12px; max-height:380px; overflow-y:auto; font-family:'IBM Plex Mono',monospace; font-size:11px;}
 .last-updated {font-size:11px; color:#666;}
 .warning {background:#fff3f3; border:1px solid #cc2200; padding:12px; margin-bottom:16px; border-radius:4px;}
-.disc-mode-btn { background:#4a5568; }
-.disc-mode-btn.active-disc { background:var(--blue); border:2px solid var(--green); }
-#manual-entry-btn:disabled { opacity:0.5; cursor:not-allowed; }
 </style>
 </head>
 <body>
@@ -48,8 +45,8 @@ td {padding:10px; border-bottom:1px solid #c4cad2;}
     <span class="logo-bottom">CRYPTO</span>
   </div>
   <div>
-    <h1 style="margin:0; font-size:28px; letter-spacing:2px;">FORGE</h1>
-    <p style="margin:0; font-size:12px; color:var(--green);">Real Money Testing • Solana Only</p>
+    <h1 style="margin:0; font-size:28px; letter-spacing:2px;">FORGE <span style="font-size:16px; color:var(--green);">V2.0</span></h1>
+    <p style="margin:0; font-size:12px; color:var(--green);">Real Money Trading • Solana Only</p>
   </div>
 </div>
 
@@ -74,6 +71,25 @@ td {padding:10px; border-bottom:1px solid #c4cad2;}
     <div id="wallet-info" style="font-size:13px; color:#333; line-height:1.6; display:none;">
       <div><strong>Address:</strong> <span id="wallet-address">—</span></div>
       <div><strong>SOL Balance:</strong> <span id="sol-balance">0.0000</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Scan Mode</h3>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+      <button class="btn btn-small" id="mode-new" onclick="setScanMode('new')" style="background:var(--green);color:#000;">New Tokens</button>
+      <button class="btn btn-small" id="mode-trending" onclick="setScanMode('trending')">Trending</button>
+      <button class="btn btn-small" id="mode-volume" onclick="setScanMode('volume')">Volume Spike</button>
+      <button class="btn btn-small" id="mode-manual" onclick="setScanMode('manual')">Manual Watchlist</button>
+    </div>
+    <div id="mode-desc" style="font-size:12px; color:#666; margin-bottom:10px;">
+      🆕 Scanning for brand new Solana pools — high risk, high reward lottery plays.
+    </div>
+    <div id="manual-watchlist-panel" style="display:none;">
+      <label style="font-weight:bold;">Token Mint Addresses (one per line or comma separated)</label>
+      <textarea id="manual-mints" class="finput" rows="3" placeholder="Paste token mint address(es) here...&#10;e.g. EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"></textarea>
+      <button class="btn btn-small" style="margin-top:6px;" onclick="addToWatchlist()">Add to Watchlist</button>
+      <div id="watchlist-display" style="margin-top:8px; font-size:12px; color:#333;"></div>
     </div>
   </div>
 
@@ -128,51 +144,6 @@ td {padding:10px; border-bottom:1px solid #c4cad2;}
     </div>
   </div>
 
-  <div class="card">
-    <h3>Discovery Mode</h3>
-    <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-start;">
-      <div style="flex:1; min-width:200px;">
-        <label style="display:block; margin-bottom:6px; font-weight:600;">Mode</label>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button id="disc-new-btn"    class="btn btn-small disc-mode-btn active-disc" onclick="setDiscoveryMode('new_pools')">🆕 New Pools</button>
-          <button id="disc-trend-btn"  class="btn btn-small disc-mode-btn"             onclick="setDiscoveryMode('trending')">🔥 Trending</button>
-          <button id="disc-vol-btn"    class="btn btn-small disc-mode-btn"             onclick="setDiscoveryMode('volume_spike')">📈 Volume Spike</button>
-        </div>
-        <div id="disc-mode-desc" style="margin-top:8px; font-size:12px; color:#555;">
-          Scans freshly created pools on GeckoTerminal.
-        </div>
-      </div>
-      <div style="flex:1; min-width:200px;">
-        <label style="display:block; margin-bottom:6px; font-weight:600;">
-          Discovery Sensitivity: <span id="sens-label" style="color:var(--blue)">Medium</span>
-        </label>
-        <input type="range" id="disc-sensitivity" min="1" max="3" value="2" style="width:100%;" oninput="updateSensitivity(this.value)">
-        <div style="display:flex; justify-content:space-between; font-size:11px; color:#888;">
-          <span>Conservative</span><span>Medium</span><span>Aggressive</span>
-        </div>
-        <div id="sens-detail" style="margin-top:6px; font-size:11px; color:#666;"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>Manual Entry</h3>
-    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
-      <div style="flex:2; min-width:220px;">
-        <label style="display:block; margin-bottom:4px; font-size:13px;">Token Mint Address (Solana)</label>
-        <input class="finput" id="manual-mint" type="text" placeholder="Paste token mint address…" style="font-family:'IBM Plex Mono',monospace; font-size:12px;">
-      </div>
-      <div style="flex:1; min-width:130px;">
-        <label style="display:block; margin-bottom:4px; font-size:13px;">Symbol Override (optional)</label>
-        <input class="finput" id="manual-symbol" type="text" placeholder="e.g. MYTOKEN">
-      </div>
-      <div>
-        <button class="btn" onclick="manualEntry()" id="manual-entry-btn" style="white-space:nowrap;">🔍 Check &amp; Enter</button>
-      </div>
-    </div>
-    <div id="manual-status" style="margin-top:8px; font-size:12px; color:#555; min-height:18px;"></div>
-  </div>
-
   <button class="btn" onclick="initAccount()">Initialize Account</button>
   <button class="btn" id="scanner-btn" onclick="toggleScanner()">▶ Start Forge</button>
 
@@ -217,7 +188,68 @@ const SCORE_CONFIG = {
   liqCap: 100000, volCap: 500000,
 };
 
-// ====================== WALLET INTEGRATION ======================
+// ====================== SCAN MODE ======================
+let scanMode = 'new'; // 'new' | 'trending' | 'volume' | 'manual'
+let manualWatchlist = []; // array of { mint, symbol } objects
+
+const MODE_CONFIG = {
+  new:      { desc: '🆕 Scanning for brand new Solana pools — high risk, high reward lottery plays.', minAge: 2,   maxAge: 180, minLiq: 8000,  minScore: 52 },
+  trending: { desc: '🔥 Scanning trending Solana tokens — established tokens with real momentum.', minAge: 30,  maxAge: 1440, minLiq: 25000, minScore: 60 },
+  volume:   { desc: '📈 Scanning for unusual volume spikes — tokens seeing sudden trading activity.', minAge: 60,  maxAge: 2880, minLiq: 20000, minScore: 55 },
+  manual:   { desc: '🎯 Manual watchlist — paste token mint addresses to monitor and auto-enter.', minAge: 0,   maxAge: 99999, minLiq: 5000,  minScore: 0  },
+};
+
+function setScanMode(mode) {
+  scanMode = mode;
+  // Update button styles
+  ['new','trending','volume','manual'].forEach(m => {
+    const btn = document.getElementById(`mode-${m}`);
+    btn.style.background = m === mode ? 'var(--green)' : '';
+    btn.style.color = m === mode ? '#000' : '';
+  });
+  // Update description
+  document.getElementById('mode-desc').textContent = MODE_CONFIG[mode].desc;
+  // Show/hide manual watchlist panel
+  document.getElementById('manual-watchlist-panel').style.display = mode === 'manual' ? 'block' : 'none';
+  // Auto-adjust settings for mode
+  const cfg = MODE_CONFIG[mode];
+  document.getElementById('min-age').value = cfg.minAge;
+  document.getElementById('max-age').value = cfg.maxAge;
+  document.getElementById('min-liq').value = cfg.minLiq;
+  document.getElementById('min-score').value = cfg.minScore;
+  addLog(`🔄 Scan mode: ${mode.toUpperCase()} — settings auto-adjusted`, 'info');
+}
+
+function addToWatchlist() {
+  const raw = document.getElementById('manual-mints').value;
+  const mints = raw.split(/[\n,]+/).map(s => s.trim()).filter(s => s.length > 30);
+  if (!mints.length) { addLog('⚠️ No valid mint addresses found', 'warn'); return; }
+  mints.forEach(mint => {
+    if (!manualWatchlist.find(w => w.mint === mint)) {
+      manualWatchlist.push({ mint, symbol: mint.slice(0,8) + '...' });
+      addLog(`📋 Added to watchlist: ${mint.slice(0,8)}...`, 'info');
+    }
+  });
+  document.getElementById('manual-mints').value = '';
+  renderWatchlist();
+}
+
+function removeFromWatchlist(mint) {
+  manualWatchlist = manualWatchlist.filter(w => w.mint !== mint);
+  renderWatchlist();
+  addLog(`🗑️ Removed from watchlist: ${mint.slice(0,8)}...`, 'info');
+}
+
+function renderWatchlist() {
+  const el = document.getElementById('watchlist-display');
+  if (!manualWatchlist.length) { el.innerHTML = '<em>No tokens in watchlist</em>'; return; }
+  el.innerHTML = manualWatchlist.map((w,i) =>
+    `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #eee;">
+      <span>${w.symbol} <span style="color:#999;font-size:11px;">${w.mint.slice(0,12)}...</span></span>
+      <button class="btn-small" onclick="removeFromWatchlist('${w.mint}')" style="padding:2px 8px;font-size:11px;">✕</button>
+    </div>`
+  ).join('');
+}
 let entryLock = false; // prevents simultaneous buy signing requests
 let sellQueue = [];    // queues sell requests to prevent simultaneous sell signing
 const tokenCooldown = new Map(); // token mint → timestamp of last failure
@@ -740,20 +772,32 @@ function scoreCandidate(pool) {
   if (liq < account.minLiq) return { score: 0, reasons: [`Liq $${liq.toFixed(0)} below min`] };
   if (ageMin > account.maxAgeMin) return { score: 0, reasons: [`Age ${Math.floor(ageMin)}m > max`] };
   if (ageMin < account.minAgeMin) return { score: 0, reasons: [`Age ${Math.floor(ageMin)}m < min ${account.minAgeMin}m`] };
-  if (fdv > 500000) return { score: 0, reasons: [`FDV $${(fdv / 1000).toFixed(0)}K too high`] };
 
-  // Liquidity Score (strong weight)
-  const liqScore = Math.min(liq / 15000, 1) * 35;
+  // FDV cap — relaxed for trending/volume modes (established tokens have higher FDV)
+  const fdvCap = (scanMode === 'trending' || scanMode === 'volume') ? 5000000 : 500000;
+  if (fdv > fdvCap) return { score: 0, reasons: [`FDV $${(fdv / 1000).toFixed(0)}K too high`] };
+
+  // Liquidity Score
+  const liqCap = (scanMode === 'trending' || scanMode === 'volume') ? 500000 : 15000;
+  const liqScore = Math.min(liq / liqCap, 1) * 35;
   score += liqScore;
   reasons.push(`Liq $${(liq / 1000).toFixed(1)}K`);
 
-  // Age Score (fresher = better)
-  const ageScore = Math.max(0, (account.maxAgeMin - ageMin) / account.maxAgeMin) * 25;
+  // Age Score — for new tokens fresher is better, for trending/volume older is fine
+  let ageScore = 0;
+  if (scanMode === 'new') {
+    ageScore = Math.max(0, (account.maxAgeMin - ageMin) / account.maxAgeMin) * 25;
+  } else {
+    // For trending/volume/manual — flat age score, just confirm it's in range
+    ageScore = 20;
+  }
   score += ageScore;
   reasons.push(`Age ${Math.floor(ageMin)}m`);
 
-  // Volume Score
-  const volScore = Math.min(vol / 80000, 1) * 20;
+  // Volume Score — weight higher for volume spike mode
+  const volCap = (scanMode === 'volume') ? 50000 : 80000;
+  const volWeight = (scanMode === 'volume') ? 30 : 20;
+  const volScore = Math.min(vol / volCap, 1) * volWeight;
   score += volScore;
   if (vol > 5000) reasons.push(`Vol $${(vol / 1000).toFixed(1)}K`);
 
@@ -770,7 +814,8 @@ function scoreCandidate(pool) {
   // FDV sweet-spot bonus
   if (fdv > 0) {
     if (fdv <= 100000) { score += 5; reasons.push(`FDV ${(fdv/1000).toFixed(1)}K (small)`); }
-    else if (fdv <= 300000) { score += 2; reasons.push(`FDV ${(fdv/1000).toFixed(1)}K`); }
+    else if (fdv <= 1000000) { score += 3; reasons.push(`FDV ${(fdv/1000).toFixed(1)}K`); }
+    else if (fdv <= 5000000) { score += 1; reasons.push(`FDV ${(fdv/1000000).toFixed(1)}M`); }
   }
 
   score = Math.min(100, score);
@@ -810,13 +855,6 @@ async function updateAllPrices() {
   isUpdating = false;
 }
 
-// ====================== SCAN DISPATCHER ======================
-async function runDiscoveryScan() {
-  if (discoveryMode === 'trending')     return scanTrending();
-  if (discoveryMode === 'volume_spike') return scanVolumeSpike();
-  return scanCycle(); // default: new_pools
-}
-
 // ====================== SCANNER ======================
 async function scanCycle() {
   if (!scannerRunning || !account) return;
@@ -826,8 +864,20 @@ async function scanCycle() {
     return;
   }
 
-  addLog('🔍 Scanning GeckoTerminal new pools...', 'info');
+  if (scanMode === 'manual') {
+    await scanManual();
+  } else if (scanMode === 'trending') {
+    await scanTrending();
+  } else if (scanMode === 'volume') {
+    await scanVolume();
+  } else {
+    await scanNewTokens();
+  }
+}
 
+// --- NEW TOKENS MODE (original behavior) ---
+async function scanNewTokens() {
+  addLog('🔍 Scanning GeckoTerminal new pools...', 'info');
   const seenThisScan = new Set(positions.map(p => p.pairAddress));
 
   for (let i = 0; i < SUPPORTED_CHAINS.length; i++) {
@@ -849,7 +899,6 @@ async function scanCycle() {
         i--;
         continue;
       }
-
       if (!res.ok) continue;
 
       const data = await res.json();
@@ -857,26 +906,150 @@ async function scanCycle() {
 
       for (const pool of pools) {
         if (positions.length >= account.maxPositions) break;
-
         const addr = pool.attributes?.address;
-        if (!addr) continue;
-
-        if (seenThisScan.has(addr)) continue;
+        if (!addr || seenThisScan.has(addr)) continue;
         seenThisScan.add(addr);
-
         const { score, reasons } = scoreCandidate(pool.attributes);
         if (score < account.minScore) continue;
-
         const candidateSymbol = normalizeSymbol(pool.attributes?.name);
         addLog(`📊 Candidate: ${candidateSymbol} (${chain}) score ${score} — ${reasons.join(', ')}`, 'info');
         await attemptAutoEntry(pool, chain, score, reasons);
       }
-
     } catch(e) {
       addLog(`⚠️ Scan error on ${chain} — ${e.message}`, 'warn');
     }
-
     if (i < SUPPORTED_CHAINS.length - 1) await sleep(2500);
+  }
+}
+
+// --- TRENDING MODE ---
+async function scanTrending() {
+  addLog('🔥 Scanning GeckoTerminal trending Solana pools...', 'info');
+  try {
+    const res = await fetch(
+      'https://api.geckoterminal.com/api/v2/networks/solana/trending_pools?limit=20',
+      { headers: { Accept: 'application/json;version=20230302' } }
+    );
+    if (res.status === 429) { addLog('⚠️ GeckoTerminal rate limit — waiting 15s', 'warn'); await sleep(15000); return; }
+    if (!res.ok) { addLog(`⚠️ Trending fetch failed: ${res.status}`, 'warn'); return; }
+
+    const data = await res.json();
+    const pools = data.data || [];
+    addLog(`📡 Trending: ${pools.length} pools returned`, 'info');
+
+    const seenThisScan = new Set(positions.map(p => p.pairAddress));
+    for (const pool of pools) {
+      if (!scannerRunning || positions.length >= account.maxPositions) break;
+      const addr = pool.attributes?.address;
+      if (!addr || seenThisScan.has(addr)) continue;
+      seenThisScan.add(addr);
+      const { score, reasons } = scoreCandidate(pool.attributes);
+      if (score < account.minScore) continue;
+      const candidateSymbol = normalizeSymbol(pool.attributes?.name);
+      addLog(`📊 Trending candidate: ${candidateSymbol} score ${score} — ${reasons.join(', ')}`, 'info');
+      await attemptAutoEntry(pool, 'solana', score, reasons);
+    }
+  } catch(e) {
+    addLog(`⚠️ Trending scan error — ${e.message}`, 'warn');
+  }
+}
+
+// --- VOLUME SPIKE MODE ---
+async function scanVolume() {
+  addLog('📈 Scanning GeckoTerminal volume spikes on Solana...', 'info');
+  try {
+    // Use h24_tx_count_desc to find most active pools — valid GeckoTerminal sort param
+    const res = await fetch(
+      'https://api.geckoterminal.com/api/v2/networks/solana/pools?sort=h24_volume_usd_desc&limit=20',
+      { headers: { Accept: 'application/json;version=20230302' } }
+    );
+    if (res.status === 429) { addLog('⚠️ GeckoTerminal rate limit — waiting 15s', 'warn'); await sleep(15000); return; }
+    if (!res.ok) { addLog(`⚠️ Volume spike fetch failed: ${res.status}`, 'warn'); return; }
+
+    const data = await res.json();
+    const pools = data.data || [];
+    addLog(`📡 Volume spike: ${pools.length} pools returned`, 'info');
+
+    const seenThisScan = new Set(positions.map(p => p.pairAddress));
+    for (const pool of pools) {
+      if (!scannerRunning || positions.length >= account.maxPositions) break;
+      const addr = pool.attributes?.address;
+      if (!addr || seenThisScan.has(addr)) continue;
+      seenThisScan.add(addr);
+      // Extra check: volume should be meaningfully higher than liquidity (spike indicator)
+      const vol = parseFloat(pool.attributes?.volume_usd?.h24 || 0);
+      const liq = parseFloat(pool.attributes?.reserve_in_usd || 0);
+      if (liq > 0 && vol / liq < 0.5) continue; // skip if volume < 50% of liquidity
+      const { score, reasons } = scoreCandidate(pool.attributes);
+      if (score < account.minScore) continue;
+      const candidateSymbol = normalizeSymbol(pool.attributes?.name);
+      addLog(`📊 Volume spike candidate: ${candidateSymbol} score ${score} vol/liq ratio: ${(vol/liq).toFixed(1)}x — ${reasons.join(', ')}`, 'info');
+      await attemptAutoEntry(pool, 'solana', score, reasons);
+    }
+  } catch(e) {
+    addLog(`⚠️ Volume spike scan error — ${e.message}`, 'warn');
+  }
+}
+
+// --- MANUAL WATCHLIST MODE ---
+async function scanManual() {
+  if (!manualWatchlist.length) {
+    addLog('📋 Manual watchlist is empty — add token mint addresses above', 'warn');
+    return;
+  }
+  addLog(`🎯 Scanning ${manualWatchlist.length} manual watchlist token(s)...`, 'info');
+
+  for (const item of manualWatchlist) {
+    if (!scannerRunning || positions.length >= account.maxPositions) break;
+    // Check if already in positions
+    if (positions.find(p => p.tokenMint === item.mint)) {
+      addLog(`⏭️ ${item.symbol} already in positions — skipping`, 'info');
+      continue;
+    }
+    if (isOnCooldown(item.mint, item.symbol)) continue;
+    try {
+      // Fetch pool data from DexScreener for this token
+      const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${item.mint}`);
+      if (!res.ok) { addLog(`⚠️ DexScreener lookup failed for ${item.symbol}`, 'warn'); continue; }
+      const data = await res.json();
+      const pair = data?.pairs?.[0];
+      if (!pair) { addLog(`⚠️ No pairs found for ${item.symbol}`, 'warn'); continue; }
+
+      // Update symbol from actual token data
+      const symbol = pair.baseToken?.symbol || item.symbol;
+      item.symbol = symbol;
+      renderWatchlist();
+
+      // Build a pool-like attributes object for scoring
+      const attrs = {
+        name: symbol,
+        base_token_price_usd: pair.priceUsd,
+        reserve_in_usd: pair.liquidity?.usd,
+        fdv_usd: pair.fdv,
+        volume_usd: { h24: pair.volume?.h24 },
+        pool_created_at: pair.pairCreatedAt ? new Date(pair.pairCreatedAt).toISOString() : null,
+        transactions: { h1: { buys: pair.txns?.h1?.buys || 0, sells: pair.txns?.h1?.sells || 0 } },
+      };
+
+      const { score, reasons } = scoreCandidate(attrs);
+      addLog(`📊 Watchlist: ${symbol} score ${score} — ${reasons.join(', ')}`, 'info');
+
+      if (score < account.minScore) {
+        addLog(`⏭️ ${symbol} score ${score} below minimum ${account.minScore}`, 'info');
+        continue;
+      }
+
+      // Build a minimal pool object for attemptAutoEntry
+      const pool = {
+        attributes: { ...attrs, address: pair.pairAddress },
+        relationships: { base_token: { data: { id: `solana_${item.mint}` } } },
+      };
+
+      await attemptAutoEntry(pool, 'solana', score, reasons);
+    } catch(e) {
+      addLog(`⚠️ Watchlist error for ${item.symbol}: ${e.message}`, 'warn');
+    }
+    await sleep(1000);
   }
 }
 
@@ -1243,309 +1416,6 @@ function manualClose(index, pct = 100) {
   }
 }
 
-// ====================== DISCOVERY MODE ======================
-let discoveryMode = 'new_pools'; // 'new_pools' | 'trending' | 'volume_spike'
-let discSensitivity = 2; // 1=conservative, 2=medium, 3=aggressive
-
-const SENSITIVITY_PROFILES = {
-  1: { label: 'Conservative', minScore: 60, volMultiplier: 2.0,  trendingLimit: 5,  volSpikeMin: 3.0, desc: 'Higher score bar · smaller pool of candidates · less frequent entry' },
-  2: { label: 'Medium',       minScore: 52, volMultiplier: 1.5,  trendingLimit: 10, volSpikeMin: 2.0, desc: 'Balanced · default score threshold · standard candidate pool' },
-  3: { label: 'Aggressive',   minScore: 42, volMultiplier: 1.0,  trendingLimit: 20, volSpikeMin: 1.5, desc: 'Lower score bar · larger pool · more entries but higher risk' },
-};
-
-const DISC_DESCRIPTIONS = {
-  new_pools:    'Scans freshly created pools on GeckoTerminal.',
-  trending:     'Targets pools with rising trade activity over the last hour.',
-  volume_spike: 'Looks for pools where volume has surged relative to the prior period.',
-};
-
-function setDiscoveryMode(mode) {
-  discoveryMode = mode;
-  document.querySelectorAll('.disc-mode-btn').forEach(b => b.classList.remove('active-disc'));
-  const map = { new_pools: 'disc-new-btn', trending: 'disc-trend-btn', volume_spike: 'disc-vol-btn' };
-  document.getElementById(map[mode])?.classList.add('active-disc');
-  document.getElementById('disc-mode-desc').textContent = DISC_DESCRIPTIONS[mode] || '';
-  addLog(`🔭 Discovery mode set to: ${mode.replace('_',' ').toUpperCase()}`, 'info');
-}
-
-function updateSensitivity(val) {
-  discSensitivity = parseInt(val);
-  const p = SENSITIVITY_PROFILES[discSensitivity];
-  document.getElementById('sens-label').textContent = p.label;
-  document.getElementById('sens-detail').textContent = p.desc;
-  // Live-update minScore if account initialized
-  if (account) account.minScore = p.minScore;
-}
-
-// Call once on load to set initial desc
-updateSensitivity(2);
-
-// ====================== TRENDING SCANNER ======================
-async function scanTrending() {
-  if (!scannerRunning || !account) return;
-  if (positions.length >= account.maxPositions) return;
-
-  const prof = SENSITIVITY_PROFILES[discSensitivity];
-  const limit = prof.trendingLimit;
-  addLog(`🔥 Scanning GeckoTerminal trending pools (top ${limit})...`, 'info');
-
-  const seenThisScan = new Set(positions.map(p => p.pairAddress));
-
-  try {
-    const res = await fetch(
-      `https://api.geckoterminal.com/api/v2/networks/solana/trending_pools?limit=${limit}`,
-      { headers: { Accept: 'application/json;version=20230302' } }
-    );
-
-    if (res.status === 429) {
-      addLog(`⚠️ GeckoTerminal rate limit (trending) — waiting 15s`, 'warn');
-      await sleep(15000);
-      return;
-    }
-    if (!res.ok) { addLog(`⚠️ Trending fetch failed: ${res.status}`, 'warn'); return; }
-
-    const data = await res.json();
-    const pools = data.data || [];
-
-    for (const pool of pools) {
-      if (!scannerRunning || positions.length >= account.maxPositions) break;
-      const addr = pool.attributes?.address;
-      if (!addr || seenThisScan.has(addr)) continue;
-      seenThisScan.add(addr);
-
-      // Override minScore with sensitivity profile
-      const savedMin = account.minScore;
-      account.minScore = prof.minScore;
-      const { score, reasons } = scoreCandidate(pool.attributes);
-      account.minScore = savedMin;
-
-      if (score < prof.minScore) continue;
-
-      const sym = normalizeSymbol(pool.attributes?.name);
-      reasons.push('🔥 Trending');
-      addLog(`📊 Trending candidate: ${sym} score ${score} — ${reasons.join(', ')}`, 'info');
-      await attemptAutoEntry(pool, 'solana', score, reasons);
-    }
-  } catch(e) {
-    addLog(`⚠️ Trending scan error — ${e.message}`, 'warn');
-  }
-}
-
-// ====================== VOLUME SPIKE SCANNER ======================
-async function scanVolumeSpike() {
-  if (!scannerRunning || !account) return;
-  if (positions.length >= account.maxPositions) return;
-
-  const prof = SENSITIVITY_PROFILES[discSensitivity];
-  addLog(`📈 Scanning for volume spike pools (${prof.label})...`, 'info');
-
-  const seenThisScan = new Set(positions.map(p => p.pairAddress));
-
-  try {
-    // GeckoTerminal top pools by 1h volume change
-    const res = await fetch(
-      `https://api.geckoterminal.com/api/v2/networks/solana/pools?sort=h24_volume_usd_liquidity_ratio_desc&limit=20`,
-      { headers: { Accept: 'application/json;version=20230302' } }
-    );
-
-    if (res.status === 429) {
-      addLog(`⚠️ GeckoTerminal rate limit (vol spike) — waiting 15s`, 'warn');
-      await sleep(15000);
-      return;
-    }
-    if (!res.ok) { addLog(`⚠️ Vol spike fetch failed: ${res.status}`, 'warn'); return; }
-
-    const data = await res.json();
-    const pools = data.data || [];
-
-    for (const pool of pools) {
-      if (!scannerRunning || positions.length >= account.maxPositions) break;
-      const addr = pool.attributes?.address;
-      if (!addr || seenThisScan.has(addr)) continue;
-
-      const attrs = pool.attributes;
-      const vol1h  = parseFloat(attrs.volume_usd?.h1  || 0);
-      const vol6h  = parseFloat(attrs.volume_usd?.h6  || 0);
-      const avg6h  = vol6h / 6;
-
-      // Spike ratio: 1h volume vs average of prior 6h period per hour
-      const spikeRatio = avg6h > 0 ? vol1h / avg6h : 0;
-      if (spikeRatio < prof.volSpikeMin) continue;
-
-      seenThisScan.add(addr);
-
-      const savedMin = account.minScore;
-      account.minScore = prof.minScore;
-      const { score, reasons } = scoreCandidate(attrs);
-      account.minScore = savedMin;
-
-      if (score < prof.minScore) continue;
-
-      const sym = normalizeSymbol(attrs.name);
-      reasons.push(`📈 Vol spike ×${spikeRatio.toFixed(1)}`);
-      addLog(`📊 Vol spike candidate: ${sym} score ${score} spike ×${spikeRatio.toFixed(1)} — ${reasons.join(', ')}`, 'info');
-      await attemptAutoEntry(pool, 'solana', score, reasons);
-    }
-  } catch(e) {
-    addLog(`⚠️ Volume spike scan error — ${e.message}`, 'warn');
-  }
-}
-
-// ====================== MANUAL ENTRY ======================
-async function manualEntry() {
-  const mintInput  = document.getElementById('manual-mint').value.trim();
-  const symInput   = document.getElementById('manual-symbol').value.trim().toUpperCase();
-  const statusEl   = document.getElementById('manual-status');
-  const btn        = document.getElementById('manual-entry-btn');
-
-  if (!mintInput) { statusEl.textContent = '⚠️ Please paste a token mint address.'; return; }
-  if (!account)   { statusEl.textContent = '⚠️ Initialize account first.'; return; }
-  if (!wallet.connected) { statusEl.textContent = '⚠️ Wallet not connected.'; return; }
-  if (positions.length >= account.maxPositions) { statusEl.textContent = '⚠️ Max positions reached.'; return; }
-
-  // Basic Solana address sanity check
-  if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(mintInput)) {
-    statusEl.textContent = '❌ Invalid Solana address format.';
-    return;
-  }
-
-  // Check not already in a position
-  if (positions.some(p => p.tokenMint === mintInput)) {
-    statusEl.textContent = '⚠️ Already holding this token.';
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = '⏳ Checking…';
-  statusEl.textContent = '🛡️ Running safety checks…';
-
-  try {
-    // --- SAFETY CHECKS (same as auto entry) ---
-    const mintCheck = await checkMintAuthority(mintInput);
-    for (const w of mintCheck.warnings) addLog(w, 'warn');
-    if (!mintCheck.safe) {
-      statusEl.textContent = '❌ Blocked — mint/freeze authority risk.';
-      addLog(`⛔ Manual entry blocked: mint/freeze authority on ${mintInput.slice(0,8)}...`, 'err');
-      addCooldown(mintInput);
-      return;
-    }
-
-    const dexCheck = await checkDexScreener(mintInput);
-    for (const w of dexCheck.warnings) addLog(w, 'warn');
-    if (account.requireLockedLiq && dexCheck.warnings.some(w => w.includes('not locked'))) {
-      statusEl.textContent = '❌ Blocked — liquidity not locked.';
-      addLog(`⛔ Manual entry blocked: unlocked liquidity`, 'err');
-      addCooldown(mintInput);
-      return;
-    }
-
-    // Try to derive symbol and price from DexScreener pair data
-    const pair = dexCheck.pair;
-    const symbol = symInput || normalizeSymbol(pair?.baseToken?.symbol || pair?.baseToken?.name || mintInput.slice(0,8));
-    const entryPrice = parseFloat(pair?.priceUsd || 0);
-    const pairAddress = pair?.pairAddress || null;
-
-    if (entryPrice <= 0) {
-      statusEl.textContent = '⚠️ Could not fetch token price from DexScreener — aborting.';
-      addLog(`⛔ Manual entry: no price for ${symbol}`, 'err');
-      return;
-    }
-
-    statusEl.textContent = '🔎 Honeypot check…';
-
-    const available = getAvailableCapital();
-    const entrySize = Math.min(account.maxEntry, available * 0.6);
-    if (entrySize < EXIT_CONFIG.minValue) {
-      statusEl.textContent = '⚠️ Insufficient capital available.';
-      return;
-    }
-
-    const currentSOLPrice = await getSOLPrice();
-    if (currentSOLPrice <= 0) { statusEl.textContent = '❌ Cannot get SOL price.'; return; }
-
-    const solAmount = entrySize / currentSOLPrice;
-    const lamports = Math.floor(solAmount * solanaWeb3.LAMPORTS_PER_SOL);
-
-    // Honeypot check
-    const buyPreCheck = await getJupiterQuote(SOL_MINT, mintInput, lamports, TX_CONFIG.slippageBps);
-    const expectedTokens = parseInt(buyPreCheck.quote?.outAmount || 0);
-    await new Promise(r => setTimeout(r, 600));
-    const testSellAmount = expectedTokens > 0 ? expectedTokens : 1000000;
-    const sellCheck = await getJupiterQuote(mintInput, SOL_MINT, testSellAmount, TX_CONFIG.sellSlippageBps);
-
-    if (sellCheck.error) {
-      statusEl.textContent = '❌ Honeypot detected — no sell route found.';
-      addLog(`⛔ Manual entry honeypot blocked: ${symbol}`, 'err');
-      addCooldown(mintInput);
-      return;
-    }
-
-    const sellOutAmount = parseInt(sellCheck.quote?.outAmount || 0);
-    const minReturn = lamports * 0.20;
-    if (sellOutAmount < minReturn) {
-      const retPct = ((sellOutAmount / lamports) * 100).toFixed(1);
-      statusEl.textContent = `❌ Sell returns only ${retPct}% of buy — likely honeypot.`;
-      addLog(`⛔ Manual entry honeypot blocked: ${symbol} returns ${retPct}%`, 'err');
-      addCooldown(mintInput);
-      return;
-    }
-
-    statusEl.textContent = '✅ Safety checks passed — firing swap…';
-    addLog(`✅ Manual entry safety passed for ${symbol} — firing $${entrySize.toFixed(2)} swap`, 'ok');
-
-    // --- REAL SWAP ---
-    const result = await jupiterSwap(SOL_MINT, mintInput, lamports, TX_CONFIG.slippageBps, `BUY ${symbol} (manual)`);
-    if (!result) {
-      statusEl.textContent = '❌ Swap failed — position not opened.';
-      addCooldown(mintInput);
-      return;
-    }
-
-    // Reconcile actual token balance
-    let actualTokensHeld = entrySize / entryPrice;
-    try {
-      const conn = getConn();
-      const tokenAccounts = await conn.getParsedTokenAccountsByOwner(
-        wallet.publicKey,
-        { mint: new solanaWeb3.PublicKey(mintInput) }
-      );
-      if (tokenAccounts.value.length > 0) {
-        const tb = tokenAccounts.value[0].account.data.parsed.info.tokenAmount;
-        actualTokensHeld = parseInt(tb.amount) / Math.pow(10, tb.decimals);
-      }
-    } catch(e) { /* use calculated fallback */ }
-
-    account.balance -= entrySize;
-    positions.push({
-      symbol,
-      pairAddress,
-      tokenMint: mintInput,
-      entryPrice,
-      currentPrice: entryPrice,
-      peakPrice: entryPrice,
-      tokensHeld: actualTokensHeld,
-      enteredAt: Date.now(),
-      score: 'M', // manual marker
-      entryReasons: ['Manual entry'],
-      tp1Hit: false, tp2Hit: false, tp3Hit: false,
-      trailActive: false,
-    });
-
-    addLog(`🟢 MANUAL ENTRY: ${symbol} | ${format.tokens(actualTokensHeld)} tokens @ ${format.price(entryPrice)}`, 'ok');
-    statusEl.textContent = `✅ Position opened: ${symbol} @ ${format.price(entryPrice)}`;
-    document.getElementById('manual-mint').value = '';
-    document.getElementById('manual-symbol').value = '';
-    render.all();
-
-  } catch(e) {
-    addLog(`❌ Manual entry error: ${e.message}`, 'err');
-    statusEl.textContent = `❌ Error: ${e.message}`;
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '🔍 Check & Enter';
-  }
-}
-
 // ====================== SCANNER TOGGLE ======================
 function toggleScanner() {
   if (!account) { alert('Initialize account first.'); return; }
@@ -1555,20 +1425,19 @@ function toggleScanner() {
   btn.textContent = scannerRunning ? '⏹ Stop Forge' : '▶ Start Forge';
 
   if (scannerRunning) {
-    const modeLabel = discoveryMode.replace('_',' ').toUpperCase();
-    addLog(`🚀 Forge started — Mode: ${modeLabel} · Sensitivity: ${SENSITIVITY_PROFILES[discSensitivity].label}`, 'ok');
-    updateAllPrices().then(() => runDiscoveryScan());
+    addLog(`🚀 Forge V2.0 started — Mode: ${scanMode.toUpperCase()}`, 'ok');
+    updateAllPrices().then(() => scanCycle());
 
     if (updateInterval) clearInterval(updateInterval);
     updateInterval = setInterval(async () => {
       await updateAllPrices();
       evaluatePositions();
-      await runDiscoveryScan();
+      await scanCycle();
     }, REFRESH_SECONDS * 1000);
 
   } else {
     if (updateInterval) clearInterval(updateInterval);
-    addLog('⏹ Forge stopped', 'err');
+    addLog('⏹ Forge V2.0 stopped', 'err');
     entryLock = false;
     sellQueue = [];
     sellProcessing = false;
