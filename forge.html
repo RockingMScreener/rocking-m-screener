@@ -194,7 +194,7 @@ let manualWatchlist = []; // array of { mint, symbol } objects
 
 const MODE_CONFIG = {
   new:      { desc: '🆕 Scanning for brand new Solana pools — high risk, high reward lottery plays.', minAge: 2,   maxAge: 180, minLiq: 8000,  minScore: 52 },
-  trending: { desc: '🔥 Scanning trending Solana tokens — established tokens with real momentum.', minAge: 30,  maxAge: 1440, minLiq: 25000, minScore: 60 },
+  trending: { desc: '🔥 Scanning trending Solana tokens — established tokens with real momentum.', minAge: 30,  maxAge: 10080, minLiq: 25000, minScore: 50 },
   volume:   { desc: '📈 Scanning for unusual volume spikes — tokens seeing sudden trading activity.', minAge: 60,  maxAge: 2880, minLiq: 20000, minScore: 55 },
   manual:   { desc: '🎯 Manual watchlist — paste token mint addresses to monitor and auto-enter.', minAge: 0,   maxAge: 99999, minLiq: 5000,  minScore: 0  },
 };
