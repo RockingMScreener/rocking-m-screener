@@ -4,7 +4,7 @@ Open source autonomous investment suite built by a leather craftsman from Montan
 You don't have to be a master trader. You just need to know how to use the tools.
 No paywalls. No signups. No influencer noise. Just honest, filterable on-chain data you control.
 
-🚀 [Launch Cipher](https://rockingmscreener.com) · 📊 [Craftsman](https://rockingmscreener.com/papertrader.html) · 🤖 [Trail Guide](https://rockingmscreener.com/trailguide.html) · ⚡ [Stormchaser](https://rockingmscreener.com/ai-trader.html) · [@Rockingmscreen on X](https://x.com/Rockingmscreen) · [Discord](#)
+🚀 [Launch Cipher](https://rockingmscreener.com) · 📊 [Craftsman](https://rockingmscreener.com/papertrader.html) · 🤖 [Trail Guide](https://rockingmscreener.com/trailguide.html) · ⚡ [Stormchaser](https://rockingmscreener.com/ai-trader.html) ·[Forge](https://rockingmscreener.com/forge). [@Rockingmscreen on X](https://x.com/Rockingmscreen) · [Discord](#)
 
 ---
 
