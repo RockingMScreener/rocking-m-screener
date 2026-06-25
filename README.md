@@ -1,19 +1,10 @@
 # 🏔️ Rocking M Crypto Screener
 
-[![GitHub stars](https://img.shields.io/github/stars/RockingMScreener/rocking-m-screener.svg)](https://github.com/RockingMScreener/rocking-m-screener/stargazers)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tech Stack](https://img.shields.io/badge/Stack-Vanilla%20JS%20%2B%20APIs-blue.svg)](https://github.com/RockingMScreener/rocking-m-screener/blob/main)
-[![Live Demo](https://img.shields.io/badge/Demo-rockingmscreener.com-brightgreen)](https://rockingmscreener.com)
+Open source autonomous investment suite built by a leather craftsman from Montana.
+You don't have to be a master trader. You just need to know how to use the tools.
+No paywalls. No signups. No influencer noise. Just honest, filterable on-chain data you control.
 
-**Open source autonomous investment suite built by a leather craftsman from Montana.**
-> *You don't have to be a master trader. You just need to know how to use the tools.*
-
-**No paywalls. No signups. No influencer noise.** Just honest, filterable on-chain data you control.
-
-**[🚀 Launch Cipher](https://rockingmscreener.com/cipher.html)**  
-**[📊 Craftsman](https://rockingmscreener.com/craftsman.html)** · **[🤖 Trail Guide](https://rockingmscreener.com/trailguide.html)**
-**[Stormchaser](https://rockingmscreener.com/ai-trader/index.html)**
-**[@Rockingmscreen on X](https://x.com/Rockingmscreen)** · **[Discord](https://discord.gg/aumVpSavB)**
+🚀 [Launch Cipher](https://rockingmscreener.com) · 📊 [Craftsman](https://rockingmscreener.com/papertrader.html) · 🤖 [Trail Guide](https://rockingmscreener.com/trailguide.html) · ⚡ [Stormchaser](https://rockingmscreener.com/ai-trader.html) · [@Rockingmscreen on X](https://x.com/Rockingmscreen) · [Discord](#)
 
 ---
 
@@ -30,94 +21,57 @@ The Rocking M brand comes from my leather work. The inverted rocker in the logo 
 **Remi — Rocking M Autonomous Investment Agent** is a two-strategy investment system built around a simple principle: keep disciplined capital growth and high-risk speculation completely separate. Each tool has a defined role.
 
 | Tool | Name | Tagline |
-|---|---|---|
-| Screener | **Cipher** | *Decodes What the Market Is Saying* |
-| Paper Trader | **Craftsman** | *Building with Precision* |
-| AI Trader | **Stormchaser** | *High Risk. High Reward.* |
-| Master Dashboard | **Ranch House** | *Where Every Signal Comes Home* |
-| AI Assistant | **Trail Guide** | *Here to Light the Way* |
+|------|------|---------|
+| Screener | **Cipher** | Decodes What the Market Is Saying |
+| Paper Trader | **Craftsman** | Building with Precision |
+| AI Trader (EVM) | **Stormchaser** | High Risk. High Reward. |
+| Real Money (Solana) | **Forge** | Real Stakes. Real Execution. |
+| Master Dashboard | **Ranch House** | Where Every Signal Comes Home |
+| AI Assistant | **Trail Guide** | Here to Light the Way |
 
-**Strategy 1 — Capital Growth (Cipher + Craftsman)**  
+### Strategy 1 — Capital Growth (Cipher + Craftsman)
 Disciplined scanning, filtered entries, tiered exits. Build and protect capital over time. Future: automated profit routing into long-term holds (BTC, ETH, SOL staking, ETFs).
 
-**Strategy 2 — High Risk / High Reward (Stormchaser)**  
+### Strategy 2 — High Risk / High Reward (Stormchaser + Forge)
 Disposable capital only. Autonomous discovery and execution on newly launched micro-cap tokens. Lottery ticket mentality — you know most tickets don't win.
 
 ---
 
 ## Cipher — Decodes What the Market Is Saying
 
-Cipher scans new liquidity pools across multiple blockchains using **GeckoTerminal's free API**. Scan up to **5 chains simultaneously** across **13 blockchains**. Set your filters and Cipher returns what matches, ranked by composite score. For Tier 1 chains, every result is automatically checked for security red flags using GoPlus.
+Cipher is a browser-based DEX token screener built in vanilla HTML/CSS/JavaScript. It scans real-time on-chain pool data across eight major blockchains and scores tokens based on momentum, volume, liquidity, and buy/sell pressure.
 
-Think of it as a fishing net with adjustable mesh: cast it where you want, tune the holes, and see what swims up.
+### Data Source
+Powered by the **CoinGecko Demo API** (GeckoTerminal onchain data). One free API key covers all scan modes. You enter and store your own key locally in the browser — it is never hardcoded or transmitted anywhere except CoinGecko's API.
 
-### Key Features
+### Scan Modes
 
-- **Multi-chain scanning** — Select up to 5 chains at a time
-- **Tier 1 + Tier 2 chains** with clear security differences marked
-- **GoPlus Security scanning** (Tier 1 only) — honeypot detection, tax analysis, holder and creator concentration with composite risk scoring
-- **Composite Pool Score** — weighted ranking (momentum 40%, liquidity 25%, freshness 20%, volume 15%) so the best overall opportunities surface first
-- **Trail Guide** — plain-spoken AI assistant powered by Groq Llama 3.1
-- **Trade Journal** + CSV/JSON export (ElizaOS compatible)
-- **Auto-refresh** and one-click GeckoTerminal links
-- **100% client-side** — no backend, no tracking, no accounts
+**Trending** — Surfaces pools gaining momentum right now on the selected chain. Scored by multi-timeframe price movement, volume-to-liquidity ratio, and buy pressure.
 
----
+**Top Volume** — Returns the highest 24h volume pools on the selected chain. Scored by raw volume strength, liquidity depth, and price momentum.
 
-## Supported Chains
+**New Tokens** — Scans the newest pools within a user-defined age window (default 0–60 minutes). Scored by freshness, early 5m/1h price momentum, and buy/sell ratio. Supports auto-scan with a configurable interval.
 
-**Tier 1 — Full GoPlus Security Scanning**  
-Solana, Ethereum, Base, BSC, Arbitrum, Optimism
+### Chains Covered
+Solana · Ethereum · Base · BSC · Arbitrum · Optimism · Polygon · Avalanche · All Chains (global)
 
-**Tier 2 — Price & Liquidity Data Only**  
-Polygon, Avalanche, Sui, Tron, Blast, Berachain, Cosmos
+### Output Fields
+Chain · Name · Symbol · Age · Price · Liquidity · 24h Volume · 5m% · 1h% · 24h% · Buys/Sells · Score · Link
 
-> **Note:** Always do extra research on Tier 2 tokens since GoPlus security data is not available.
->
-> **Solana note:** GoPlus coverage for Solana is limited by design — their system was built around EVM chains first. UNSCORED on Solana reflects a data availability limitation, not a clean bill of health. Solana-specific signal scoring using on-chain proxies is on the roadmap.
+### Scoring
+Each mode uses a weighted composite score (0–99) tailored to that mode's signal. Trending weights momentum and buy pressure. Volume weights raw volume and liquidity. New Tokens weights freshness and early momentum. Results are sorted highest score first and capped at 40 per scan.
 
----
+### Filters
+Min Liquidity · Min Score · Min/Max Age (New Tokens mode only)
 
-## GoPlus Security & Risk Scoring
-
-For Tier 1 chains, Cipher automatically checks every token after each scan:
-
-- **Honeypot detection** — can the token actually be sold
-- **Buy and sell tax percentages** — how much you'll lose on entry/exit
-- **Holder count** — is the supply spread out or concentrated?
-- **Creator wallet concentration** — high % means the dev can dump at any time
-
-### Risk Score Meaning
-
-| Score | Meaning |
-|---|---|
-| 🔴 **HIGH RISK** | Honeypot confirmed, sell tax over 10%, or creator holds over 50% of supply |
-| 🟡 **CAUTION** | Sell/buy tax 5–10%, creator holds 20–50%, or under 10 holders |
-| 🟢 **LOW RISK** | Passed all checks with sufficient data |
-| ⬜ **UNSCORED** | Insufficient GoPlus data — not a clean bill of health |
-
-**Important:** HP: NO means the sell function works mechanically — it does not mean the token is safe. A token can show HP: NO and still be rugpulled through liquidity pairs, creator dumps, or contract exploits. **Always verify contract code on Etherscan/Solscan before trading real money.**
-
----
-
-## Composite Pool Score
-
-After each scan, every token receives a 0–100 composite score used for the default sort order:
-
-| Signal | Weight | Cap |
-|---|---|---|
-| 1H Momentum | 40% | 200% gain |
-| Liquidity | 25% | $100K |
-| Freshness (pool age) | 20% | 24h window |
-| Volume 24H | 15% | $500K |
-
-Newer, liquid, actively-traded tokens with strong 1H momentum rank at the top. You can still sort by any individual column — Score is just the default starting view.
+### Rate Limit Protection
+Results are cached for 90 seconds. Auto-scan is restricted to New Tokens mode only to protect the free-tier API budget.
 
 ---
 
 ## Craftsman — Building with Precision
 
-Simulate trades using real market data across all 13 chains with no real money at risk.
+Simulate trades using real market data across all supported chains with no real money at risk.
 
 - Tiered stop loss and take profit levels
 - Trailing stops
@@ -133,31 +87,56 @@ Your plain-spoken, no-hype AI assistant. Trail Guide helps you:
 
 - Understand what each filter does and why
 - Spot rug pull patterns and scam tactics
-- Interpret GoPlus security results
-- Learn how to read on-chain data without drinking the Kool-Aid
+- Interpret on-chain data without drinking the Kool-Aid
+- Navigate the full Remi suite
 
-Powered by Groq's Llama 3.1 (requires a free API key from console.groq.com).
+Powered by Groq's Llama 3.1. Requires a free API key from [console.groq.com](https://console.groq.com).
 
 ---
 
 ## Stormchaser — High Risk. High Reward.
 
-Autonomous paper trader for newly launched micro-cap tokens. Runs on DexScreener across Solana, Base, and BSC. Deploys small disposable capital, chases big movers, and generates ElizaOS training data from every decision.
+Stormchaser is the automated ERC20 trading simulator in the Rocking M suite. It scans **seven major EVM chains** — Ethereum, Base, BSC, Polygon, Arbitrum, Optimism, and Avalanche — for new token pools using the GeckoTerminal API, scores candidates on liquidity, age, and volume, and simulates entries and exits against configurable risk parameters.
 
-See [ai-trader/README.md](ai-trader/README.md) for full documentation.
+Discovered tokens are scored and filtered before entry. Positions are monitored in real time via DexScreener. Exits are managed through a three-tier take-profit ladder, a trailing stop, a hard stop loss, a max hold time, and a no-momentum timeout. A reserve floor tied to a high-water mark protects a configurable percentage of peak portfolio value.
+
+**Realistic cost modeling** applies fixed slippage, buy tax, and sell tax percentages at execution — both entry and exit — so paper PnL reflects net returns rather than raw price movement. All unrealized PnL in the open positions display uses the same cost-adjusted calculation.
+
+Completed trades export to CSV or ElizaOS-compatible JSON for trade journal analysis and future agent training.
+
+> Stormchaser is paper-trading only. Real-money EVM execution is planned for a future phase.
 
 ---
 
-## Screenshots
+## Forge V2.0 — Solana Real Money Trader
 
-![Screener Interface](screener.png)
-*Cipher — Five Tier 1 chains with GoPlus Risk Score, HP Check, and Composite Score*
+Real money trading tool for Solana tokens. Connects to **Backpack**, **Phantom**, and **Solflare** wallets. Executes swaps via the Jupiter Aggregator through a Cloudflare Worker proxy.
 
-![Remi AI](remi.png)
-*Trail Guide answering a question about the GoPlus risk scoring system*
+### Scan Modes
 
-![Paper Trader](papertrader.png)
-*Craftsman with open positions, automated level tracking, and Trail Guide event log*
+- **New Tokens** — Scans for brand new Solana pools. High risk, high reward.
+- **Trending** — Established tokens with real momentum (up to 7 days old).
+- **Volume Spike** — Tokens showing unusual 24h trading activity.
+- **Manual Watchlist** — Paste token mint addresses to monitor and auto-enter.
+
+### Safety Features
+
+- Proportional honeypot detection
+- GoPlus security checks
+- Token cooldown blacklist
+- Wallet spam detection
+- Sell route verification before every buy
+
+### Trade Management
+
+- Configurable take profit levels (TP1 / TP2 / TP3)
+- Trailing stop and hard stop loss
+- Max hold time
+- Partial close buttons (25% / 50% / 75% / 100%)
+
+### ElizaOS Ready
+
+JSON export includes entry score, entry reasons, hold time, and TP hit flags for agent training data.
 
 ---
 
@@ -165,26 +144,20 @@ See [ai-trader/README.md](ai-trader/README.md) for full documentation.
 
 No installation required. Open in any modern browser.
 
-1. **Visit** [rockingmscreener.com](https://rockingmscreener.com) or open [screener.html](https://rockingmscreener.com/screener.html)
-2. **Select chains** — up to 5 at a time
-3. **Adjust filters** or leave the presets:
-   - **Min Liquidity** — filters out dust, focuses on established pools
-   - **Max Pool Age** — finds newly created pools (lower = newer)
-   - **Min 1H Change** — targets fast movers or steady climbers
-   - **Min Volume 24H** — confirms real trading activity
-4. **Click RUN SCAN** — Cipher queries GeckoTerminal
-5. **Results ranked by Composite Score** — GoPlus data loads automatically for Tier 1
+1. Visit [rockingmscreener.com](https://rockingmscreener.com) or open `screener.html`
+2. Enter your CoinGecko Demo API key when prompted (stored locally, never transmitted elsewhere)
+3. Select a scan mode — Trending, Top Volume, or New Tokens
+4. Choose a chain
+5. Adjust filters or leave the presets
+6. Click **RUN SCAN**
 
----
-
-## The Filters Explained
+### The Filters Explained
 
 | Filter | What It Does |
-|---|---|
-| **Min Liquidity** | Weeds out low-value noise. $5K finds gems; $100K finds safer plays. |
-| **Max Pool Age** | Lower values find brand-new pools. Higher finds more established tokens. |
-| **Min 1H Change** | Set higher (+50%) for fast movers. Set lower (0–20%) for steady climbs. |
-| **Min Volume 24H** | Confirms trading activity behind the price movement. No volume = nobody's interested. |
+|--------|-------------|
+| Min Liquidity | Weeds out low-value noise. $5K finds gems; $100K finds safer plays. |
+| Min Score | Filters out weak signals before they clutter your results. |
+| Min/Max Age | New Tokens mode only. Narrows the age window of pools returned. |
 
 ---
 
@@ -192,75 +165,79 @@ No installation required. Open in any modern browser.
 
 Logs token, contract address, entry price, exit price, and reason for the trade. No dollar amounts collected or requested.
 
-Exports as **JSON formatted for ElizaOS agent training** — building a dataset of real trade decisions and outcomes so AI agents can learn your strategy.
+Exports as JSON formatted for ElizaOS agent training — building a dataset of real trade decisions and outcomes so AI agents can learn your strategy.
 
 ---
 
 ## Tech Stack
 
 - **Vanilla HTML, CSS & JavaScript** — no frameworks, no dependencies, no bloat
-- **GeckoTerminal free API** — Cipher discovery, no key required
+- **CoinGecko Demo API** — Cipher discovery and scoring (free key required)
 - **DexScreener free API** — Stormchaser position monitoring, no key required
-- **GoPlus Security API** — no key required, Tier 1 chains only
-- **Groq free API** — key required for Trail Guide (free at console.groq.com)
+- **GoPlus Security API** — Forge safety checks, no key required
+- **Jupiter Aggregator** — Forge real swap execution (via Cloudflare Worker proxy)
+- **Groq free API** — Trail Guide AI assistant (free key at [console.groq.com](https://console.groq.com))
 
-**Runs entirely in the browser** — no server, no backend, no tracking, no data collection.
+Runs entirely in the browser — no server, no backend, no tracking, no data collection.
 
 ---
 
 ## Code Architecture
 
-### Cipher (screener.html)
-
-Organized into focused modules after the v1.6 refactor:
+### Cipher (`screener.html`)
 
 | Module | Functions | Purpose |
-|---|---|---|
-| **Filter Module** | `getFilterConfig()`, `applyFilters()` | Reads UI values; tests each token against active filters |
-| **Scoring Module** | `scorePool()`, `calcRiskScore()` | Composite pool ranking; GoPlus risk verdict |
-| **Fetch Module** | `fetchGecko()`, `fetchGoPlus()` | GeckoTerminal and GoPlus API calls |
-| **Render Module** | `updateTableHeaders()`, `getChainTag()`, `renderGpCells()`, `renderTable()`, `updateStats()` | All DOM output |
+|--------|-----------|---------|
+| Filter Module | `getFilterConfig()`, `applyFilters()` | Reads UI values; tests each token against active filters |
+| Scoring Module | `scorePool()` | Composite pool ranking per scan mode |
+| Fetch Module | `fetchGecko()` | CoinGecko onchain API calls |
+| Render Module | `renderTable()`, `updateStats()`, etc. | All DOM output |
 
-This modular structure prepares the codebase for Phase 2 — Ranch House and `agent-core.js` can call these functions directly without touching unrelated code.
+### Forge (`forge.html`)
+
+Cloudflare Worker proxy (`jupiter-proxy`) handles Jupiter swap routing and Helius RPC for wallet balance reads. The Worker sits between the browser and Jupiter's API to route around carrier-level API restrictions and keep keys off the client.
 
 ---
 
 ## Roadmap
 
 ### ✅ Complete
-- Multi-chain screener — Cipher (13 chains, max 5 per scan)
-- GoPlus Security integration — honeypot, tax, holder concentration, composite risk scoring
+
+- Multi-chain screener — Cipher (8 chains + All Chains global mode)
+- CoinGecko Demo API integration — three scan modes (Trending, Top Volume, New Tokens)
+- Logarithmic scoring — prevents all-99 score saturation; results capped at 40
+- 90-second result cache — free-tier API budget protection
+- Auto-scan — New Tokens mode only
 - Trail Guide — AI assistant powered by Groq
 - Craftsman — tiered SL/TP, trailing stops, liquidity detection, ElizaOS export
 - Trade Journal with CSV + JSON export
-- Stormchaser Phase 1 — autonomous paper trader
-- Stormchaser Phase 1.5 — real DexScreener price tracking (45s refresh)
-- Cipher refactor — modular filter, scoring, and render architecture (v1.6)
+- Stormchaser — expanded to 7 EVM chains with realistic cost modeling (slippage, buy/sell tax)
+- Forge V2.0 — real Solana swaps via Jupiter, three wallet providers, four scan modes, partial close buttons, Cloudflare Worker proxy infrastructure
 
 ### ⬜ Near Term
-- **Leaderboard** — community paper trader leaderboard (built, launching July 1)
-- **Solana UNSCORED tooltip** — UI note clarifying GoPlus data limitation vs token quality
-- **Craftsman refactor** — extract entry/exit logic, risk calculations, export functions
-- **Stormchaser refactor** — extract safety scoring, position/exit logic
-- **Mobile optimization** — full responsive layout across all tools
+
+- Leaderboard — community paper trader leaderboard (launching July 1)
+- Craftsman refactor — extract entry/exit logic, risk calculations, export functions
+- Mobile optimization — full responsive layout across all tools
 
 ### ⬜ Phase 2 — Unification & Intelligence
-- **Ranch House** — master dashboard, unified view of both strategies, combined performance metrics
-- **Unified logging** — both tools write to the same structured log format
-- **agent-core.js** — central decision engine reading data from both tools
-- **Profit allocation engine** — rules-based routing of gains (Stormchaser → Craftsman → long-term holds)
-- **ES module split** — break Cipher into `js/filters.js`, `js/scoring.js`, `js/render.js`, `js/fetch.js`
-- **Configurable risk profiles** — UI to adjust aggressiveness per strategy
+
+- Ranch House — master dashboard, unified view of both strategies, combined performance metrics
+- Unified logging — all tools write to the same structured log format
+- `agent-core.js` — central decision engine reading data from all tools
+- Profit allocation engine — rules-based routing of gains (Stormchaser → Craftsman → long-term holds)
+- Configurable risk profiles — UI to adjust aggressiveness per strategy
 
 ### ⬜ Phase 3 — Automated Allocation & Rebalancing
+
 - Allocation engine (stablecoins, yield-bearing, long-term crypto, traditional assets)
 - Yield simulation module (staking/lending)
 - Threshold-based rebalancing
 - Backtesting framework
-- Stormchaser hybrid API — GeckoTerminal for discovery, DexScreener for position monitoring
-- Solana signal scoring — lightweight on-chain proxies (pool %, liquidity depth, age) as GoPlus alternative
+- Solana signal scoring — lightweight on-chain proxies as GoPlus alternative
 
 ### ⬜ Phase 4 — Real Money & Traditional Assets
+
 - Read-only wallet connections
 - Real balance tracking
 - TradFi broker integration (Alpaca, Interactive Brokers, or Robinhood Agentic API)
@@ -269,11 +246,12 @@ This modular structure prepares the codebase for Phase 2 — Ranch House and `ag
 - Emergency stop / kill switches
 
 ### ⬜ Phase 5 — Full Autonomous Agent (ElizaOS)
+
 - Multi-agent system: Scanner · Risk · Allocator · Execution
 - Memory and learning from real trade history
 - Natural language interface
 - Regular reporting
-- **Smart money tracking** *(research ongoing — no free-tier solution identified yet)*
+- Smart money tracking (research ongoing — no free-tier solution identified yet)
 
 ---
 
@@ -281,13 +259,13 @@ This modular structure prepares the codebase for Phase 2 — Ranch House and `ag
 
 This project grows through honest community input. You are welcome to:
 
-- **Share filter presets** that have worked for you
-- **Contribute trade journal insights** — help us understand what works
-- **Suggest new chains or features** — open an Issue
-- **Report bugs** — GitHub Issues (no coding required)
-- **Spread the word** — to traders who would benefit from honest tools
+- Share filter presets that have worked for you
+- Contribute trade journal insights — help us understand what works
+- Suggest new chains or features — open an Issue
+- Report bugs — [GitHub Issues](https://github.com/RockingMScreener/rocking-m-screener/issues) (no coding required)
+- Spread the word — to traders who would benefit from honest tools
 
-**[See CONTRIBUTING.md](https://github.com/RockingMScreener/rocking-m-screener/blob/main/CONTRIBUTING.md) for details.**
+See `CONTRIBUTING.md` for details.
 
 **Developers:** Vanilla HTML/CSS/JavaScript, no build process. Clone the repo, open `screener.html` in your browser, and start hacking.
 
@@ -295,21 +273,21 @@ This project grows through honest community input. You are welcome to:
 
 ## License
 
-MIT License — free to use, modify, and share. See [LICENSE](https://github.com/RockingMScreener/rocking-m-screener/blob/main/LICENSE) for details.
+MIT License — free to use, modify, and share. See `LICENSE` for details.
 
 ---
 
 ## Support
 
-- **Questions?** Start a [Discussion](https://github.com/RockingMScreener/rocking-m-screener/discussions)
-- **Found a bug?** [Open an Issue](https://github.com/RockingMScreener/rocking-m-screener/issues)
-- **Want to chat?** Join us on [Discord](https://discord.gg/aumVpSavB) or follow [@Rockingmscreen](https://x.com/Rockingmscreen) on X
+- Questions? [Start a Discussion](https://github.com/RockingMScreener/rocking-m-screener/discussions)
+- Found a bug? [Open an Issue](https://github.com/RockingMScreener/rocking-m-screener/issues)
+- Want to chat? [Join us on Discord](#) or follow [@Rockingmscreen on X](https://x.com/Rockingmscreen)
 
 ---
 
-**Made in Montana with patience, real-world trading frustration, and AI assistance.**
+*Made in Montana with patience, real-world trading frustration, and AI assistance.*
 
 Thank you for checking out Rocking M. I hope it helps you swing the hammer a little straighter.
 
-— Edward  
+— Edward
 *Rocking M Leather Works · Montana*
