@@ -99,6 +99,14 @@
     color: #4a6070; letter-spacing: 1px; margin-top: 3px; line-height: 1.6;
   }
 
+  /* ── Header Nav ── */
+  .header-nav {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
   .launch-btn {
     font-family: var(--sans); font-size: 15px; font-weight: 800;
     letter-spacing: 3px; text-transform: uppercase;
@@ -112,14 +120,18 @@
   .launch-btn:hover { background: var(--green-lt); border-color: var(--green-lt); }
 
   .nav-btn {
-    font-family: var(--sans); font-size: 13px; font-weight: 700;
+    font-family: var(--sans); font-size: 12px; font-weight: 700;
     letter-spacing: 2px; text-transform: uppercase;
-    padding: 8px 18px; border: 2px solid #3d6b3d;
+    padding: 8px 14px; border: 2px solid #3d6b3d;
     background: transparent; color: #5a9a5a;
     text-decoration: none; transition: all .15s; white-space: nowrap;
   }
 
   .nav-btn:hover { background: #3d6b3d; color: #fff; }
+
+  .nav-divider {
+    width: 1px; height: 28px; background: #2a3a4a; flex-shrink: 0;
+  }
 
   /* ── Hero ── */
   .hero {
@@ -192,6 +204,51 @@
     from { opacity:0; transform: translateY(16px); }
     to   { opacity:1; transform: translateY(0); }
   }
+
+  /* ── Suite Strip ── */
+  .suite-strip {
+    background: var(--bg-dark);
+    border-bottom: 1px solid #2a3a4a;
+    padding: 0 40px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0;
+  }
+
+  .suite-strip-item {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 20px 32px; gap: 6px;
+    text-decoration: none;
+    border-right: 1px solid #2a3a4a;
+    transition: background .15s;
+    min-width: 140px;
+  }
+
+  .suite-strip-item:first-child { border-left: 1px solid #2a3a4a; }
+  .suite-strip-item:hover { background: #1a2330; }
+
+  .suite-strip-name {
+    font-family: var(--sans); font-size: 18px; font-weight: 800;
+    letter-spacing: 3px; text-transform: uppercase; color: #fff;
+  }
+
+  .suite-strip-role {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+    color: #4a6070; text-transform: uppercase;
+  }
+
+  .suite-strip-item.active .suite-strip-name { color: var(--green-hi); }
+  .suite-strip-item.live .suite-strip-name { color: #ff9944; }
+
+  .suite-strip-badge {
+    font-family: var(--mono); font-size: 8px; letter-spacing: 1px;
+    padding: 2px 6px; border-radius: 2px; text-transform: uppercase;
+  }
+
+  .badge-live { background: rgba(255,153,68,.15); color: #ff9944; border: 1px solid rgba(255,153,68,.3); }
+  .badge-paper { background: rgba(0,204,102,.1); color: var(--green-hi); border: 1px solid rgba(0,204,102,.2); }
+  .badge-free { background: rgba(0,85,165,.15); color: #5599dd; border: 1px solid rgba(0,85,165,.3); }
 
   /* ── Main content ── */
   .content-wrap {
@@ -362,6 +419,10 @@
     .makers-mark-section { flex-direction: column; }
     .makers-mark-photo { width: 100%; max-width: 280px; }
     .cta-section { padding: 40px 24px; }
+    .suite-strip { padding: 0 20px; }
+    .suite-strip-item { padding: 16px 20px; min-width: 100px; }
+    .header-nav .nav-btn { font-size: 10px; padding: 7px 10px; letter-spacing: 1px; }
+    .nav-divider { display: none; }
   }
 </style>
 </head>
@@ -383,10 +444,13 @@
       <div class="brand-tagline">Token Screener &middot; Free &middot; Open Source &middot; Multi-chain</div>
     </div>
   </div>
-  <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-    <a href="cipher.html" class="launch-btn">&#9654; Launch Cipher</a>
-    <a href="trailguide.html" class="nav-btn">&#9672; Trail Guide</a>
+  <div class="header-nav">
+    <a href="cipher.html" class="launch-btn">&#9654; Cipher</a>
+    <div class="nav-divider"></div>
     <a href="craftsman.html" class="nav-btn">&#9672; Craftsman</a>
+    <a href="ai-trader/index.html" class="nav-btn">&#9672; Stormchaser</a>
+    <a href="forge.html" class="nav-btn">&#9672; Forge</a>
+    <a href="trailguide.html" class="nav-btn">&#9672; Trail Guide</a>
   </div>
 </header>
 
@@ -400,6 +464,35 @@
     <a href="#about" class="btn-secondary">&#9660; Read the Story</a>
   </div>
 </section>
+
+<!-- ── Suite Strip ── -->
+<nav class="suite-strip" aria-label="Suite tools">
+  <a href="cipher.html" class="suite-strip-item active">
+    <span class="suite-strip-name">Cipher</span>
+    <span class="suite-strip-role">DEX Screener</span>
+    <span class="suite-strip-badge badge-free">Free API</span>
+  </a>
+  <a href="craftsman.html" class="suite-strip-item">
+    <span class="suite-strip-name">Craftsman</span>
+    <span class="suite-strip-role">Paper Trader</span>
+    <span class="suite-strip-badge badge-paper">Paper</span>
+  </a>
+  <a href="ai-trader/index.html" class="suite-strip-item">
+    <span class="suite-strip-name">Stormchaser</span>
+    <span class="suite-strip-role">AI EVM Trader</span>
+    <span class="suite-strip-badge badge-paper">Paper</span>
+  </a>
+  <a href="forge.html" class="suite-strip-item live">
+    <span class="suite-strip-name">Forge</span>
+    <span class="suite-strip-role">Solana Trader</span>
+    <span class="suite-strip-badge badge-live">Live &#9646; Real Money</span>
+  </a>
+  <a href="trailguide.html" class="suite-strip-item">
+    <span class="suite-strip-name">Trail Guide</span>
+    <span class="suite-strip-role">AI Assistant</span>
+    <span class="suite-strip-badge badge-free">Groq API</span>
+  </a>
+</nav>
 
 <!-- ── Main Content ── -->
 <main class="content-wrap" id="about">
@@ -468,9 +561,9 @@
 
   <p>When you open Cipher, you will be given several choices. They all have presets, so you don't have to do anything if you don't want to &mdash; just hit Run Scan. That is the box store hammer; it gets the job done, but it is plain and not balanced to fit your desires. Every filter you change balances the hammer to you.</p>
 
-  <p>So let's talk about those choices. Currently, you can select what blockchain or chains you want, up to five at one time. The more you select, the longer it takes to run; the limit of five takes around 15 to 20 seconds to scan and fill. Tier One has the current high-volume blockchains (current as of 05/14/2026). Tier Two has some additional high-volume blockchains. At this point, you are probably scratching your head and thinking Cosmos doesn't fit that description. You would be right, but I use it, so it is included for personal flavor. GeckoTerminal has over 90 blockchains; I mostly chose the ones that were active and would not constantly return zero results.</p>
+  <p>Cipher runs on the CoinGecko Demo API and gives you three ways to scan: <strong>Trending</strong> surfaces pools gaining momentum right now. <strong>Top Volume</strong> returns the highest 24-hour volume pools on the selected chain. <strong>New Tokens</strong> hunts for the freshest pools within an age window you define &mdash; new launches, early movers, the highest-risk highest-reward bucket. You need a free CoinGecko API key to use it; that key lives in your browser and never leaves it.</p>
 
-  <p>The next section is where this screener shines and really makes the search yours &mdash; it balances the hammer in your hand and aligns it with the nail you want to drive home. The minimum liquidity weeds out low-value noise, and the maximum age keeps it aligned to your trading preferences. The minimum 1-hour change lets you decide if you want to search for a fast mover or a slow cooker, and the 24-hour volume lets you nail down that choice.</p>
+  <p>So let's talk about those choices. You can select one of eight blockchains &mdash; Solana, Ethereum, Base, BSC, Arbitrum, Optimism, Polygon, Avalanche &mdash; or scan them all at once with the global All Chains mode. The scan takes a few seconds and returns up to 40 results, ranked by composite score so the strongest signals surface first. Tier One chains get the full GoPlus security treatment in Forge; Cipher keeps it clean and fast with on-chain data only.</p>
 
   <p>The results table has a clickable link to GeckoTerminal for that particular token, which accesses the free version so you can do some research. It also has an address copy feature, so if you have a preferred charting tool, you can copy and paste into that.</p>
 
@@ -499,11 +592,7 @@
   <div class="roadmap">
     <div class="roadmap-item done-item">
       <div class="roadmap-check done">&#10003;</div>
-      <div class="roadmap-text">Cipher &mdash; multi-chain token screener, 13 blockchains, free, no signup</div>
-    </div>
-    <div class="roadmap-item done-item">
-      <div class="roadmap-check done">&#10003;</div>
-      <div class="roadmap-text">GoPlus Security integration &mdash; honeypot detection, tax analysis, holder concentration across Tier 1 chains</div>
+      <div class="roadmap-text">Cipher &mdash; multi-chain DEX screener, three scan modes (Trending, Top Volume, New Tokens), 8 chains + All Chains global mode, free CoinGecko API</div>
     </div>
     <div class="roadmap-item done-item">
       <div class="roadmap-check done">&#10003;</div>
@@ -515,15 +604,19 @@
     </div>
     <div class="roadmap-item done-item">
       <div class="roadmap-check done">&#10003;</div>
-      <div class="roadmap-text">Stormchaser &mdash; autonomous AI paper trader, high risk / high reward, live DexScreener price tracking</div>
+      <div class="roadmap-text">Stormchaser &mdash; autonomous EVM paper trader across 7 chains with realistic cost modeling (slippage, buy/sell tax), DexScreener live price tracking, ElizaOS export</div>
+    </div>
+    <div class="roadmap-item done-item">
+      <div class="roadmap-check done">&#10003;</div>
+      <div class="roadmap-text">Forge V2.0 &mdash; real Solana swaps via Jupiter Aggregator, Backpack / Phantom / Solflare wallets, four scan modes, GoPlus security checks, proportional honeypot detection, partial close buttons (25/50/75/100%)</div>
     </div>
     <div class="roadmap-item done-item">
       <div class="roadmap-check done">&#10003;</div>
       <div class="roadmap-text">GitHub repo open for contributions &middot; Secure URL &middot; Social media active on X, Farcaster, Discord</div>
     </div>
-    <div class="roadmap-item done-item">
-      <div class="roadmap-check done">&#10003;</div>
-      <div class="roadmap-text">Community leaderboard &mdash; built, launching June 1</div>
+    <div class="roadmap-item">
+      <div class="roadmap-check pending">&#10003;</div>
+      <div class="roadmap-text">Community leaderboard &mdash; built, launching July 1</div>
     </div>
     <div class="roadmap-item">
       <div class="roadmap-check pending">&#10003;</div>
@@ -562,8 +655,10 @@
   <p>No signup. No paywall. No noise. Just the tools.</p>
   <div class="cta-btns">
     <a href="cipher.html" class="btn-primary">&#9654; Launch Cipher</a>
-    <a href="trailguide.html" class="nav-btn" style="font-size:16px;padding:12px 32px;">&#9672; Trail Guide</a>
     <a href="craftsman.html" class="nav-btn" style="font-size:16px;padding:12px 32px;">&#9672; Craftsman</a>
+    <a href="ai-trader/index.html" class="nav-btn" style="font-size:16px;padding:12px 32px;">&#9672; Stormchaser</a>
+    <a href="forge.html" class="nav-btn" style="font-size:16px;padding:12px 32px;">&#9672; Forge</a>
+    <a href="trailguide.html" class="nav-btn" style="font-size:16px;padding:12px 32px;">&#9672; Trail Guide</a>
   </div>
 </section>
 
