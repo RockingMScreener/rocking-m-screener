@@ -216,7 +216,7 @@ Cloudflare Worker proxy (`jupiter-proxy`) handles Jupiter swap routing and Heliu
 
 ### ⬜ Near Term
 
-- Leaderboard — community paper trader leaderboard (launching July 1)
+- Leaderboard — community paper trader leaderboard (launching Soon)
 - Craftsman refactor — extract entry/exit logic, risk calculations, export functions
 - Mobile optimization — full responsive layout across all tools
 
