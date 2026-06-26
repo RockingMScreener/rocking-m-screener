@@ -194,7 +194,7 @@ let manualWatchlist = []; // array of { mint, symbol } objects
 
 const MODE_CONFIG = {
   new:      { desc: '🆕 Scanning for brand new Solana pools — high risk, high reward lottery plays.', minAge: 2,   maxAge: 180, minLiq: 8000,  minScore: 52 },
-  trending: { desc: '🔥 Scanning trending Solana tokens — established tokens with real momentum.', minAge: 30,  maxAge: 10080, minLiq: 25000, minScore: 50 },
+  trending: { desc: '🔥 Scanning trending Solana tokens — established tokens with real momentum.', minAge: 30,  maxAge: 1440, minLiq: 25000, minScore: 60 },
   volume:   { desc: '📈 Scanning for unusual volume spikes — tokens seeing sudden trading activity.', minAge: 60,  maxAge: 2880, minLiq: 20000, minScore: 55 },
   manual:   { desc: '🎯 Manual watchlist — paste token mint addresses to monitor and auto-enter.', minAge: 0,   maxAge: 99999, minLiq: 5000,  minScore: 0  },
 };
@@ -1399,6 +1399,13 @@ async function _closePartial(pos, sellFraction, reason) {
   });
 
   addLog(`${reason} → ${pos.symbol} | ${format.usd(pnl)}`, pnl >= 0 ? 'ok' : 'err');
+
+  // Add cooldown on automated full exits so Forge doesn't immediately re-enter
+  const isAutomatedExit = sellFraction >= 1 && reason !== 'Manual close' && !reason.startsWith('Manual');
+  if (isAutomatedExit && pos.tokenMint) {
+    addCooldown(pos.tokenMint);
+    addLog(`⏱️ ${pos.symbol} on cooldown — won't re-enter for 10m`, 'warn');
+  }
 
   if (pos.tokensHeld < 0.0001) {
     positions = positions.filter(p => p !== pos);
