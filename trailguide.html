@@ -407,7 +407,7 @@
         but I'll help you learn how to read the numbers and tell the story.
       </div>
       <div style="margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--leather);letter-spacing:1px;background:var(--tan-pale);border:1px solid var(--border);padding:6px 12px;display:inline-block;">
-        &#9888; Remi has no live market data &mdash; use the <a href="cipher.html" style="color:var(--forest);font-weight:600;">Screener</a> for real time results
+        &#9888; Remi has no live price data &mdash; use the <a href="cipher.html" style="color:var(--forest);font-weight:600;">Screener</a> for real time results &middot; <span style="color:var(--forest-lt);">Reddit social data fetched live on request</span>
       </div>
     </div>
   </div>
@@ -425,6 +425,7 @@
     <button class="qchip" onclick="askQuick('What chains does the screener support?')">What chains are supported?</button>
     <button class="qchip" onclick="askQuick('What does the GoPlus risk score mean and how should I use it?')">What does the risk score mean?</button>
     <button class="qchip" onclick="askQuick('Write a short X post announcing the GoPlus security integration in plain language, no hype')">Write a social media post</button>
+    <button class="qchip" onclick="askQuick('What is trending on Reddit crypto right now?')">What&#39;s trending on Reddit?</button>
   </div>
 
   <!-- Chat Window -->
@@ -506,6 +507,7 @@ Your knowledge:
 - When GoPlus columns appear: always check the Risk Score first, then HP Check, then Creator % — creator concentration is often the most important signal on brand new tokens
 - Trade journal data can be exported as JSON for ElizaOS agent training
 - CRITICAL: You have no live market data connection. You cannot see current pools, current prices, current liquidity, or current token listings. If asked about specific live pool data, current prices, or which tokens are trending right now, always be honest — tell the user you have no live data connection and direct them to run a scan in the Rocking M Screener at rockingmscreener.com. Never invent or guess pool addresses, prices, liquidity figures, or token names — fabricated data is worse than no data in a trading context.
+- EXCEPTION — Reddit social data: When you see a block marked "LIVE REDDIT DATA" injected into this prompt, that is real, live data fetched directly from r/CryptoCurrency moments ago. You may and should use it to answer social/trending questions. Summarise what the titles suggest people are discussing. Never fabricate post titles or scores — only use what appears in the injected block.
 - When discussing a specific token or pool from the screener results, the correct workflow is simple: click the VIEW link in the screener results table. That link opens the exact GeckoTerminal page for that pool. The full pool address is in the browser URL bar after /pools/ — copy it directly from there.
 
 Rug pull warning signs:
@@ -535,6 +537,67 @@ Social media writing:
 - Research performed by Remi should be noted at the end of any post where Remi gathered or synthesized information to support the content
 - Discord posts can be longer and more conversational than X posts — they are talking to the community directly, not broadcasting
 - When writing community updates, acknowledge what is still in progress honestly — the community values transparency over polish`;
+
+// ── Social Intent Detection ──────────────────────────────────────
+const SOCIAL_KEYWORDS = [
+  'trending', 'reddit', 'social', 'buzz', 'hype',
+  'popular', 'hot', 'talked about', 'community', 'what people are saying'
+];
+
+function detectSocialIntent(message) {
+  const lower = message.toLowerCase();
+  const triggered = SOCIAL_KEYWORDS.some(k => lower.includes(k));
+  return { triggered };
+}
+
+// ── Reddit Fetch ─────────────────────────────────────────────────
+const REDDIT_CACHE = { data: null, ts: 0 };
+const REDDIT_TTL   = 5 * 60 * 1000; // 5 minutes
+
+async function fetchRedditTrending() {
+  const now = Date.now();
+  if (REDDIT_CACHE.data && (now - REDDIT_CACHE.ts) < REDDIT_TTL) {
+    return REDDIT_CACHE.data;
+  }
+  try {
+    const res = await fetch(
+      'https://www.reddit.com/r/CryptoCurrency/hot.json?limit=10',
+      { headers: { 'Accept': 'application/json' } }
+    );
+    if (!res.ok) throw new Error(`Reddit ${res.status}`);
+    const json = await res.json();
+    const posts = json.data.children
+      .filter(p => !p.data.stickied)
+      .slice(0, 8)
+      .map(p => ({
+        title:    p.data.title,
+        score:    p.data.score,
+        comments: p.data.num_comments,
+        url:      `https://reddit.com${p.data.permalink}`
+      }));
+    REDDIT_CACHE.data = posts;
+    REDDIT_CACHE.ts   = now;
+    return posts;
+  } catch (err) {
+    console.warn('Reddit fetch failed:', err);
+    return null;
+  }
+}
+
+async function buildSocialContext() {
+  const posts = await fetchRedditTrending();
+  if (!posts) {
+    return '\n\n[LIVE SOCIAL DATA: Reddit fetch failed — tell the user you could not reach Reddit right now and suggest they check r/CryptoCurrency directly.]\n';
+  }
+  let ctx = '\n\n--- LIVE REDDIT DATA (r/CryptoCurrency hot posts, fetched just now) ---\n';
+  posts.forEach((p, i) => {
+    ctx += `${i + 1}. "${p.title}" — ${p.score} upvotes, ${p.comments} comments\n`;
+  });
+  ctx += '--- END REDDIT DATA ---\n';
+  ctx += 'Summarise the above in 3-5 plain sentences. Note recurring tickers or themes. ';
+  ctx += 'Do not invent details not present in the titles. End with a short DYOR reminder.\n';
+  return ctx;
+}
 
 // ── State ────────────────────────────────────────────────────────
 let groqKey     = localStorage.getItem('remi_groq_key') || '';
@@ -597,7 +660,18 @@ async function sendMessage() {
   document.getElementById('send-btn').disabled = true;
   const thinkId = addThinking();
 
+  // ── Social intent: fetch Reddit context if triggered ──
+  let socialContext = '';
+  const intent = detectSocialIntent(text);
+  if (intent.triggered) {
+    socialContext = await buildSocialContext();
+  }
+
   try {
+    const systemWithContext = socialContext
+      ? REMI_SYSTEM + socialContext
+      : REMI_SYSTEM;
+
     const resp = await fetch(GROQ_ENDPOINT, {
       method: 'POST',
       headers: {
@@ -607,7 +681,7 @@ async function sendMessage() {
       body: JSON.stringify({
         model: GROQ_MODEL,
         messages: [
-          { role: 'system', content: REMI_SYSTEM },
+          { role: 'system', content: systemWithContext },
           ...messages.slice(-12)
         ],
         max_tokens: 512,
