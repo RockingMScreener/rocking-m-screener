@@ -413,8 +413,9 @@
         update drafted? I can do that too. I won't tell you what to buy —
         but I'll help you learn how to read the numbers and tell the story.
       </div>
-      <div style="margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--leather);letter-spacing:1px;background:var(--tan-pale);border:1px solid var(--border);padding:6px 12px;display:inline-block;">
-        &#9888; Remi has no live price data &mdash; use the <a href="cipher.html" style="color:var(--forest);font-weight:600;">Screener</a> for real time results &middot; <span style="color:var(--forest-lt);">LunarCrush social trending fetched live on request</span>
+      <div style="margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--leather);letter-spacing:1px;background:var(--tan-pale);border:1px solid var(--border);padding:6px 12px;display:inline-flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <span>&#9888; Remi has no live price data &mdash; use the <a href="cipher.html" style="color:var(--forest);font-weight:600;">Screener</a> for real time results &middot; <span style="color:var(--forest-lt);">LunarCrush social trending fetched live on request</span></span>
+        <button onclick="showKeyNotice()" style="font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;background:transparent;border:1px solid var(--border2);color:var(--leather);cursor:pointer;">&#9881; Manage Keys</button>
       </div>
     </div>
   </div>
@@ -662,7 +663,10 @@ function saveLunarKey() {
   addMessage('remi', "LunarCrush key saved. Ask me what's trending socially any time.");
 }
 
-// ── Chat ─────────────────────────────────────────────────────────
+function showKeyNotice() {
+  document.getElementById('key-notice').style.display = 'block';
+  document.getElementById('key-notice').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 function handleKey(e) {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
