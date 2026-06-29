@@ -385,20 +385,13 @@
 
   <!-- API Key Notice -->
   <div class="key-notice" id="key-notice">
-    <strong>API KEYS REQUIRED</strong> — Remi needs two keys to run fully.<br><br>
-    <strong>1. GROQ</strong> — Powers Remi's AI. Free at <strong>console.groq.com</strong> → API Keys → Create Key.<br>
+    <strong>GROQ API KEY REQUIRED</strong> — Remi runs on Groq's free AI infrastructure.
+    Get your free key at <strong>console.groq.com</strong> → API Keys → Create Key.<br>
+    Your key is stored only in your browser and never sent anywhere except Groq.
     <div class="key-row">
       <input class="key-input" type="password" id="groq-key-input" placeholder="Paste your Groq API key here...">
-      <button class="key-btn" onclick="saveGroqKey()">SAVE GROQ KEY</button>
+      <button class="key-btn" onclick="saveGroqKey()">SAVE KEY</button>
     </div>
-    <br>
-    <strong>2. LUNARCRUSH</strong> — Powers live social trending data. Free at <strong>lunarcrush.com</strong> → API → Create Key.<br>
-    <span style="opacity:0.7;">Optional — Remi works without it but won't have live social data.</span>
-    <div class="key-row">
-      <input class="key-input" type="password" id="lunar-key-input" placeholder="Paste your LunarCrush API key here...">
-      <button class="key-btn" onclick="saveLunarKey()">SAVE LUNAR KEY</button>
-    </div>
-    <div id="key-status" style="margin-top:8px;font-size:9px;letter-spacing:1px;"></div>
   </div>
 
   <!-- Remi Intro -->
@@ -414,7 +407,7 @@
         but I'll help you learn how to read the numbers and tell the story.
       </div>
       <div style="margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--leather);letter-spacing:1px;background:var(--tan-pale);border:1px solid var(--border);padding:6px 12px;display:inline-flex;align-items:center;gap:16px;flex-wrap:wrap;">
-        <span>&#9888; Remi has no live price data &mdash; use the <a href="cipher.html" style="color:var(--forest);font-weight:600;">Screener</a> for real time results &middot; <span style="color:var(--forest-lt);">LunarCrush social trending fetched live on request</span></span>
+        <span>&#9888; Remi has no live price data &mdash; use the <a href="cipher.html" style="color:var(--forest);font-weight:600;">Screener</a> for real time results &middot; <span style="color:var(--forest-lt);">CoinGecko trending fetched live on request</span></span>
         <button onclick="showKeyNotice()" style="font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;background:transparent;border:1px solid var(--border2);color:var(--leather);cursor:pointer;">&#9881; Manage Keys</button>
       </div>
     </div>
@@ -515,7 +508,7 @@ Your knowledge:
 - When GoPlus columns appear: always check the Risk Score first, then HP Check, then Creator % — creator concentration is often the most important signal on brand new tokens
 - Trade journal data can be exported as JSON for ElizaOS agent training
 - CRITICAL: You have no live market data connection. You cannot see current pools, current prices, current liquidity, or current token listings. If asked about specific live pool data, current prices, or which tokens are trending right now, always be honest — tell the user you have no live data connection and direct them to run a scan in the Rocking M Screener at rockingmscreener.com. Never invent or guess pool addresses, prices, liquidity figures, or token names — fabricated data is worse than no data in a trading context.
-- EXCEPTION — LunarCrush social data: When you see a block marked "LIVE LUNARCRUSH DATA" injected into this prompt, that is real, live data fetched directly from LunarCrush moments ago. You may and should use it to answer social/trending questions. Summarise which coins have the strongest social momentum, note sentiment where available, and flag anything that looks like unusual hype. Never fabricate coin names, scores, or figures — only use what appears in the injected block.
+- EXCEPTION — CoinGecko trending data: When you see a block marked "LIVE COINGECKO TRENDING" injected into this prompt, that is real, live data fetched from CoinGecko moments ago showing the top searched coins right now. You may and should use it to answer trending questions. Note patterns — are these large caps or smaller coins, any chains standing out? Never fabricate coin names or ranks — only use what appears in the injected block.
 - When discussing a specific token or pool from the screener results, the correct workflow is simple: click the VIEW link in the screener results table. That link opens the exact GeckoTerminal page for that pool. The full pool address is in the browser URL bar after /pools/ — copy it directly from there.
 
 Rug pull warning signs:
@@ -548,9 +541,9 @@ Social media writing:
 
 // ── Social Intent Detection ──────────────────────────────────────
 const SOCIAL_KEYWORDS = [
-  'trending', 'social', 'buzz', 'hype', 'lunarcrush',
-  'popular', 'hot', 'talked about', 'community', 'what people are saying',
-  'galaxy score', 'social volume'
+  'trending', 'social', 'buzz', 'hype', 'coingecko',
+  'popular', 'hot', 'talked about', 'what people are searching',
+  'most searched', 'top coins'
 ];
 
 function detectSocialIntent(message) {
@@ -559,89 +552,65 @@ function detectSocialIntent(message) {
   return { triggered };
 }
 
-// ── LunarCrush Fetch ─────────────────────────────────────────────
-const LUNAR_CACHE = { data: null, ts: 0 };
-const LUNAR_TTL   = 5 * 60 * 1000; // 5 minutes
+// ── CoinGecko Trending Fetch (via cipher-proxy) ──────────────────
+const GECKO_CACHE = { data: null, ts: 0 };
+const GECKO_TTL   = 5 * 60 * 1000; // 5 minutes
 
-async function fetchLunarCrush() {
-  if (!lunarKey) return null;
-
+async function fetchCoinGeckoTrending() {
   const now = Date.now();
-  if (LUNAR_CACHE.data && (now - LUNAR_CACHE.ts) < LUNAR_TTL) {
-    return LUNAR_CACHE.data;
+  if (GECKO_CACHE.data && (now - GECKO_CACHE.ts) < GECKO_TTL) {
+    return GECKO_CACHE.data;
   }
-
   try {
+    // CoinGecko /search/trending allows direct browser requests on free tier
     const res = await fetch(
-      'https://lunarcrush.com/api4/public/coins/list/v2?sort=social_volume_24h&limit=10',
-      { headers: { 'Authorization': `Bearer ${lunarKey}` } }
+      'https://api.coingecko.com/api/v3/search/trending',
+      { headers: { 'Accept': 'application/json' } }
     );
-    if (!res.ok) throw new Error(`LunarCrush ${res.status}`);
+    if (!res.ok) throw new Error(`CoinGecko trending ${res.status}`);
     const json = await res.json();
-    const coins = (json.data || []).slice(0, 10).map(c => ({
-      name:         c.name,
-      symbol:       c.symbol,
-      galaxyScore:  c.galaxy_score,
-      socialVolume: c.social_volume_24h,
-      sentiment:    c.sentiment,
-      priceChange:  c.percent_change_24h
+    const coins = (json.coins || []).slice(0, 7).map(c => ({
+      name:      c.item.name,
+      symbol:    c.item.symbol,
+      rank:      c.item.market_cap_rank,
+      score:     c.item.score
     }));
-    LUNAR_CACHE.data = coins;
-    LUNAR_CACHE.ts   = now;
+    GECKO_CACHE.data = coins;
+    GECKO_CACHE.ts   = now;
     return coins;
   } catch (err) {
-    console.warn('LunarCrush fetch failed:', err);
+    console.warn('CoinGecko trending fetch failed:', err);
     return null;
   }
 }
 
 async function buildSocialContext() {
-  if (!lunarKey) {
-    return '\n\n[LIVE SOCIAL DATA: No LunarCrush API key saved. Tell the user they can add one in the API key panel at the top of the page to enable live social trending data.]\n';
-  }
-  const coins = await fetchLunarCrush();
+  const coins = await fetchCoinGeckoTrending();
   if (!coins) {
-    return '\n\n[LIVE SOCIAL DATA: LunarCrush fetch failed. Tell the user the request did not go through and suggest they check their API key is correct.]\n';
+    return '\n\n[LIVE SOCIAL DATA: CoinGecko trending fetch failed. Tell the user the request did not go through and suggest they check rockingmscreener.com directly for trending tokens.]\n';
   }
-  let ctx = '\n\n--- LIVE LUNARCRUSH DATA (top coins by social volume, fetched just now) ---\n';
+  let ctx = '\n\n--- LIVE COINGECKO TRENDING (top searched coins right now, fetched just now) ---\n';
   coins.forEach((c, i) => {
     ctx += `${i + 1}. ${c.name} (${c.symbol})`;
-    if (c.galaxyScore)  ctx += ` — Galaxy Score: ${c.galaxyScore}`;
-    if (c.socialVolume) ctx += `, Social Volume 24h: ${c.socialVolume.toLocaleString()}`;
-    if (c.sentiment)    ctx += `, Sentiment: ${c.sentiment}%`;
-    if (c.priceChange !== undefined && c.priceChange !== null)
-                        ctx += `, 24h Price: ${c.priceChange > 0 ? '+' : ''}${c.priceChange.toFixed(1)}%`;
+    if (c.rank) ctx += ` — Market Cap Rank: #${c.rank}`;
     ctx += '\n';
   });
-  ctx += '--- END LUNARCRUSH DATA ---\n';
-  ctx += 'Summarise the above in 3-5 plain sentences. Note which coins have the strongest social momentum and whether sentiment is positive or mixed. Do not invent details not present in the data. End with a short DYOR reminder.\n';
+  ctx += '--- END COINGECKO TRENDING ---\n';
+  ctx += 'Summarise in 3-5 plain sentences. Note any patterns — are these large caps or smaller coins? Any chains standing out? Do not invent details not in the data. End with a short DYOR reminder.\n';
   return ctx;
 }
 
 // ── State ────────────────────────────────────────────────────────
-let groqKey     = localStorage.getItem('remi_groq_key')   || '';
-let lunarKey    = localStorage.getItem('remi_lunar_key')  || '';
-let messages    = [];
-let isThinking  = false;
+let groqKey    = localStorage.getItem('remi_groq_key') || '';
+let messages   = [];
+let isThinking = false;
 
 // ── Init ─────────────────────────────────────────────────────────
 function init() {
-  const hasGroq  = !!groqKey;
-  const hasLunar = !!lunarKey;
-
-  // Hide notice only if Groq key is present (Lunar is optional)
-  if (hasGroq) {
+  if (groqKey) {
     document.getElementById('key-notice').style.display = 'none';
   } else {
     document.getElementById('key-notice').style.display = 'block';
-  }
-
-  // Show status of both keys
-  const status = document.getElementById('key-status');
-  if (status) {
-    status.innerHTML =
-      `Groq: <span style="color:${hasGroq ? '#3d6b3d' : '#8b3c3c'}">${hasGroq ? '✓ saved' : '✗ not set'}</span>` +
-      ` &nbsp;|&nbsp; LunarCrush: <span style="color:${hasLunar ? '#3d6b3d' : '#8b7a3c'}">${hasLunar ? '✓ saved' : '○ not set (optional)'}</span>`;
   }
 }
 
@@ -650,17 +619,8 @@ function saveGroqKey() {
   if (!val) { alert('Please paste your Groq API key first.'); return; }
   groqKey = val;
   localStorage.setItem('remi_groq_key', val);
-  init();
-  addMessage('remi', "Groq key saved. I'm ready when you are.");
-}
-
-function saveLunarKey() {
-  const val = document.getElementById('lunar-key-input').value.trim();
-  if (!val) { alert('Please paste your LunarCrush API key first.'); return; }
-  lunarKey = val;
-  localStorage.setItem('remi_lunar_key', val);
-  init();
-  addMessage('remi', "LunarCrush key saved. Ask me what's trending socially any time.");
+  document.getElementById('key-notice').style.display = 'none';
+  addMessage('remi', "Key saved. I'm ready when you are.");
 }
 
 function showKeyNotice() {
