@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Forge V2.0 — Solana Real Money Trading</title>
 <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+<script src="https://unpkg.com/@walletconnect/universal-provider@2/dist/index.umd.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Barlow+Condensed:wght@300;400;600;700;800&display=swap');
 :root {
@@ -66,6 +67,7 @@ td {padding:10px; border-bottom:1px solid #c4cad2;}
       <button class="btn btn-small" onclick="connectWallet('backpack')">Connect Backpack</button>
       <button class="btn btn-small" onclick="connectWallet('solflare')">Connect Solflare</button>
       <button class="btn btn-small" onclick="connectWallet('phantom')">Connect Phantom</button>
+      <button class="btn btn-small" onclick="connectWallet('walletconnect')" style="background:#3b99fc;color:#fff;">🔗 WalletConnect</button>
       <button class="btn btn-small" onclick="disconnectWallet()">Disconnect</button>
     </div>
     <div id="wallet-info" style="font-size:13px; color:#333; line-height:1.6; display:none;">
@@ -295,7 +297,140 @@ const connection = new solanaWeb3.Connection(
   'https://jupiter-proxy.ermccabee1.workers.dev/rpc',
   'confirmed'
 );
+// ====================== WALLETCONNECT ======================
+const WC_PROJECT_ID = '59e1d2a16c7736dccb24dcb19d473dd8';
+let wcProvider = null;
+
+async function initWalletConnect() {
+  if (wcProvider) return wcProvider;
+  try {
+    wcProvider = await UniversalProvider.init({
+      projectId: WC_PROJECT_ID,
+      metadata: {
+        name: 'Forge V2.0',
+        description: 'Rocking M Forge — Solana Real Money Trading',
+        url: 'https://rockingmscreener.com',
+        icons: ['https://rockingmscreener.com/favicon.ico'],
+      },
+    });
+    return wcProvider;
+  } catch(e) {
+    addLog('❌ WalletConnect init failed: ' + e.message, 'err');
+    return null;
+  }
+}
+
+async function connectWalletConnect() {
+  try {
+    addLog('🔗 Initializing WalletConnect...', 'info');
+    const provider = await initWalletConnect();
+    if (!provider) return;
+
+    // Subscribe to display_uri for QR code
+    provider.on('display_uri', (uri) => {
+      addLog('📱 Scan QR code in your mobile wallet to connect', 'info');
+      showWCModal(uri);
+    });
+
+    await provider.connect({
+      namespaces: {
+        solana: {
+          methods: ['solana_signTransaction', 'solana_signMessage'],
+          chains: ['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'], // mainnet
+          events: ['connect', 'disconnect'],
+        },
+      },
+    });
+
+    const accounts = provider.session?.namespaces?.solana?.accounts || [];
+    if (!accounts.length) {
+      addLog('❌ WalletConnect: no accounts returned', 'err');
+      return;
+    }
+
+    // Account format is "solana:chainId:publicKey"
+    const publicKeyStr = accounts[0].split(':')[2];
+    const publicKey = new solanaWeb3.PublicKey(publicKeyStr);
+
+    // Create a wallet provider wrapper compatible with Forge's existing flow
+    wallet.publicKey = publicKey;
+    wallet.connected = true;
+    wallet.provider = {
+      name: 'WalletConnect',
+      connection: null, // uses heliusConn fallback
+      signTransaction: async (tx) => {
+        const { signature } = await provider.request({
+          method: 'solana_signTransaction',
+          params: { transaction: Buffer.from(tx.serialize()).toString('base64') },
+        }, 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp');
+        tx.addSignature(publicKey, Buffer.from(signature, 'base64'));
+        return tx;
+      },
+      disconnect: async () => {
+        await provider.disconnect();
+        closeWCModal();
+      },
+    };
+
+    closeWCModal();
+    document.getElementById('wallet-status').innerHTML =
+      `✅ Connected <span style="color:var(--green)">(WalletConnect)</span>`;
+    document.getElementById('wallet-info').style.display = 'block';
+    document.getElementById('wallet-address').textContent =
+      publicKeyStr.slice(0,8) + '...' + publicKeyStr.slice(-6);
+    await updateSOLBalance();
+    addLog(`✅ WalletConnect connected: ${publicKeyStr.slice(0,8)}...`, 'ok');
+
+    // Handle disconnection from wallet side
+    provider.on('session_delete', () => {
+      disconnectWallet();
+      addLog('🔌 WalletConnect session ended by wallet', 'warn');
+    });
+
+  } catch(e) {
+    closeWCModal();
+    if (e.message?.includes('User rejected')) {
+      addLog('⛔ WalletConnect cancelled by user', 'warn');
+    } else {
+      addLog('❌ WalletConnect failed: ' + e.message, 'err');
+    }
+  }
+}
+
+// Simple QR modal
+function showWCModal(uri) {
+  let modal = document.getElementById('wc-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'wc-modal';
+    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;';
+    modal.innerHTML = `
+      <div style="background:#fff;padding:24px;border-radius:12px;text-align:center;max-width:340px;">
+        <h3 style="margin:0 0 12px;font-family:sans-serif;">Scan with your wallet</h3>
+        <div id="wc-qr" style="margin:0 auto 12px;"></div>
+        <p style="font-size:12px;color:#666;margin:0 0 12px;font-family:sans-serif;">Or copy the connection link:</p>
+        <input id="wc-uri" value="${uri}" readonly style="width:100%;font-size:10px;padding:6px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;" onclick="this.select()">
+        <button onclick="closeWCModal()" style="margin-top:12px;padding:8px 20px;background:#cc2200;color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:sans-serif;">Cancel</button>
+      </div>`;
+    document.body.appendChild(modal);
+  }
+  // Generate QR using a free QR API
+  const qrEl = document.getElementById('wc-qr');
+  if (qrEl) {
+    qrEl.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(uri)}" width="200" height="200" alt="QR Code">`;
+  }
+}
+
+function closeWCModal() {
+  const modal = document.getElementById('wc-modal');
+  if (modal) modal.remove();
+}
+
 async function connectWallet(preference) {
+  if (preference === 'walletconnect') {
+    await connectWalletConnect();
+    return;
+  }
   try {
     let provider = null;
     if (preference === 'backpack' && window.backpack) {
@@ -332,6 +467,7 @@ async function disconnectWallet() {
   if (wallet.provider) {
     try { await wallet.provider.disconnect(); } catch(e) {}
   }
+  closeWCModal();
   wallet = { publicKey: null, connected: false, provider: null };
   document.getElementById('wallet-status').innerHTML = 'Not connected';
   document.getElementById('wallet-info').style.display = 'none';
