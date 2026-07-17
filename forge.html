@@ -217,6 +217,9 @@ function setScanMode(mode) {
   document.getElementById('max-age').value = cfg.maxAge;
   document.getElementById('min-liq').value = cfg.minLiq;
   document.getElementById('min-score').value = cfg.minScore;
+  // Reset trending pagination when switching modes
+  trendingEmptyScans = 0;
+  trendingPage = 1;
   addLog(`🔄 Scan mode: ${mode.toUpperCase()} — settings auto-adjusted`, 'info');
 }
 
@@ -332,7 +335,6 @@ async function disconnectWallet() {
   if (wallet.provider) {
     try { await wallet.provider.disconnect(); } catch(e) {}
   }
-  closeWCModal();
   wallet = { publicKey: null, connected: false, provider: null };
   document.getElementById('wallet-status').innerHTML = 'Not connected';
   document.getElementById('wallet-info').style.display = 'none';
@@ -924,32 +926,72 @@ async function scanNewTokens() {
 }
 
 // --- TRENDING MODE ---
-async function scanTrending() {
-  addLog('🔥 Scanning GeckoTerminal trending Solana pools...', 'info');
-  try {
-    const res = await fetch(
-      'https://api.geckoterminal.com/api/v2/networks/solana/trending_pools?limit=20',
-      { headers: { Accept: 'application/json;version=20230302' } }
-    );
-    if (res.status === 429) { addLog('⚠️ GeckoTerminal rate limit — waiting 15s', 'warn'); await sleep(15000); return; }
-    if (!res.ok) { addLog(`⚠️ Trending fetch failed: ${res.status}`, 'warn'); return; }
+// Tiered pagination state for trending mode
+let trendingEmptyScans = 0;
+let trendingPage = 1;
+const TRENDING_EXPAND_AFTER = 2; // expand to page 2 after this many empty scans
 
-    const data = await res.json();
-    const pools = data.data || [];
-    addLog(`📡 Trending: ${pools.length} pools returned`, 'info');
+async function scanTrending() {
+  addLog(`🔥 Scanning GeckoTerminal trending Solana pools (page ${trendingPage})...`, 'info');
+  try {
+    // Fetch page(s) based on current tier
+    let allPools = [];
+    for (let p = 1; p <= trendingPage; p++) {
+      const res = await fetch(
+        `https://api.geckoterminal.com/api/v2/networks/solana/trending_pools?limit=20&page=${p}`,
+        { headers: { Accept: 'application/json;version=20230302' } }
+      );
+      if (res.status === 429) { addLog('⚠️ GeckoTerminal rate limit — waiting 15s', 'warn'); await sleep(15000); return; }
+      if (!res.ok) { addLog(`⚠️ Trending fetch failed: ${res.status}`, 'warn'); return; }
+      const data = await res.json();
+      const pools = data.data || [];
+      allPools = allPools.concat(pools);
+      if (p < trendingPage) await sleep(1000); // small delay between page requests
+    }
+
+    addLog(`📡 Trending: ${allPools.length} pools returned (page ${trendingPage === 1 ? '1' : '1+2'})`, 'info');
+
+    // Deduplicate by address
+    const seen = new Set();
+    const uniquePools = allPools.filter(pool => {
+      const addr = pool.attributes?.address;
+      if (!addr || seen.has(addr)) return false;
+      seen.add(addr);
+      return true;
+    });
 
     const seenThisScan = new Set(positions.map(p => p.pairAddress));
-    for (const pool of pools) {
+    let newCandidatesFound = 0;
+
+    for (const pool of uniquePools) {
       if (!scannerRunning || positions.length >= account.maxPositions) break;
       const addr = pool.attributes?.address;
       if (!addr || seenThisScan.has(addr)) continue;
       seenThisScan.add(addr);
       const { score, reasons } = scoreCandidate(pool.attributes);
       if (score < account.minScore) continue;
+      newCandidatesFound++;
       const candidateSymbol = normalizeSymbol(pool.attributes?.name);
       addLog(`📊 Trending candidate: ${candidateSymbol} score ${score} — ${reasons.join(', ')}`, 'info');
       await attemptAutoEntry(pool, 'solana', score, reasons);
     }
+
+    // Tiered expansion logic
+    if (newCandidatesFound === 0 && positions.length < account.maxPositions) {
+      trendingEmptyScans++;
+      if (trendingPage === 1 && trendingEmptyScans >= TRENDING_EXPAND_AFTER) {
+        trendingPage = 2;
+        addLog(`📡 No new candidates — expanding to page 2 next scan`, 'info');
+      }
+    } else if (newCandidatesFound > 0) {
+      // Reset to page 1 once we find something
+      if (trendingPage > 1) {
+        addLog(`📡 Candidates found — resetting to page 1`, 'info');
+      }
+      trendingPage = 1;
+      trendingEmptyScans = 0;
+    }
+
   } catch(e) {
     addLog(`⚠️ Trending scan error — ${e.message}`, 'warn');
   }
@@ -1450,6 +1492,8 @@ function toggleScanner() {
     sellQueue = [];
     sellProcessing = false;
     tokenCooldown.clear();
+    trendingEmptyScans = 0;
+    trendingPage = 1;
   }
 }
 
