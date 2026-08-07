@@ -1,9 +1,12 @@
 # Contributing to Rocking M Screener
 
-Thank you for considering contributing to Rocking M Screener!  
-This is an open-source, no-BS crypto screener built by a leather craftsman from Montana. We value honest input, practical improvements, and community-driven growth.
+Thank you for considering contributing to Rocking M Screener!
 
-**All contributions are welcome** — code, documentation, filter presets, bug reports, design ideas, or just sharing what worked (or didn't) for you in the wild.
+This is an open-source, no-BS crypto trading suite built by a leather craftsman from Montana. We value honest input, practical improvements, and community-driven growth.
+
+All contributions are welcome — code, documentation, filter presets, bug reports, design ideas, or just sharing what worked (or didn't) for you in the wild.
+
+---
 
 ## Table of Contents
 - [Code of Conduct](#code-of-conduct)
@@ -16,151 +19,182 @@ This is an open-source, no-BS crypto screener built by a leather craftsman from 
 - [Pull Request Process](#pull-request-process)
 - [Style Guide](#style-guide)
 
+---
+
 ## Code of Conduct
 
-Be honest, respectful, and constructive. We're building tools for regular traders in a noisy, sometimes scammy space — keep that spirit alive. 
+Be honest, respectful, and constructive. We're building tools for regular traders in a noisy, sometimes scammy space — keep that spirit alive.
 
-**In short:** No hype, no toxicity, no shilling. We're here to help each other make better trading decisions.
+In short: **No hype, no toxicity, no shilling.** We're here to help each other make better trading decisions.
+
+---
 
 ## Ways to Contribute
 
 You don't need to be a developer. Here's how anyone can help:
 
 ### Non-Code Contributions (Highly Valued)
-
-- **Share filter presets** — Found a preset that consistently finds good tokens? Export as JSON and submit via [Discussion](https://github.com/RockingMScreener/rocking-m-screener/discussions) or [Issue](https://github.com/RockingMScreener/rocking-m-screener/issues)
-- **Trade Journal outcomes** — Document what worked, what didn't, and why. This helps everyone learn.
-- **Bug reports** — Found something broken? Tell us exactly what happened.
-- **Real-world feedback** — Used the screener in live trading? What was confusing? What worked?
+- **Share filter presets** — Found settings that consistently find good tokens? Export as JSON and share via Discussion or Issue
+- **Trade journal outcomes** — Document what worked, what didn't, and why. This helps everyone learn
+- **Bug reports** — Found something broken? Tell us exactly what happened
+- **Real-world feedback** — Used the tools in live trading? What was confusing? What worked?
 - **Documentation improvements** — Clearer explanations, typo fixes, better examples
 - **Design & UI suggestions** — Colors, layout, usability improvements
 - **Spread the word** — Tell traders you know about Rocking M
 
 ### Code Contributions
-
 - New features or chain integrations
 - UI/UX improvements
-- Performance optimizations (especially multi-chain scans)
+- Performance optimizations
 - Bug fixes
 - Tests or better error handling
 - Documentation or comment improvements
 
+---
+
 ## Reporting Bugs
 
-**Before submitting:** Check [existing issues](https://github.com/RockingMScreener/rocking-m-screener/issues) to avoid duplicates.
+Before submitting: Check existing issues to avoid duplicates.
 
 When reporting a bug, include:
 
-1. **What you were doing** — Step-by-step reproduction
-2. **What happened** — The error or unexpected behavior
-3. **What you expected** — What should have happened
-4. **Environment** — Browser, OS, chain(s) affected
-5. **Screenshots** — If visual, grab a screenshot
+- **What you were doing** — Step-by-step reproduction
+- **What happened** — The error or unexpected behavior
+- **What you expected** — What should have happened
+- **Environment** — Browser, OS, wallet, chain(s) affected
+- **Screenshots** — If visual, grab a screenshot
 
 **Example:**
-> When I scan Solana with Min Liquidity set to $50K and Min Volume 24H set to $100K, the scan returns 0 results even though pools exist. No error message appears. Expected: scan completes and shows available pools or displays "no results found."
+
+> When running Forge in Trending mode with Min Liquidity set to $25K and Min Score set to 60, the scanner returns 0 candidates after 5 cycles even though GeckoTerminal shows active trending pools. No error message appears. Expected: candidates are found and scored, or a "no results" message is shown.
+
+---
 
 ## Suggesting Features
 
-Open a [GitHub Discussion](https://github.com/RockingMScreener/rocking-m-screener/discussions) or [Issue](https://github.com/RockingMScreener/rocking-m-screener/issues) and tell us:
+Open a GitHub Discussion or Issue and tell us:
 
-1. **What problem does it solve?** — Why is this useful?
-2. **How would it work?** — Be specific
-3. **Any alternatives?** — Have you found workarounds?
+- **What problem does it solve?** — Why is this useful?
+- **How would it work?** — Be specific
+- **Any alternatives?** — Have you found workarounds?
 
 **Example:**
-> Feature: Export scan results to CSV  
-> Problem: I want to save my scan results and analyze them in Excel for patterns  
-> How: Add an "Export" button that downloads the current table as CSV with timestamp  
-> Workaround: Currently I screenshot results manually
+
+> Feature: Price alert notifications
+> Problem: I want to know when a watched token hits a target price without watching the screen
+> How: Add a browser notification when a position hits TP1 or drops below stop loss
+> Workaround: Currently I watch the event log manually
+
+---
 
 ## Sharing Filter Presets
 
-Found a filter preset that works well? Share it!
+Found settings that work well in a specific mode? Share them!
 
-1. Open the screener and configure your filters
-2. Right-click and select **"Inspect"** → **Console**
-3. Copy the filter object from localStorage: `localStorage.getItem('presets')`
-4. Paste it in a [Discussion](https://github.com/RockingMScreener/rocking-m-screener/discussions) with:
-   - **Name** of the preset (e.g., "Solana Low Cap Gems")
-   - **Chains** you used
-   - **Filter values** (Min Liquidity, Max Age, etc.)
-   - **Your results** — Did this find good tokens? Any wins or losses?
+1. Configure your settings in any tool (Forge, Cipher, Stormchaser, Craftsman)
+2. Use the **Export** button to download your session as a JSON file
+3. Share it in a Discussion with:
+   - Name of the preset (e.g., "Forge Trending Conservative")
+   - Which tool and scan mode you used
+   - Your filter values (Min Liquidity, Min Score, Age settings, etc.)
+   - Your results — Did this find good tokens? Any wins or losses?
 
-## Submitting Code
+---
 
-### Development Setup
+## Development Setup
 
-The project is **100% client-side** (vanilla HTML, CSS, JavaScript) — no build tools or backend required.
+The entire suite is 100% client-side — vanilla HTML, CSS, and JavaScript. No build tools, no backend, no npm required.
 
-1. **Fork & clone the repo:**
-   ```bash
-   git clone https://github.com/YOUR-USERNAME/rocking-m-screener.git
-   cd rocking-m-screener
-   ```
+### Tools in the suite:
+| File | Tool | Description |
+|------|------|-------------|
+| `forge.html` | Forge V2.0 | Solana real-money trader |
+| `cipher.html` | Cipher | Multi-chain token screener |
+| `stormchaser.html` | Stormchaser | AI paper trader |
+| `craftsman.html` | Craftsman | Paper trading environment |
+| `ranch-house.html` | Ranch House | Suite dashboard |
+| `trailguide.html` | Trail Guide / Remi | AI assistant |
 
-2. **Open in your browser:**
-   - Simply open `screener.html`, `papertrader.html`, or `remi.html` in your browser
-   - No npm install, no build step, no server needed
+### Getting started:
 
-3. **Make your changes** in your favorite text editor (VS Code, Sublime, etc.)
+**Fork & clone the repo:**
+```bash
+git clone https://github.com/YOUR-USERNAME/rocking-m-screener.git
+cd rocking-m-screener
+```
 
-4. **Test locally** — Refresh your browser to see changes immediately
+**Open in your browser:**
+```
+Simply open any .html file directly in your browser
+No npm install, no build step, no server needed
+```
 
-### Pull Request Process
+**Make your changes** in any text editor (VS Code, Sublime, etc.)
+
+**Test locally** — Refresh your browser to see changes immediately
+
+> Note: Forge requires a Cloudflare Worker proxy for Jupiter API access and a Helius RPC key for Solana transactions. See the README for setup details.
+
+---
+
+## Pull Request Process
 
 1. **Create a feature branch:**
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
+```bash
+git checkout -b feature/your-feature-name
+```
 
-2. **Make focused commits** — Keep related changes together
-   ```bash
-   git commit -m "Add feature: X" 
-   git commit -m "Fix: Y"
-   ```
+2. **Make focused commits:**
+```bash
+git commit -m "Add feature: X"
+git commit -m "Fix: Y"
+```
 
 3. **Push to your fork:**
-   ```bash
-   git push origin feature/your-feature-name
-   ```
+```bash
+git push origin feature/your-feature-name
+```
 
-4. **Open a Pull Request** with:
-   - **Clear title** — What does this do?
-   - **Description** — Why? What problem does it solve?
-   - **Testing notes** — How did you test this?
-   - **Screenshots** — Before/after if UI changes
+4. **Open a Pull Request with:**
+   - Clear title — What does this do?
+   - Description — Why? What problem does it solve?
+   - Testing notes — How did you test this?
+   - Screenshots — Before/after if UI changes
+   - Link related issues — Use `Closes #123` to auto-link issues
 
-5. **Link related issues** — Use `Closes #123` to auto-link issues
+5. **Respond to feedback** — We may ask questions or suggest changes
 
-6. **Respond to feedback** — We may ask questions or suggest changes
+---
 
-### Style Guide
+## Style Guide
 
-**HTML/CSS/JavaScript:**
+### HTML/CSS/JavaScript:
 - Use clear, descriptive variable names (`tokenAddress` not `ta`)
 - Add comments for complex logic
 - Keep functions focused and small
-- No minification (keep code readable)
+- No minification — keep code readable
 - No external dependencies — vanilla JS only
+- No frameworks — the suite runs without React, Vue, or any build step
 
-**Commit messages:**
-- Use present tense: "Add feature" not "Added feature"
-- Be specific: "Fix honeypot detection for BSC" not "Fix bug"
-- Reference issues: "Closes #42"
+### Commit messages:
+- Use present tense: `"Add feature"` not `"Added feature"`
+- Be specific: `"Fix honeypot detection threshold for micro-cap tokens"` not `"Fix bug"`
+- Reference issues: `"Closes #42"`
 
-**Comments:**
-- Explain *why*, not *what* — code shows what it does
-- Keep them accurate (outdated comments are worse than no comments)
+### Comments:
+- Explain **why**, not what — code shows what it does
+- Keep them accurate — outdated comments are worse than no comments
+
+---
 
 ## Questions?
 
 - **How do I...?** → Start a [Discussion](https://github.com/RockingMScreener/rocking-m-screener/discussions)
 - **Found a bug?** → Open an [Issue](https://github.com/RockingMScreener/rocking-m-screener/issues)
-- **Want to chat?** → Join our [Discord](https://discord.gg/aumVpSavB)
+- **Follow updates** → [@rockingmscreener](https://x.com/rockingmscreener) on X
 
 ---
 
-**Thank you for contributing to Rocking M.** Every honest effort — code, feedback, or shared knowledge — makes this tool better for everyone.
+Thank you for contributing to Rocking M. Every honest effort — code, feedback, or shared knowledge — makes these tools better for everyone.
 
 — Edward & the Rocking M community
