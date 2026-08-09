@@ -4,7 +4,7 @@ Open source autonomous investment suite built by a leather craftsman from Montan
 You don't have to be a master trader. You just need to know how to use the tools.
 No paywalls. No signups. No influencer noise. Just honest, filterable on-chain data you control.
 
-🚀 [Launch Cipher](https://rockingmscreener.com) · 📊 [Craftsman](https://rockingmscreener.com/papertrader.html) · 🤖 [Trail Guide](https://rockingmscreener.com/trailguide.html) · ⚡ [Stormchaser](https://rockingmscreener.com/stormchaser.html) ·[Forge](https://rockingmscreener.com/forge) . [@Rockingmscreen on X](https://x.com/Rockingmscreen) · [Discord](https://discord.gg/Z2VWxUcpy)
+🚀 [Launch Cipher](https://rockingmscreener.com) · 📊 [Craftsman](https://rockingmscreener.com/craftsman.html) · 🤖 [Trail Guide](https://rockingmscreener.com/trailguide.html) · ⚡ [Stormchaser](https://rockingmscreener.com/stormchaser.html) · [Forge](https://rockingmscreener.com/forge.html) · [@Rockingmscreen on X](https://x.com/Rockingmscreen) · [Discord](https://discord.gg/Z2VWxUcpy)
 
 ---
 
@@ -144,7 +144,7 @@ JSON export includes entry score, entry reasons, hold time, and TP hit flags for
 
 No installation required. Open in any modern browser.
 
-1. Visit [rockingmscreener.com](https://rockingmscreener.com) or open `screener.html`
+1. Visit [rockingmscreener.com](https://rockingmscreener.com) or open `cipher.html`
 2. Enter your CoinGecko Demo API key when prompted (stored locally, never transmitted elsewhere)
 3. Select a scan mode — Trending, Top Volume, or New Tokens
 4. Choose a chain
@@ -184,7 +184,7 @@ Runs entirely in the browser — no server, no backend, no tracking, no data col
 
 ## Code Architecture
 
-### Cipher (`screener.html`)
+### Cipher (`cipher.html`)
 
 | Module | Functions | Purpose |
 |--------|-----------|---------|
@@ -267,7 +267,7 @@ This project grows through honest community input. You are welcome to:
 
 See `CONTRIBUTING.md` for details.
 
-**Developers:** Vanilla HTML/CSS/JavaScript, no build process. Clone the repo, open `screener.html` in your browser, and start hacking.
+**Developers:** Vanilla HTML/CSS/JavaScript, no build process. Clone the repo, open `index.html` in your browser, and start hacking.
 
 ---
 
