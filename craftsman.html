@@ -117,6 +117,10 @@
   .ct-blast    {background:#1a1a00;color:#f0f060;border:1px solid #fcfc03;}
   .ct-berachain{background:#1a0a00;color:#d2691e;border:1px solid #8b4513;}
   .ct-cosmos   {background:#120a1e;color:#b090d0;border:1px solid #6f4e8a;}
+  .ct-robinhood{background:#0a2a0a;color:#7dffa0;border:1px solid #00c805;}
+  .ct-ink      {background:#0a2420;color:#5ce8d0;border:1px solid #0d9488;}
+  .ct-unichain {background:#2a0018;color:#ff70b8;border:1px solid #ff007a;}
+  .ct-soneium  {background:#0a1030;color:#8899ff;border:1px solid #3d5afe;}
   .ct-other    {background:#1a2330;color:#8fa0b0;border:1px solid #3d5570;}
 
   .badge{font-size:9px;letter-spacing:1px;padding:2px 6px;border:1px solid var(--border2);color:var(--text-dim);text-transform:uppercase;background:var(--bg2);}
@@ -185,6 +189,8 @@
   </div>
   <div class="nav-links">
      <a href="cipher.html" class="nav-link">&#9672; Cipher</a>
+     <a href="/stormchaser.html">Stormchaser</a>
+     <a href="/forge.html">Forge</a>
     <a href="trailguide.html" class="nav-link">&#9672; Trail Guide</a>
     <a href="index.html" class="nav-link">&#9672; Home</a>
   </div>
@@ -257,6 +263,9 @@
             <option value="bsc">BSC</option>
             <option value="arbitrum">Arbitrum</option>
             <option value="optimism">Optimism</option>
+            <option value="robinhood">Robinhood</option>
+            <option value="unichain">Unichain</option>
+            <option value="soneium">Soneium</option>
           </optgroup>
           <optgroup label="── Tier 2 · Price Data Only ──">
             <option value="polygon_pos">Polygon</option>
@@ -266,6 +275,7 @@
             <option value="blast">Blast</option>
             <option value="berachain">Berachain</option>
             <option value="cosmos">Cosmos</option>
+            <option value="ink">Ink</option>
           </optgroup>
         </select>
         <span class="chain-tier-note"><strong>Tier 2 chains:</strong> price data only — no GoPlus security data available. Do extra research before trading.</span>
@@ -470,6 +480,10 @@ const CHAINS = {
   blast:       { label:'Blast',     tag:'ct-blast',     gas:0.50, failRate:0.02, gecko:'blast',        tier:2 },
   berachain:   { label:'Berachain', tag:'ct-berachain', gas:0.50, failRate:0.03, gecko:'berachain',    tier:2 },
   cosmos:      { label:'Cosmos',    tag:'ct-cosmos',    gas:0.10, failRate:0.02, gecko:'cosmos',       tier:2 },
+  robinhood:   { label:'Robinhood', tag:'ct-robinhood', gas:1.50, failRate:0.02, gecko:'robinhood',    tier:1 },
+  unichain:    { label:'Unichain',  tag:'ct-unichain',  gas:0.50, failRate:0.02, gecko:'unichain',     tier:1 },
+  soneium:     { label:'Soneium',   tag:'ct-soneium',   gas:0.50, failRate:0.02, gecko:'soneium',      tier:1 },
+  ink:         { label:'Ink',       tag:'ct-ink',       gas:0.50, failRate:0.02, gecko:'ink',          tier:2 },
 };
 
 // ── State ──────────────────────────────────────────────────────
