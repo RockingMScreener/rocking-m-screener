@@ -356,10 +356,11 @@
           <th data-key="relativeVolume">Rel Vol</th>
           <th data-key="fractionable">Frac</th>
           <th data-key="qualityScore">Score</th>
+          <th>Research</th>
         </tr>
       </thead>
       <tbody id="results-body">
-        <tr><td colspan="11" class="empty-msg">Set your Finnhub API key, pick a universe, then click Scan Now.</td></tr>
+        <tr><td colspan="12" class="empty-msg">Set your Finnhub API key, pick a universe, then click Scan Now.</td></tr>
       </tbody>
     </table>
   </div>
@@ -1395,7 +1396,7 @@ function renderTable() {
   document.querySelectorAll('#table-head th').forEach(th => th.classList.toggle('sorted', th.dataset.key === sortKey));
 
   if (!assets.length) {
-    tbody.innerHTML = `<tr><td colspan="11" class="empty-msg">No results. Try lowering filters, widening Max Symbols, or switching universe.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="12" class="empty-msg">No results. Try lowering filters, widening Max Symbols, or switching universe.</td></tr>`;
     return;
   }
 
@@ -1409,6 +1410,7 @@ function renderTable() {
     const relVolTxt = a.relativeVolume ? a.relativeVolume.toFixed(2) : '—';
     const fracTxt = a.fractionable === true ? '<span class="frac-yes">✓</span>' : a.fractionable === false ? '<span class="frac-no">✗</span>' : '<span class="frac-unknown">?</span>';
     const scoreClass = a.qualityScore >= 70 ? 'score-high' : a.qualityScore >= 40 ? 'score-med' : 'score-low';
+    const researchUrl = `https://finance.yahoo.com/quote/${encodeURIComponent(a.symbol)}`;
 
     return `<tr>
       <td><strong>${a.symbol}</strong></td>
@@ -1422,6 +1424,7 @@ function renderTable() {
       <td>${relVolTxt}</td>
       <td>${fracTxt}</td>
       <td class="${scoreClass}">${a.qualityScore}</td>
+      <td><a href="${researchUrl}" target="_blank" rel="noopener" style="color:var(--teal);text-decoration:underline;">View</a></td>
     </tr>`;
   }).join('');
 }
