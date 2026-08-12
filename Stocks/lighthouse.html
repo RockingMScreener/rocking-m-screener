@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lighthouse — Guides You to Steady Ground · Rocking M</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Barlow+Condensed:wght@300;400;600;700;800&display=swap');
+  :root {
+    --bg:#e8eaed;--bg2:#f2f4f6;--bg3:#ffffff;--bg-header:#1a2330;
+    --border:#c4cad2;--border2:#a8b2bc;
+    --green:#007a3d;--green-lt:#00a651;--green-bg:#e6f4ec;--green-hi:#00cc66;
+    --blue:#0055a5;--blue-lt:#0077cc;
+    --teal:#00707a;--teal-lt:#00a5b0;--teal-hi:#00d9e6;--teal-bg:#e6f7f8;
+    --red:#cc2200;--amber:#c47a00;
+    --text:#1a1f26;--text-mid:#3d4a57;--text-dim:#6b7a8a;
+    --mono:'IBM Plex Mono',monospace;--sans:'Barlow Condensed',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;}
+
+  /* ── Header ── */
+  .top-bar{background:var(--bg-header);border-bottom:3px solid var(--teal-lt);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+  .logo-badge{display:flex;align-items:center;gap:16px;}
+  .badge-mark{width:72px;height:82px;background:#111a24;border:1.5px solid var(--teal-lt);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex-shrink:0;position:relative;padding:6px 0;}
+  .badge-rocking{font-family:var(--sans);font-size:8px;font-weight:800;letter-spacing:3px;color:var(--teal-hi);text-transform:uppercase;line-height:1.1;}
+  .badge-m{font-family:'Georgia',serif;font-size:52px;font-weight:700;color:#fff;line-height:1;}
+  .badge-sub{font-family:var(--sans);font-size:7px;font-weight:600;letter-spacing:3px;color:#3d5570;text-transform:uppercase;position:absolute;bottom:6px;}
+  .brand-text{display:flex;flex-direction:column;gap:2px;}
+  .brand-title{font-family:var(--sans);font-size:28px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#fff;line-height:1;}
+  .brand-title span{color:var(--teal-hi);}
+  .brand-tagline{font-family:var(--mono);font-size:9px;color:#4a6070;letter-spacing:1px;margin-top:4px;line-height:1.6;}
+  .header-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .s-item{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+  .s-label{font-family:var(--mono);font-size:9px;color:#4a6070;letter-spacing:2px;text-transform:uppercase;}
+  .s-val{font-family:var(--mono);font-size:13px;color:var(--teal-hi);font-weight:600;}
+  .btn-settings{background:transparent;border:1.5px solid #2a4060;color:#4a6070;padding:6px 12px;font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .15s;letter-spacing:1px;}
+  .btn-settings:hover{border-color:var(--teal-lt);color:var(--teal-hi);}
+  .key-badge{font-family:var(--mono);font-size:9px;padding:3px 8px;letter-spacing:1px;border-radius:2px;white-space:nowrap;}
+  .key-badge.set{background:#0a2a1a;color:var(--green-hi);border:1px solid var(--green);}
+  .key-badge.unset{background:#2a1a0a;color:#cc8844;border:1px solid #cc6622;}
+
+  /* ── Modal ── */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:900;display:none;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--bg-header);border:1px solid var(--border2);border-top:3px solid var(--teal-lt);padding:28px 32px;max-width:600px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.5);max-height:90vh;overflow-y:auto;}
+  .modal-title{font-family:var(--sans);font-size:22px;font-weight:800;letter-spacing:3px;color:#fff;text-transform:uppercase;margin-bottom:4px;}
+  .modal-title span{color:var(--teal-hi);}
+  .modal-sub{font-family:var(--mono);font-size:10px;color:#4a6070;letter-spacing:1px;margin-bottom:20px;line-height:1.7;}
+  .modal-section{margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid #2a3a4a;}
+  .modal-section:last-of-type{border-bottom:none;}
+  .modal-section-title{font-family:var(--sans);font-size:14px;font-weight:700;letter-spacing:2px;color:#fff;text-transform:uppercase;margin-bottom:4px;}
+  .modal-section-title .opt{font-family:var(--mono);font-size:9px;color:#4a6070;letter-spacing:1px;text-transform:none;margin-left:8px;}
+  .step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;}
+  .step-num{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--teal-hi);background:#0a2a2a;border:1px solid var(--teal);width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:2px;}
+  .step-text{font-family:var(--mono);font-size:10px;color:#8aacbc;line-height:1.7;padding-top:2px;}
+  .step-text a{color:var(--teal-hi);text-decoration:underline;}
+  .step-text strong{color:#fff;}
+  .key-input-row{display:flex;gap:8px;margin:14px 0 8px;flex-wrap:wrap;}
+  .key-input{font-family:var(--mono);font-size:12px;background:#0d1a24;border:1px solid var(--border2);color:#fff;padding:8px 12px;flex:1;min-width:180px;outline:none;letter-spacing:1px;}
+  .key-input:focus{border-color:var(--teal-lt);}
+  .btn-save-key{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:2px;padding:8px 18px;background:var(--teal);color:#fff;border:none;cursor:pointer;text-transform:uppercase;}
+  .btn-save-key:hover{background:var(--teal-lt);}
+  .btn-clear-key{font-family:var(--mono);font-size:10px;padding:8px 12px;background:transparent;color:#cc4422;border:1px solid #cc4422;cursor:pointer;}
+  .btn-clear-key:hover{background:#cc4422;color:#fff;}
+  .key-note{font-family:var(--mono);font-size:9px;color:#4a6070;line-height:1.7;}
+  .btn-close-modal{font-family:var(--mono);font-size:10px;padding:8px 16px;background:transparent;color:#6b7a8a;border:1px solid #2a3a4a;cursor:pointer;margin-top:20px;letter-spacing:1px;}
+  .btn-close-modal:hover{color:#fff;border-color:#fff;}
+
+  /* ── Shell ── */
+  .shell{max-width:1500px;margin:0 auto;padding:20px 24px 40px;}
+  .sec-label{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;}
+
+  /* ── Family Tabs ── */
+  .family-tabs{display:flex;gap:0;margin-bottom:0;}
+  .family-tab{font-family:var(--sans);font-size:15px;font-weight:700;letter-spacing:2px;padding:12px 24px;border:1.5px solid var(--border2);border-bottom:none;background:var(--bg2);color:var(--text-mid);cursor:pointer;transition:all .15s;text-transform:uppercase;}
+  .family-tab.active{background:var(--bg3);color:var(--teal);border-color:var(--teal);position:relative;z-index:2;}
+  .family-tab.active::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:3px;background:var(--teal);}
+  .family-tab:not(.active):hover{color:var(--teal);}
+
+  /* ── Mode Selector ── */
+  .mode-selector{margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--teal);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .mode-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+  .mode-btn{font-family:var(--mono);font-size:11px;letter-spacing:2px;padding:8px 16px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text-mid);cursor:pointer;transition:all .15s;text-transform:uppercase;}
+  .mode-btn:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-bg);}
+  .mode-btn.active{border-color:var(--teal);background:var(--teal);color:#fff;}
+  .mode-source{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;}
+  .mode-source span{color:var(--teal-lt);font-weight:600;}
+
+  /* ── Universe + Filters ── */
+  .universe-section{margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--green);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;}
+  .universe-group{display:flex;flex-direction:column;gap:4px;}
+  .universe-select{font-family:var(--mono);font-size:12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:8px 12px;width:100%;min-width:260px;outline:none;cursor:pointer;}
+  .universe-select:focus{border-color:var(--green);}
+  .universe-select option:disabled{color:#aaa;}
+  .universe-note{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;max-width:420px;line-height:1.6;}
+  .universe-count{font-family:var(--mono);font-size:11px;color:var(--green);font-weight:600;}
+
+  .filter-panel{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px;background:var(--bg3);border:1px solid var(--border);padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-top:3px solid var(--green);}
+  .fgroup{display:flex;flex-direction:column;gap:4px;}
+  .fgroup.hidden{display:none;}
+  .flabel{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;}
+  .finput{font-family:var(--mono);font-size:12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 10px;outline:none;width:100%;}
+  .finput:focus{border-color:var(--green);background:#fff;}
+  .fcheck-row{display:flex;align-items:center;gap:8px;}
+  .fcheck-row input{width:14px;height:14px;cursor:pointer;}
+  .fcheck-row label{font-family:var(--mono);font-size:10px;color:var(--text-mid);letter-spacing:1px;cursor:pointer;}
+
+  /* ── Controls ── */
+  .ctrl-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+  .btn-run{font-family:var(--sans);font-size:16px;font-weight:800;letter-spacing:3px;padding:10px 32px;border:2px solid var(--teal);background:var(--teal);color:#fff;cursor:pointer;transition:all .15s;}
+  .btn-run:hover{background:var(--teal-lt);border-color:var(--teal-lt);}
+  .btn-run:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-stop{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:2px;padding:9px 18px;border:2px solid var(--red);background:transparent;color:var(--red);cursor:pointer;display:none;}
+  .btn-stop.visible{display:inline-block;}
+  .btn-stop:hover{background:var(--red);color:#fff;}
+  .status-pill{font-family:var(--mono);font-size:11px;padding:4px 12px;border:1px solid var(--border);background:var(--bg3);color:var(--text-dim);}
+  .progress-wrap{flex:1;min-width:160px;height:6px;background:var(--bg2);border:1px solid var(--border);display:none;}
+  .progress-wrap.visible{display:block;}
+  .progress-bar{height:100%;background:var(--teal-lt);width:0%;transition:width .2s;}
+
+  /* ── No Key Banner ── */
+  .no-key-banner{display:none;align-items:center;gap:12px;padding:12px 16px;background:#2a1a0a;border:1px solid #cc6622;border-left:4px solid #cc6622;margin-bottom:16px;font-family:var(--mono);font-size:11px;color:#cc8844;}
+  .no-key-banner.visible{display:flex;}
+  .no-key-banner button{background:#cc6622;color:#fff;border:none;padding:5px 12px;cursor:pointer;font-family:var(--mono);font-size:10px;letter-spacing:1px;white-space:nowrap;}
+
+  /* ── Stats ── */
+  .stats-row{display:none;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .stats-row.visible{display:flex;}
+  .scard{background:var(--bg3);border:1px solid var(--border);border-left:4px solid var(--teal);padding:10px 16px;flex:1;min-width:110px;}
+  .scard-label{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}
+  .scard-val{font-family:var(--mono);font-size:20px;color:var(--text);font-weight:600;}
+
+  /* ── Table ── */
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--border);background:var(--bg3);box-shadow:0 2px 8px rgba(0,0,0,.08);}
+  table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;}
+  thead tr{background:var(--bg-header);}
+  th{padding:10px 11px;text-align:left;font-size:9px;letter-spacing:2px;color:#a0b4c4;text-transform:uppercase;white-space:nowrap;cursor:pointer;}
+  th:hover{color:#fff;}
+  th.sorted{color:var(--teal-hi);}
+  tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
+  tbody tr:nth-child(even){background:#f7f9fb;}
+  tbody tr:hover{background:#e6f7f8!important;}
+  td{padding:8px 11px;white-space:nowrap;color:var(--text);}
+  .sector-col{font-weight:600;padding:5px 9px;border-radius:3px;text-align:center;color:#fff;display:inline-block;font-size:10px;letter-spacing:1px;background:#4a6070;}
+  .chg-pos-high{color:#00aa00;font-weight:600;}
+  .chg-pos-med{color:#00cc66;font-weight:600;}
+  .chg-pos-low{color:#44bb66;}
+  .chg-neg{color:#ff4444;}
+  .chg-zero{color:var(--text-dim);}
+  .score-high{color:#00aa00;font-weight:700;}
+  .score-med{color:var(--teal);font-weight:600;}
+  .score-low{color:var(--amber);}
+  .frac-yes{color:var(--green);font-weight:700;}
+  .frac-no{color:var(--text-dim);}
+  .frac-unknown{color:var(--text-dim);opacity:.5;}
+  .empty-msg{text-align:center;padding:60px;color:var(--text-dim);}
+  .div-badge{font-size:9px;background:var(--green-bg);color:var(--green);padding:2px 6px;border-radius:2px;margin-left:6px;letter-spacing:1px;}
+
+  /* ── Toast ── */
+  .toast{position:fixed;bottom:20px;right:20px;background:var(--teal);color:#fff;padding:12px 20px;border-radius:3px;font-family:var(--mono);font-size:11px;box-shadow:0 4px 12px rgba(0,112,122,.3);z-index:1000;animation:slide-up .3s ease;}
+  @keyframes slide-up{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+  footer{text-align:center;padding:24px;color:var(--text-dim);font-size:11px;font-family:var(--mono);border-top:1px solid var(--border);margin-top:40px;}
+  footer a{color:var(--teal-lt);text-decoration:none;}
+  footer a:hover{text-decoration:underline;}
+
+  @media(max-width:768px){
+    .brand-title{font-size:20px;}
+    .shell{padding:12px 16px 30px;}
+    .modal{padding:20px;}
+    .family-tab{padding:10px 14px;font-size:13px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ── API Key Modal ── -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-title">DATA <span>SOURCES</span></div>
+    <div class="modal-sub">Lighthouse uses Finnhub for quotes and fundamentals (required), and optionally Alpaca to flag which symbols support fractional-share orders — useful groundwork for Homestead. Keys are stored locally in your browser only.</div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Finnhub <span class="opt">required</span></div>
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">Go to <a href="https://finnhub.io/register" target="_blank">finnhub.io/register</a> and create a free account.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">Copy your API key from the <strong>Dashboard</strong> — free tier gives ~60 calls/minute, real-time US quotes, and basic fundamentals.</div>
+      </div>
+      <div class="key-input-row">
+        <input type="password" class="key-input" id="finnhub-key-input" placeholder="Paste your Finnhub API key...">
+        <button class="btn-save-key" onclick="saveFinnhubKey()">Save</button>
+        <button class="btn-clear-key" onclick="clearFinnhubKey()">Clear</button>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Alpaca <span class="opt">optional · fractional-share flag</span></div>
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">Go to <a href="https://alpaca.markets" target="_blank">alpaca.markets</a>, sign up free, and generate <strong>Paper Trading</strong> API keys (no funding needed).</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">Paste both the Key ID and Secret Key below — used only to check which symbols are fractionable.</div>
+      </div>
+      <div class="key-input-row">
+        <input type="password" class="key-input" id="alpaca-id-input" placeholder="Alpaca Key ID...">
+        <input type="password" class="key-input" id="alpaca-secret-input" placeholder="Alpaca Secret Key...">
+      </div>
+      <div class="key-input-row">
+        <button class="btn-save-key" onclick="saveAlpacaKey()">Save</button>
+        <button class="btn-clear-key" onclick="clearAlpacaKey()">Clear</button>
+      </div>
+    </div>
+
+    <div class="key-note">⚠ Saved to localStorage — local to this browser only. Re-enter if you clear browser data. Never share your API keys.</div>
+    <div><button class="btn-close-modal" onclick="closeModal()">Close</button></div>
+  </div>
+</div>
+
+<!-- ── Header ── -->
+<div class="top-bar">
+  <div class="logo-badge">
+    <div class="badge-mark">
+      <div class="badge-rocking">Rocking</div>
+      <svg width="72" height="14" viewBox="0 0 72 14" fill="none" style="display:block;margin:2px 0 -4px">
+        <path d="M 2 12 Q 36 2 70 12" stroke="#00d9e6" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </svg>
+      <div class="badge-m">M</div>
+      <div class="badge-sub">stocks</div>
+    </div>
+    <div class="brand-text">
+      <div class="brand-title">ROCKING <span>M</span> STOCKS</div>
+      <div class="brand-tagline">Lighthouse — Guides You to Steady Ground</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="s-item">
+      <div class="s-label">Last Scan</div>
+      <div class="s-val" id="last-scan">&#8212;</div>
+    </div>
+    <div class="s-item">
+      <div class="s-label">Results</div>
+      <div class="s-val" id="tok-count">0</div>
+    </div>
+    <div class="key-badge unset" id="finnhub-badge">Finnhub: NO KEY</div>
+    <div class="key-badge unset" id="alpaca-badge">Alpaca: OPTIONAL</div>
+    <button class="btn-settings" onclick="openModal()">⚙ DATA SOURCES</button>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- No Key Banner -->
+  <div class="no-key-banner" id="no-key-banner">
+    <span>⚠ Finnhub API key required to scan.</span>
+    <button onclick="openModal()">Set API Key</button>
+  </div>
+
+  <!-- Family Tabs -->
+  <div class="family-tabs">
+    <button class="family-tab active" data-family="preservation" onclick="setFamily('preservation')">Preservation</button>
+    <button class="family-tab" data-family="momentum" onclick="setFamily('momentum')">Momentum</button>
+  </div>
+
+  <!-- Mode Selector -->
+  <div class="mode-selector">
+    <div class="sec-label">⚙ Scan Mode</div>
+    <div class="mode-buttons" id="mode-buttons"></div>
+    <div class="mode-source" id="mode-source"></div>
+  </div>
+
+  <!-- Universe Selector -->
+  <div class="universe-section">
+    <div class="universe-group">
+      <div class="sec-label" style="margin-bottom:4px;">Universe</div>
+      <select class="universe-select" id="universe-select" onchange="onUniverseChange()">
+        <option value="sp500">S&amp;P 500 (503 tickers)</option>
+        <option value="nasdaq100">Nasdaq 100 (~100 tickers)</option>
+        <option value="dow30">Dow Jones Industrial Average (30 tickers)</option>
+        <option value="dividend_aristocrats">Dividend Aristocrats (~62 tickers)</option>
+        <option value="etf_basket">Popular ETFs (15 tickers)</option>
+        <option value="russell2000" disabled>Russell 2000 — Coming Soon</option>
+        <option value="watchlist">My Watchlist</option>
+      </select>
+    </div>
+    <div class="universe-group">
+      <div class="sec-label" style="margin-bottom:4px;">Max Symbols to Scan</div>
+      <input type="number" class="finput" id="max-symbols" value="60" min="5" max="503" step="5" style="width:120px;">
+    </div>
+    <div class="universe-note" id="universe-note">Finnhub's free tier is rate-limited, so large universes are scanned in slices — increase Max Symbols for a fuller pass at the cost of a slower scan.</div>
+    <div class="universe-count" id="universe-count"></div>
+  </div>
+
+  <!-- Watchlist editor (only for watchlist universe) -->
+  <div class="universe-section" id="watchlist-editor" style="display:none;">
+    <div class="universe-group" style="flex:1;">
+      <div class="sec-label" style="margin-bottom:4px;">Add Symbol to Watchlist</div>
+      <div style="display:flex;gap:8px;">
+        <input type="text" class="finput" id="watchlist-add-input" placeholder="e.g. AAPL" style="width:140px;text-transform:uppercase;">
+        <button class="btn-save-key" style="padding:6px 14px;font-size:12px;" onclick="addToWatchlist()">Add</button>
+      </div>
+    </div>
+    <div class="universe-note" id="watchlist-list">Watchlist is empty.</div>
+  </div>
+
+  <!-- Filter Panel -->
+  <div class="filter-panel" id="filter-panel"></div>
+
+  <!-- Controls -->
+  <div class="ctrl-row">
+    <button class="btn-run" id="btn-run" onclick="runScan()">Scan Now</button>
+    <button class="btn-stop" id="btn-stop" onclick="stopScan()">Stop</button>
+    <div class="progress-wrap" id="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+    <div class="status-pill"><span id="status-text">Ready</span></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row" id="stats-row">
+    <div class="scard">
+      <div class="scard-label">Results</div>
+      <div class="scard-val" id="stat-count">—</div>
+    </div>
+    <div class="scard">
+      <div class="scard-label">Avg Score</div>
+      <div class="scard-val" id="stat-score">—</div>
+    </div>
+    <div class="scard">
+      <div class="scard-label">Avg Chg %</div>
+      <div class="scard-val" id="stat-chg">—</div>
+    </div>
+    <div class="scard" style="border-left-color:var(--amber);">
+      <div class="scard-label">Dividend Payers</div>
+      <div class="scard-val" id="stat-div">—</div>
+    </div>
+  </div>
+
+  <!-- Results Table -->
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr id="table-head">
+          <th data-key="symbol">Symbol</th>
+          <th data-key="name">Name</th>
+          <th data-key="sector">Sector</th>
+          <th data-key="price">Price</th>
+          <th data-key="priceChangePct">Chg %</th>
+          <th data-key="peRatio">P/E</th>
+          <th data-key="dividendYield">Div Yield</th>
+          <th data-key="beta">Beta</th>
+          <th data-key="relativeVolume">Rel Vol</th>
+          <th data-key="fractionable">Frac</th>
+          <th data-key="qualityScore">Score</th>
+        </tr>
+      </thead>
+      <tbody id="results-body">
+        <tr><td colspan="11" class="empty-msg">Set your Finnhub API key, pick a universe, then click Scan Now.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<footer>
+  Lighthouse v1.0 &nbsp;·&nbsp;
+  <a href="https://finnhub.io" target="_blank">Finnhub API</a> &nbsp;·&nbsp;
+  <a href="https://alpaca.markets" target="_blank">Alpaca API</a> &nbsp;·&nbsp;
+  Rocking M &nbsp;·&nbsp;
+  <a href="/trailguide.html">Trail Guide</a> &nbsp;·&nbsp;
+  <a href="/cipher.html">Cipher</a>
+  <a href="/craftsman.html">Craftsman</a>
+  <a href="/stormchaser.html">Stormchaser</a>
+  <a href="/forge.html">Forge</a>
+  <a href="/lighthouse.html">Lighthouse</a>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// Lighthouse — Config & Universe Data
+// ══════════════════════════════════════════════════════════════
+const FINNHUB_BASE = 'https://finnhub.io/api/v1';
+const ALPACA_ASSETS_BASE = 'https://paper-api.alpaca.markets/v2/assets';
+const CACHE_TTL_MS = 90000;
+const FINNHUB_PACE_MS = 1050; // minimum gap between any two live Finnhub calls (~57/min w/ 3 calls/symbol, under the ~60/min free-tier cap)
+
+const FINNHUB_CACHE = {};   // { url: { data, ts } }
+let ALPACA_FRACTIONABLE = null; // Set<symbol> once loaded, or null if not fetched
+
+let currentFamily = 'preservation';
+let currentMode   = 'quality_value';
+let assets        = [];
+let scanning      = false;
+let stopRequested = false;
+let sortKey       = 'qualityScore';
+let sortDir       = -1;
+
+// ── Scan Modes (mirrors the data-contract draft) ────────────────
+const SCAN_MODES = {
+  quality_value: {
+    label: 'Quality & Value', family: 'preservation', sortKey: 'qualityScore',
+    desc: 'Ranks on P/E, dividend yield, debt/equity, and low drawdown — a value/quality tilt for capital preservation.'
+  },
+  dividend_growth: {
+    label: 'Dividend Growth', family: 'preservation', sortKey: 'dividendYield',
+    desc: 'Surfaces dividend payers sorted by yield, with payout ratio shown so you can screen out yield traps.'
+  },
+  low_volatility: {
+    label: 'Low Volatility', family: 'preservation', sortKey: 'beta',
+    desc: 'Sorts by beta ascending — the calmest names in the selected universe relative to the market.'
+  },
+  top_volume: {
+    label: 'Top Volume', family: 'momentum', sortKey: 'relativeVolume',
+    desc: 'Sorts by relative volume — stocks trading well above their recent average volume today.'
+  },
+  gap_scanner: {
+    label: 'Gap Scanner', family: 'momentum', sortKey: 'priceChangePct',
+    desc: 'Sorts by today\'s % change — a simple proxy for gap/momentum moves using Finnhub\'s free quote data.'
+  },
+  relative_strength: {
+    label: 'Relative Strength', family: 'momentum', sortKey: 'priceChangePct',
+    desc: 'Sorts by today\'s % change within the selected universe as a relative-strength proxy.'
+  }
+};
+
+// ── Universes ─────────────────────────────────────────────────
+// Static lists refresh occasionally (index reconstitutions, aristocrat
+// additions/removals) — periodic manual review recommended, same as
+// Craftsman/Cipher's hand-maintained CHAINS-style objects.
+const UNIVERSES = {
+  sp500: { label: 'S&P 500', tickers: [
+['MMM','3M'],
+['AOS','A. O. Smith'],
+['ABT','Abbott Laboratories'],
+['ABBV','AbbVie'],
+['ACN','Accenture'],
+['ADBE','Adobe Inc.'],
+['AMD','Advanced Micro Devices'],
+['AES','AES Corporation'],
+['AFL','Aflac'],
+['A','Agilent Technologies'],
+['APD','Air Products'],
+['ABNB','Airbnb'],
+['AKAM','Akamai Technologies'],
+['ALB','Albemarle Corporation'],
+['ARE','Alexandria Real Estate Equities'],
+['ALGN','Align Technology'],
+['ALLE','Allegion'],
+['LNT','Alliant Energy'],
+['ALL','Allstate'],
+['GOOGL','Alphabet Inc. (Class A)'],
+['GOOG','Alphabet Inc. (Class C)'],
+['MO','Altria'],
+['AMZN','Amazon'],
+['AMCR','Amcor'],
+['AEE','Ameren'],
+['AEP','American Electric Power'],
+['AXP','American Express'],
+['AIG','American International Group'],
+['AMT','American Tower'],
+['AWK','American Water Works'],
+['AMP','Ameriprise Financial'],
+['AME','Ametek'],
+['AMGN','Amgen'],
+['APH','Amphenol'],
+['ADI','Analog Devices'],
+['AON','Aon plc'],
+['APA','APA Corporation'],
+['APO','Apollo Global Management'],
+['AAPL','Apple Inc.'],
+['AMAT','Applied Materials'],
+['APP','AppLovin'],
+['APTV','Aptiv'],
+['ACGL','Arch Capital Group'],
+['ADM','Archer Daniels Midland'],
+['ARES','Ares Management'],
+['ANET','Arista Networks'],
+['AJG','Arthur J. Gallagher & Co.'],
+['AIZ','Assurant'],
+['T','AT&T'],
+['ATO','Atmos Energy'],
+['ADSK','Autodesk'],
+['ADP','Automatic Data Processing'],
+['AZO','AutoZone'],
+['AVB','AvalonBay Communities'],
+['AVY','Avery Dennison'],
+['AXON','Axon Enterprise'],
+['BKR','Baker Hughes'],
+['BALL','Ball Corporation'],
+['BAC','Bank of America'],
+['BAX','Baxter International'],
+['BDX','Becton Dickinson'],
+['BRK-B','Berkshire Hathaway'],
+['BBY','Best Buy'],
+['TECH','Bio-Techne'],
+['BIIB','Biogen'],
+['BLK','BlackRock'],
+['BX','Blackstone Inc.'],
+['XYZ','Block, Inc.'],
+['BNY','BNY Mellon'],
+['BA','Boeing'],
+['BKNG','Booking Holdings'],
+['BSX','Boston Scientific'],
+['BMY','Bristol Myers Squibb'],
+['AVGO','Broadcom'],
+['BR','Broadridge Financial Solutions'],
+['BRO','Brown & Brown'],
+['BF-B','Brown–Forman'],
+['BLDR','Builders FirstSource'],
+['BG','Bunge Global'],
+['BXP','BXP, Inc.'],
+['CHRW','C.H. Robinson'],
+['CDNS','Cadence Design Systems'],
+['CPT','Camden Property Trust'],
+['COF','Capital One'],
+['CAH','Cardinal Health'],
+['CCL','Carnival Corporation'],
+['CARR','Carrier Global'],
+['CVNA','Carvana'],
+['CASY','Casey\'s'],
+['CAT','Caterpillar Inc.'],
+['CBOE','Cboe Global Markets'],
+['CBRE','CBRE Group'],
+['CDW','CDW Corporation'],
+['COR','Cencora'],
+['CNC','Centene Corporation'],
+['CNP','CenterPoint Energy'],
+['CF','CF Industries'],
+['CRL','Charles River Laboratories'],
+['SCHW','Charles Schwab Corporation'],
+['CHTR','Charter Communications'],
+['CVX','Chevron Corporation'],
+['CMG','Chipotle Mexican Grill'],
+['CB','Chubb Limited'],
+['CHD','Church & Dwight'],
+['CIEN','Ciena'],
+['CI','Cigna'],
+['CINF','Cincinnati Financial'],
+['CTAS','Cintas'],
+['CSCO','Cisco'],
+['C','Citigroup'],
+['CFG','Citizens Financial Group'],
+['CLX','Clorox'],
+['CME','CME Group'],
+['CMS','CMS Energy'],
+['KO','Coca-Cola Company (The)'],
+['CTSH','Cognizant'],
+['COHR','Coherent Corp.'],
+['COIN','Coinbase'],
+['CL','Colgate-Palmolive'],
+['CMCSA','Comcast'],
+['FIX','Comfort Systems USA'],
+['COP','ConocoPhillips'],
+['ED','Consolidated Edison'],
+['STZ','Constellation Brands'],
+['CEG','Constellation Energy'],
+['COO','Cooper Companies (The)'],
+['CPRT','Copart'],
+['GLW','Corning Inc.'],
+['CPAY','Corpay'],
+['CTVA','Corteva'],
+['CSGP','CoStar Group'],
+['COST','Costco'],
+['CRH','CRH plc'],
+['CRWD','CrowdStrike'],
+['CCI','Crown Castle'],
+['CSX','CSX Corporation'],
+['CMI','Cummins'],
+['CVS','CVS Health'],
+['DHR','Danaher Corporation'],
+['DRI','Darden Restaurants'],
+['DDOG','Datadog'],
+['DVA','DaVita'],
+['DECK','Deckers Brands'],
+['DE','Deere & Company'],
+['DELL','Dell Technologies'],
+['DAL','Delta Air Lines'],
+['DVN','Devon Energy'],
+['DXCM','Dexcom'],
+['FANG','Diamondback Energy'],
+['DLR','Digital Realty'],
+['DG','Dollar General'],
+['DLTR','Dollar Tree'],
+['D','Dominion Energy'],
+['DPZ','Domino\'s'],
+['DASH','DoorDash'],
+['DOV','Dover Corporation'],
+['DOW','Dow Inc.'],
+['DHI','D. R. Horton'],
+['DTE','DTE Energy'],
+['DUK','Duke Energy'],
+['DD','DuPont'],
+['ETN','Eaton Corporation'],
+['EBAY','eBay Inc.'],
+['ECHO','EchoStar'],
+['ECL','Ecolab'],
+['EIX','Edison International'],
+['EW','Edwards Lifesciences'],
+['ELV','Elevance Health'],
+['EME','Emcor'],
+['EMR','Emerson Electric'],
+['ETR','Entergy'],
+['EOG','EOG Resources'],
+['EQT','EQT Corporation'],
+['EFX','Equifax'],
+['EQIX','Equinix'],
+['EQR','Equity Residential'],
+['ERIE','Erie Indemnity'],
+['ESS','Essex Property Trust'],
+['EL','Estée Lauder Companies (The)'],
+['EG','Everest Group'],
+['EVRG','Evergy'],
+['ES','Eversource Energy'],
+['EXC','Exelon'],
+['EXE','Expand Energy'],
+['EXPE','Expedia Group'],
+['EXPD','Expeditors International'],
+['EXR','Extra Space Storage'],
+['XOM','ExxonMobil'],
+['FFIV','F5, Inc.'],
+['FDS','FactSet'],
+['FICO','Fair Isaac'],
+['FAST','Fastenal'],
+['FRT','Federal Realty Investment Trust'],
+['FDX','FedEx'],
+['FDXF','FedEx Freight'],
+['FERG','Ferguson Enterprises'],
+['FIS','Fidelity National Information Services'],
+['FITB','Fifth Third Bancorp'],
+['FSLR','First Solar'],
+['FE','FirstEnergy'],
+['FISV','Fiserv'],
+['FLEX','Flex Ltd.'],
+['F','Ford Motor Company'],
+['FTNT','Fortinet'],
+['FTV','Fortive'],
+['FOXA','Fox Corporation (Class A)'],
+['FOX','Fox Corporation (Class B)'],
+['BEN','Franklin Resources'],
+['FCX','Freeport-McMoRan'],
+['GRMN','Garmin'],
+['IT','Gartner'],
+['GE','GE Aerospace'],
+['GEHC','GE HealthCare'],
+['GEV','GE Vernova'],
+['GEN','Gen Digital'],
+['GNRC','Generac'],
+['GD','General Dynamics'],
+['GIS','General Mills'],
+['GM','General Motors'],
+['GPC','Genuine Parts Company'],
+['GILD','Gilead Sciences'],
+['GPN','Global Payments'],
+['GL','Globe Life'],
+['GDDY','GoDaddy'],
+['GS','Goldman Sachs'],
+['HAL','Halliburton'],
+['HIG','Hartford (The)'],
+['HAS','Hasbro'],
+['HCA','HCA Healthcare'],
+['DOC','Healthpeak Properties'],
+['HSIC','Henry Schein'],
+['HSY','Hershey Company (The)'],
+['HPE','Hewlett Packard Enterprise'],
+['HLT','Hilton Worldwide'],
+['HD','Home Depot (The)'],
+['HONA','Honeywell Aerospace'],
+['HON','Honeywell Technologies'],
+['HRL','Hormel Foods'],
+['HST','Host Hotels & Resorts'],
+['HWM','Howmet Aerospace'],
+['HPQ','HP Inc.'],
+['HUBB','Hubbell Incorporated'],
+['HUM','Humana'],
+['HBAN','Huntington Bancshares'],
+['HII','Huntington Ingalls Industries'],
+['IBM','IBM'],
+['IEX','IDEX Corporation'],
+['IDXX','Idexx Laboratories'],
+['ITW','Illinois Tool Works'],
+['INCY','Incyte'],
+['IR','Ingersoll Rand'],
+['PODD','Insulet Corporation'],
+['INTC','Intel'],
+['IBKR','Interactive Brokers'],
+['ICE','Intercontinental Exchange'],
+['IFF','International Flavors & Fragrances'],
+['IP','International Paper'],
+['INTU','Intuit'],
+['ISRG','Intuitive Surgical'],
+['IVZ','Invesco'],
+['INVH','Invitation Homes'],
+['IQV','IQVIA'],
+['IRM','Iron Mountain'],
+['JBHT','J.B. Hunt'],
+['JBL','Jabil'],
+['JKHY','Jack Henry & Associates'],
+['J','Jacobs Solutions'],
+['JNJ','Johnson & Johnson'],
+['JCI','Johnson Controls'],
+['JPM','JPMorgan Chase'],
+['KVUE','Kenvue'],
+['KDP','Keurig Dr Pepper'],
+['KEY','KeyCorp'],
+['KEYS','Keysight Technologies'],
+['KMB','Kimberly-Clark'],
+['KIM','Kimco Realty'],
+['KMI','Kinder Morgan'],
+['KKR','KKR & Co.'],
+['KLAC','KLA Corporation'],
+['KHC','Kraft Heinz'],
+['KR','Kroger'],
+['LHX','L3Harris'],
+['LH','Labcorp'],
+['LRCX','Lam Research'],
+['LVS','Las Vegas Sands'],
+['LDOS','Leidos'],
+['LEN','Lennar'],
+['LII','Lennox International'],
+['LLY','Lilly (Eli)'],
+['LIN','Linde plc'],
+['LYV','Live Nation Entertainment'],
+['LMT','Lockheed Martin'],
+['L','Loews Corporation'],
+['LOW','Lowe\'s'],
+['LULU','Lululemon Athletica'],
+['LITE','Lumentum'],
+['LYB','LyondellBasell'],
+['MTB','M&T Bank'],
+['MPC','Marathon Petroleum'],
+['MAR','Marriott International'],
+['MRSH','Marsh McLennan'],
+['MLM','Martin Marietta Materials'],
+['MRVL','Marvell Technology'],
+['MAS','Masco'],
+['MA','Mastercard'],
+['MKC','McCormick & Company'],
+['MCD','McDonald\'s'],
+['MCK','McKesson Corporation'],
+['MDT','Medtronic'],
+['MRK','Merck & Co.'],
+['META','Meta Platforms'],
+['MET','MetLife'],
+['MTD','Mettler Toledo'],
+['MGM','MGM Resorts'],
+['MCHP','Microchip Technology'],
+['MU','Micron Technology'],
+['MSFT','Microsoft'],
+['MAA','Mid-America Apartment Communities'],
+['MRNA','Moderna'],
+['TAP','Molson Coors Beverage Company'],
+['MDLZ','Mondelez International'],
+['MPWR','Monolithic Power Systems'],
+['MNST','Monster Beverage'],
+['MCO','Moody\'s Corporation'],
+['MS','Morgan Stanley'],
+['MOS','Mosaic Company (The)'],
+['MSI','Motorola Solutions'],
+['MSCI','MSCI'],
+['NDAQ','Nasdaq, Inc.'],
+['NTAP','NetApp'],
+['NFLX','Netflix'],
+['NEM','Newmont'],
+['NWSA','News Corp (Class A)'],
+['NWS','News Corp (Class B)'],
+['NEE','NextEra Energy'],
+['NKE','Nike, Inc.'],
+['NI','NiSource'],
+['NDSN','Nordson Corporation'],
+['NSC','Norfolk Southern'],
+['NTRS','Northern Trust'],
+['NOC','Northrop Grumman'],
+['NCLH','Norwegian Cruise Line Holdings'],
+['NRG','NRG Energy'],
+['NUE','Nucor'],
+['NVDA','Nvidia'],
+['NVR','NVR, Inc.'],
+['NXPI','NXP Semiconductors'],
+['ORLY','O\'Reilly Automotive'],
+['OXY','Occidental Petroleum'],
+['ODFL','Old Dominion'],
+['OMC','Omnicom Group'],
+['ON','ON Semiconductor'],
+['OKE','Oneok'],
+['ORCL','Oracle Corporation'],
+['OTIS','Otis Worldwide'],
+['PCAR','Paccar'],
+['PKG','Packaging Corporation of America'],
+['PLTR','Palantir Technologies'],
+['PANW','Palo Alto Networks'],
+['PSKY','Paramount Skydance Corporation'],
+['PH','Parker Hannifin'],
+['PAYX','Paychex'],
+['PYPL','PayPal'],
+['PNR','Pentair'],
+['PEP','PepsiCo'],
+['PFE','Pfizer'],
+['PCG','PG&E Corporation'],
+['PM','Philip Morris International'],
+['PSX','Phillips 66'],
+['PNW','Pinnacle West Capital'],
+['PNC','PNC Financial Services'],
+['PPG','PPG Industries'],
+['PPL','PPL Corporation'],
+['PFG','Principal Financial Group'],
+['PG','Procter & Gamble'],
+['PGR','Progressive Corporation'],
+['PLD','Prologis'],
+['PRU','Prudential Financial'],
+['PEG','Public Service Enterprise Group'],
+['PTC','PTC Inc.'],
+['PSA','Public Storage'],
+['PHM','PulteGroup'],
+['PWR','Quanta Services'],
+['QCOM','Qualcomm'],
+['DGX','Quest Diagnostics'],
+['Q','Qnity Electronics'],
+['RL','Ralph Lauren Corporation'],
+['RJF','Raymond James Financial'],
+['RTX','RTX Corporation'],
+['O','Realty Income'],
+['REG','Regency Centers'],
+['REGN','Regeneron Pharmaceuticals'],
+['RF','Regions Financial Corporation'],
+['RSG','Republic Services'],
+['RMD','ResMed|'],
+['RVTY','Revvity'],
+['HOOD','Robinhood Markets'],
+['ROK','Rockwell Automation'],
+['ROL','Rollins, Inc.'],
+['ROP','Roper Technologies'],
+['ROST','Ross Stores'],
+['RCL','Royal Caribbean Group'],
+['SPGI','S&P Global'],
+['CRM','Salesforce'],
+['SNDK','Sandisk'],
+['SBAC','SBA Communications'],
+['SLB','Schlumberger'],
+['STX','Seagate Technology'],
+['SRE','Sempra'],
+['NOW','ServiceNow'],
+['SHW','Sherwin-Williams'],
+['SPG','Simon Property Group'],
+['SWKS','Skyworks Solutions'],
+['SJM','J.M. Smucker Company (The)'],
+['SW','Smurfit Westrock'],
+['SNA','Snap-on'],
+['SOLV','Solventum'],
+['SO','Southern Company'],
+['LUV','Southwest Airlines'],
+['SWK','Stanley Black & Decker'],
+['SBUX','Starbucks'],
+['STT','State Street Corporation'],
+['STLD','Steel Dynamics'],
+['STE','Steris'],
+['SYK','Stryker Corporation'],
+['SMCI','Supermicro'],
+['SYF','Synchrony Financial'],
+['SNPS','Synopsys'],
+['SYY','Sysco'],
+['TMUS','T-Mobile US'],
+['TROW','T. Rowe Price'],
+['TTWO','Take-Two Interactive'],
+['TPR','Tapestry, Inc.'],
+['TRGP','Targa Resources'],
+['TGT','Target Corporation'],
+['TEL','TE Connectivity'],
+['TDY','Teledyne Technologies'],
+['TER','Teradyne'],
+['TSLA','Tesla, Inc.'],
+['TXN','Texas Instruments'],
+['TPL','Texas Pacific Land Corporation'],
+['TXT','Textron'],
+['TMO','Thermo Fisher Scientific'],
+['TJX','TJX Companies'],
+['TKO','TKO Group Holdings'],
+['TTD','Trade Desk (The)'],
+['TSCO','Tractor Supply'],
+['TT','Trane Technologies'],
+['TDG','TransDigm Group'],
+['TRV','Travelers Companies (The)'],
+['TRMB','Trimble Inc.'],
+['TFC','Truist Financial'],
+['TYL','Tyler Technologies'],
+['TSN','Tyson Foods'],
+['USB','U.S. Bancorp'],
+['UBER','Uber'],
+['UDR','UDR, Inc.'],
+['ULTA','Ulta Beauty'],
+['UNP','Union Pacific Corporation'],
+['UAL','United Airlines Holdings'],
+['UPS','United Parcel Service'],
+['URI','United Rentals'],
+['UNH','UnitedHealth Group'],
+['UHS','Universal Health Services'],
+['VLO','Valero Energy'],
+['VEEV','Veeva Systems'],
+['VTR','Ventas'],
+['VLTO','Veralto'],
+['VRSN','Verisign'],
+['VRSK','Verisk Analytics'],
+['VZ','Verizon'],
+['VRTX','Vertex Pharmaceuticals'],
+['VRT','Vertiv'],
+['VTRS','Viatris'],
+['VICI','Vici Properties'],
+['V','Visa Inc.'],
+['VST','Vistra Corp.'],
+['VMC','Vulcan Materials Company'],
+['WRB','W. R. Berkley Corporation'],
+['GWW','W. W. Grainger'],
+['WAB','Wabtec'],
+['WMT','Walmart'],
+['DIS','Walt Disney Company (The)'],
+['WBD','Warner Bros. Discovery'],
+['WM','Waste Management'],
+['WAT','Waters Corporation'],
+['WEC','WEC Energy Group'],
+['WFC','Wells Fargo'],
+['WELL','Welltower'],
+['WST','West Pharmaceutical Services'],
+['WDC','Western Digital'],
+['WY','Weyerhaeuser'],
+['WSM','Williams-Sonoma, Inc.'],
+['WMB','Williams Companies'],
+['WTW','Willis Towers Watson'],
+['WDAY','Workday, Inc.'],
+['WYNN','Wynn Resorts'],
+['XEL','Xcel Energy'],
+['XYL','Xylem Inc.'],
+['YUM','Yum! Brands'],
+['ZBRA','Zebra Technologies'],
+['ZBH','Zimmer Biomet'],
+['ZTS','Zoetis']  ]},
+  nasdaq100: { label: 'Nasdaq 100', tickers: [
+    ['AAPL','Apple'],['MSFT','Microsoft'],['NVDA','NVIDIA'],['AMZN','Amazon'],['META','Meta Platforms'],
+    ['GOOGL','Alphabet Class A'],['GOOG','Alphabet Class C'],['AVGO','Broadcom'],['TSLA','Tesla'],['COST','Costco'],
+    ['NFLX','Netflix'],['AMD','Advanced Micro Devices'],['PEP','PepsiCo'],['ADBE','Adobe'],['CSCO','Cisco'],
+    ['TMUS','T-Mobile US'],['CMCSA','Comcast'],['QCOM','Qualcomm'],['TXN','Texas Instruments'],['AMGN','Amgen'],
+    ['HON','Honeywell'],['INTU','Intuit'],['AMAT','Applied Materials'],['BKNG','Booking Holdings'],['ISRG','Intuitive Surgical'],
+    ['VRTX','Vertex Pharmaceuticals'],['SBUX','Starbucks'],['MDLZ','Mondelez'],['GILD','Gilead Sciences'],['ADI','Analog Devices'],
+    ['LRCX','Lam Research'],['PYPL','PayPal'],['REGN','Regeneron'],['PANW','Palo Alto Networks'],['MU','Micron Technology'],
+    ['SNPS','Synopsys'],['CDNS','Cadence Design Systems'],['KLAC','KLA Corp'],['ASML','ASML Holding'],['MELI','MercadoLibre'],
+    ['CSX','CSX Corp'],['MAR','Marriott International'],['ORLY',"O'Reilly Automotive"],['CTAS','Cintas'],['ABNB','Airbnb'],
+    ['WDAY','Workday'],['FTNT','Fortinet'],['MNST','Monster Beverage'],['ADP','Automatic Data Processing'],['PCAR','PACCAR'],
+    ['ROP','Roper Technologies'],['NXPI','NXP Semiconductors'],['PAYX','Paychex'],['CPRT','Copart'],['ODFL','Old Dominion Freight'],
+    ['DXCM','DexCom'],['KDP','Keurig Dr Pepper'],['EXC','Exelon'],['AEP','American Electric Power'],['FAST','Fastenal'],
+    ['EA','Electronic Arts'],['VRSK','Verisk Analytics'],['XEL','Xcel Energy'],['CTSH','Cognizant'],['BIIB','Biogen'],
+    ['IDXX','IDEXX Laboratories'],['GEHC','GE HealthCare'],['TTD','The Trade Desk'],['DDOG','Datadog'],['CRWD','CrowdStrike'],
+    ['TEAM','Atlassian'],['ZS','Zscaler'],['ANSS','Ansys'],['ON','ON Semiconductor'],['MRVL','Marvell Technology'],
+    ['CCEP','Coca-Cola Europacific Partners'],['GFS','GlobalFoundries'],['WBD','Warner Bros. Discovery'],['ILMN','Illumina'],
+    ['SIRI','Sirius XM'],['LULU','Lululemon Athletica'],['DASH','DoorDash'],['ROST','Ross Stores'],['BKR','Baker Hughes'],
+    ['CDW','CDW Corp'],['CHTR','Charter Communications'],['EBAY','eBay'],['FANG','Diamondback Energy'],['GEN','Gen Digital'],
+    ['TTWO','Take-Two Interactive'],['VRSN','VeriSign'],['ZM','Zoom Communications'],['ALGN','Align Technology'],
+    ['MRNA','Moderna'],['PDD','PDD Holdings'],['ARM','Arm Holdings'],['APP','AppLovin'],['AXON','Axon Enterprise'],
+    ['CEG','Constellation Energy'],['KHC','Kraft Heinz']
+  ]},
+  dow30: { label: 'Dow Jones Industrial Average', tickers: [
+    ['AAPL','Apple'],['AMGN','Amgen'],['AMZN','Amazon'],['AXP','American Express'],['BA','Boeing'],
+    ['CAT','Caterpillar'],['CRM','Salesforce'],['CSCO','Cisco'],['CVX','Chevron'],['DIS','Walt Disney'],
+    ['GS','Goldman Sachs'],['HD','Home Depot'],['HON','Honeywell'],['IBM','IBM'],['JNJ','Johnson & Johnson'],
+    ['JPM','JPMorgan Chase'],['KO','Coca-Cola'],['MCD',"McDonald's"],['MMM','3M'],['MRK','Merck'],
+    ['MSFT','Microsoft'],['NKE','Nike'],['NVDA','NVIDIA'],['PG','Procter & Gamble'],['SHW','Sherwin-Williams'],
+    ['TRV','Travelers'],['UNH','UnitedHealth Group'],['V','Visa'],['VZ','Verizon'],['WMT','Walmart']
+  ]},
+  dividend_aristocrats: { label: 'Dividend Aristocrats', tickers: [
+    ['MMM','3M'],['AOS','A.O. Smith'],['ABT','Abbott Laboratories'],['ABBV','AbbVie'],['AFL','Aflac'],
+    ['APD','Air Products'],['ALB','Albemarle'],['AMCR','Amcor'],['ADM','Archer-Daniels-Midland'],['ATO','Atmos Energy'],
+    ['ADP','Automatic Data Processing'],['BDX','Becton Dickinson'],['BRO','Brown & Brown'],['BF-B','Brown-Forman'],
+    ['CAH','Cardinal Health'],['CAT','Caterpillar'],['CVX','Chevron'],['CB','Chubb'],['CHD','Church & Dwight'],
+    ['CINF','Cincinnati Financial'],['CTAS','Cintas'],['CLX','Clorox'],['KO','Coca-Cola'],['CL','Colgate-Palmolive'],
+    ['ED','Consolidated Edison'],['DOV','Dover'],['ECL','Ecolab'],['EMR','Emerson Electric'],['ERIE','Erie Indemnity'],
+    ['ESS','Essex Property Trust'],['ES','Eversource Energy'],['EXPD','Expeditors International'],['XOM','ExxonMobil'],
+    ['FDS','FactSet Research Systems'],['GD','General Dynamics'],['GPC','Genuine Parts'],['HRL','Hormel Foods'],
+    ['ITW','Illinois Tool Works'],['IBM','IBM'],['JNJ','Johnson & Johnson'],['JCI','Johnson Controls'],
+    ['KMB','Kimberly-Clark'],['LIN','Linde'],['LOW',"Lowe's"],['MMC','Marsh & McLennan'],['MKC','McCormick'],
+    ['MCD',"McDonald's"],['MDT','Medtronic'],['NDSN','Nordson'],['NUE','Nucor'],['PH','Parker Hannifin'],
+    ['PEP','PepsiCo'],['PPG','PPG Industries'],['PG','Procter & Gamble'],['O','Realty Income'],['ROP','Roper Technologies'],
+    ['SHW','Sherwin-Williams'],['SJM','J.M. Smucker'],['SWK','Stanley Black & Decker'],['SYY','Sysco'],
+    ['TROW','T. Rowe Price'],['TGT','Target'],['WMT','Walmart'],['WST','West Pharmaceutical Services']
+  ]},
+  etf_basket: { label: 'Popular ETFs', tickers: [
+    ['SPY','SPDR S&P 500 ETF Trust'],['VOO','Vanguard S&P 500 ETF'],['IVV','iShares Core S&P 500 ETF'],
+    ['QQQ','Invesco QQQ Trust'],['VTI','Vanguard Total Stock Market ETF'],['VUG','Vanguard Growth ETF'],
+    ['VTV','Vanguard Value ETF'],['SCHD','Schwab US Dividend Equity ETF'],['VYM','Vanguard High Dividend Yield ETF'],
+    ['DVY','iShares Select Dividend ETF'],['VIG','Vanguard Dividend Appreciation ETF'],['NOBL','ProShares S&P 500 Dividend Aristocrats ETF'],
+    ['DIA','SPDR Dow Jones Industrial Average ETF'],['IWM','iShares Russell 2000 ETF'],['VGT','Vanguard Information Technology ETF']
+  ]},
+  russell2000: { label: 'Russell 2000', tickers: [] },
+  watchlist: { label: 'My Watchlist', tickers: [] }
+};
+
+// ══════════════════════════════════════════════════════════════
+// Key Management
+// ══════════════════════════════════════════════════════════════
+function getFinnhubKey() { return localStorage.getItem('rm_finnhub_key') || ''; }
+function getAlpacaId()   { return localStorage.getItem('rm_alpaca_id')   || ''; }
+function getAlpacaSecret(){ return localStorage.getItem('rm_alpaca_secret') || ''; }
+
+function saveFinnhubKey() {
+  const val = document.getElementById('finnhub-key-input').value.trim();
+  if (!val) { toast('Please paste your Finnhub API key first'); return; }
+  localStorage.setItem('rm_finnhub_key', val);
+  updateKeyBadges();
+  toast('Finnhub API key saved!');
+  // Modal stays open — Alpaca section is right below, don't force a reopen to reach it.
+}
+function clearFinnhubKey() {
+  localStorage.removeItem('rm_finnhub_key');
+  document.getElementById('finnhub-key-input').value = '';
+  updateKeyBadges();
+  toast('Finnhub key cleared');
+}
+function saveAlpacaKey() {
+  const id = document.getElementById('alpaca-id-input').value.trim();
+  const secret = document.getElementById('alpaca-secret-input').value.trim();
+  if (!id || !secret) { toast('Please paste both Alpaca Key ID and Secret'); return; }
+  localStorage.setItem('rm_alpaca_id', id);
+  localStorage.setItem('rm_alpaca_secret', secret);
+  ALPACA_FRACTIONABLE = null; // force reload next scan
+  updateKeyBadges();
+  toast('Alpaca keys saved!');
+  // Modal stays open — mirrors saveFinnhubKey(), close via the explicit Close button instead.
+}
+function clearAlpacaKey() {
+  localStorage.removeItem('rm_alpaca_id');
+  localStorage.removeItem('rm_alpaca_secret');
+  document.getElementById('alpaca-id-input').value = '';
+  document.getElementById('alpaca-secret-input').value = '';
+  ALPACA_FRACTIONABLE = null;
+  updateKeyBadges();
+  toast('Alpaca keys cleared');
+}
+function updateKeyBadges() {
+  const fEl = document.getElementById('finnhub-badge');
+  const aEl = document.getElementById('alpaca-badge');
+  const banner = document.getElementById('no-key-banner');
+  if (getFinnhubKey()) {
+    fEl.textContent = 'Finnhub: SET'; fEl.className = 'key-badge set';
+    banner.classList.remove('visible');
+  } else {
+    fEl.textContent = 'Finnhub: NO KEY'; fEl.className = 'key-badge unset';
+    banner.classList.add('visible');
+  }
+  if (getAlpacaId() && getAlpacaSecret()) {
+    aEl.textContent = 'Alpaca: SET'; aEl.className = 'key-badge set';
+  } else {
+    aEl.textContent = 'Alpaca: OPTIONAL'; aEl.className = 'key-badge unset';
+  }
+}
+
+// ── Modal ──────────────────────────────────────────────────────
+function openModal() {
+  const fk = getFinnhubKey(); if (fk) document.getElementById('finnhub-key-input').value = fk;
+  const aid = getAlpacaId(); if (aid) document.getElementById('alpaca-id-input').value = aid;
+  const asec = getAlpacaSecret(); if (asec) document.getElementById('alpaca-secret-input').value = asec;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+function handleOverlayClick(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+
+// ══════════════════════════════════════════════════════════════
+// Family / Mode / Universe UI
+// ══════════════════════════════════════════════════════════════
+function setFamily(family) {
+  currentFamily = family;
+  document.querySelectorAll('.family-tab').forEach(t => t.classList.toggle('active', t.dataset.family === family));
+  const firstMode = Object.keys(SCAN_MODES).find(k => SCAN_MODES[k].family === family);
+  setMode(firstMode);
+}
+
+function renderModeButtons() {
+  const wrap = document.getElementById('mode-buttons');
+  wrap.innerHTML = Object.entries(SCAN_MODES)
+    .filter(([k, m]) => m.family === currentFamily)
+    .map(([k, m]) => `<button class="mode-btn${k === currentMode ? ' active' : ''}" data-mode="${k}" onclick="setMode('${k}')">${m.label}</button>`)
+    .join('');
+}
+
+function setMode(mode) {
+  currentMode = mode;
+  sortKey = SCAN_MODES[mode].sortKey;
+  sortDir = (mode === 'low_volatility') ? 1 : -1; // lower beta is "better" for low-vol
+  renderModeButtons();
+  document.getElementById('mode-source').innerHTML = `Source: <span>Finnhub</span> · ${SCAN_MODES[mode].desc}`;
+  renderFilterPanel();
+  assets = [];
+  renderTable();
+}
+
+function renderFilterPanel() {
+  const panel = document.getElementById('filter-panel');
+  const isPreservation = currentFamily === 'preservation';
+  panel.innerHTML = `
+    <div class="fgroup">
+      <label class="flabel" for="min-score">Min Score</label>
+      <input type="number" class="finput" id="min-score" value="0" min="0" max="99" step="5">
+    </div>
+    <div class="fgroup${currentMode === 'dividend_growth' ? '' : ' hidden'}" id="min-yield-group">
+      <label class="flabel" for="min-yield">Min Dividend Yield (%)</label>
+      <input type="number" class="finput" id="min-yield" value="1" min="0" step="0.5">
+    </div>
+    <div class="fgroup${isPreservation ? '' : ' hidden'}" id="max-pe-group">
+      <label class="flabel" for="max-pe">Max P/E</label>
+      <input type="number" class="finput" id="max-pe" value="0" min="0" step="1" placeholder="No limit">
+    </div>
+    <div class="fgroup${isPreservation ? '' : ' hidden'}" id="max-beta-group">
+      <label class="flabel" for="max-beta">Max Beta</label>
+      <input type="number" class="finput" id="max-beta" value="0" min="0" step="0.1" placeholder="No limit">
+    </div>
+    <div class="fgroup${isPreservation ? ' hidden' : ''}" id="min-chg-group">
+      <label class="flabel" for="min-chg">Min Abs. Chg %</label>
+      <input type="number" class="finput" id="min-chg" value="0" min="0" step="0.5">
+    </div>
+    <div class="fgroup">
+      <div class="fcheck-row" style="margin-top:18px;">
+        <input type="checkbox" id="dividend-only">
+        <label for="dividend-only">Dividend payers only</label>
+      </div>
+    </div>
+    <div class="fgroup">
+      <div class="fcheck-row" style="margin-top:18px;">
+        <input type="checkbox" id="fractionable-only">
+        <label for="fractionable-only">Fractionable only (needs Alpaca key)</label>
+      </div>
+    </div>
+  `;
+}
+
+function onUniverseChange() {
+  const u = document.getElementById('universe-select').value;
+  document.getElementById('watchlist-editor').style.display = (u === 'watchlist') ? 'flex' : 'none';
+  updateUniverseCount();
+  if (u === 'watchlist') renderWatchlist();
+}
+
+function updateUniverseCount() {
+  const u = document.getElementById('universe-select').value;
+  const list = UNIVERSES[u].tickers;
+  document.getElementById('universe-count').textContent = list.length ? `${list.length} tickers in list` : 'No tickers yet';
+}
+
+// ── Watchlist (localStorage-backed custom universe) ─────────────
+function loadWatchlist() {
+  try {
+    const raw = localStorage.getItem('rm_lighthouse_watchlist');
+    UNIVERSES.watchlist.tickers = raw ? JSON.parse(raw) : [];
+  } catch { UNIVERSES.watchlist.tickers = []; }
+}
+function saveWatchlist() {
+  localStorage.setItem('rm_lighthouse_watchlist', JSON.stringify(UNIVERSES.watchlist.tickers));
+}
+function addToWatchlist() {
+  const input = document.getElementById('watchlist-add-input');
+  const sym = input.value.trim().toUpperCase();
+  if (!sym) return;
+  if (UNIVERSES.watchlist.tickers.some(t => t[0] === sym)) { toast(`${sym} already on watchlist`); return; }
+  UNIVERSES.watchlist.tickers.push([sym, sym]);
+  saveWatchlist();
+  input.value = '';
+  renderWatchlist();
+  updateUniverseCount();
+  toast(`${sym} added to watchlist`);
+}
+function removeFromWatchlist(sym) {
+  UNIVERSES.watchlist.tickers = UNIVERSES.watchlist.tickers.filter(t => t[0] !== sym);
+  saveWatchlist();
+  renderWatchlist();
+  updateUniverseCount();
+}
+function renderWatchlist() {
+  const el = document.getElementById('watchlist-list');
+  if (!UNIVERSES.watchlist.tickers.length) { el.textContent = 'Watchlist is empty.'; return; }
+  el.innerHTML = UNIVERSES.watchlist.tickers.map(t =>
+    `<span style="display:inline-block;margin:2px 6px 2px 0;padding:2px 8px;background:var(--bg2);border:1px solid var(--border);">${t[0]} <a href="#" onclick="removeFromWatchlist('${t[0]}');return false;" style="color:var(--red);text-decoration:none;margin-left:4px;">×</a></span>`
+  ).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// Finnhub Fetch (cached, paced to respect free-tier rate limit)
+// ══════════════════════════════════════════════════════════════
+// fetchSymbolData fires 3 calls per symbol via Promise.all. Spacing
+// symbols FINNHUB_PACE_MS apart is NOT enough on its own — those 3 calls
+// still land almost simultaneously, tripling the real burst rate. This
+// gate serializes every actual network call (cache hits skip it) through
+// a single chained queue so the true minimum gap between any two live
+// Finnhub requests is always FINNHUB_PACE_MS, no matter how many calls
+// get kicked off "concurrently" upstream.
+let finnhubGateChain = Promise.resolve();
+let finnhubLastCallAt = 0;
+
+function finnhubGate() {
+  const wait = async () => {
+    const remaining = finnhubLastCallAt + FINNHUB_PACE_MS - Date.now();
+    if (remaining > 0) await sleep(remaining);
+    finnhubLastCallAt = Date.now();
+  };
+  finnhubGateChain = finnhubGateChain.then(wait, wait);
+  return finnhubGateChain;
+}
+
+async function finnhubFetch(path) {
+  const key = getFinnhubKey();
+  if (!key) { openModal(); throw new Error('Finnhub API key required.'); }
+  const url = `${FINNHUB_BASE}${path}${path.includes('?') ? '&' : '?'}token=${key}`;
+
+  if (FINNHUB_CACHE[url] && Date.now() - FINNHUB_CACHE[url].ts < CACHE_TTL_MS) {
+    return FINNHUB_CACHE[url].data;
+  }
+  await finnhubGate(); // only cache misses consume a rate-limit slot
+  const res = await fetch(url);
+  if (res.status === 401) { openModal(); throw new Error('Invalid Finnhub API key.'); }
+  if (res.status === 429) throw new Error('Finnhub rate limit hit — slow down or reduce Max Symbols.');
+  if (!res.ok) throw new Error(`Finnhub error ${res.status}`);
+  const json = await res.json();
+  FINNHUB_CACHE[url] = { data: json, ts: Date.now() };
+  return json;
+}
+
+async function fetchSymbolData(symbol) {
+  // Still fired together — the gate above is what actually serializes them.
+  const [quote, profile, metrics] = await Promise.all([
+    finnhubFetch(`/quote?symbol=${symbol}`),
+    finnhubFetch(`/stock/profile2?symbol=${symbol}`),
+    finnhubFetch(`/stock/metric?symbol=${symbol}&metric=all`)
+  ]);
+  const m = metrics.metric || {};
+  return { quote, profile, m };
+}
+
+// ── Alpaca fractionable lookup (optional, one-time load per session) ──
+async function loadAlpacaFractionable() {
+  const id = getAlpacaId(), secret = getAlpacaSecret();
+  if (!id || !secret) { ALPACA_FRACTIONABLE = null; return; }
+  try {
+    const res = await fetch(`${ALPACA_ASSETS_BASE}?status=active&asset_class=us_equity`, {
+      headers: { 'APCA-API-KEY-ID': id, 'APCA-API-SECRET-KEY': secret }
+    });
+    if (!res.ok) { toast('Alpaca asset lookup failed — check your keys'); ALPACA_FRACTIONABLE = false; return; }
+    const json = await res.json();
+    ALPACA_FRACTIONABLE = new Set(json.filter(a => a.fractionable).map(a => a.symbol));
+  } catch {
+    ALPACA_FRACTIONABLE = false; // false = attempted but failed, distinct from null = not attempted
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// Scoring
+// ══════════════════════════════════════════════════════════════
+function computeQualityScore(a) {
+  // Rewards reasonable P/E, real dividend yield, low debt/equity, low beta.
+  // All components capped and combined — same "additive, capped sub-scores"
+  // pattern Cipher uses for its onchain score().
+  let s = 0;
+  if (a.peRatio && a.peRatio > 0) s += Math.max(0, 25 - Math.abs(a.peRatio - 18) * 0.8);
+  if (a.dividendYield) s += Math.min(20, a.dividendYield * 5);
+  if (a.debtToEquity !== null && a.debtToEquity !== undefined) s += Math.max(0, 20 - a.debtToEquity * 6);
+  if (a.beta !== null && a.beta !== undefined) s += Math.max(0, 20 - Math.abs(a.beta - 0.8) * 15);
+  if (a.marketCap) s += Math.min(15, Math.log10(Math.max(a.marketCap, 1)) * 1.5);
+  return Math.max(0, Math.min(99, Math.round(s)));
+}
+
+// ══════════════════════════════════════════════════════════════
+// Scan Orchestration
+// ══════════════════════════════════════════════════════════════
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function runScan() {
+  if (!getFinnhubKey()) { openModal(); return; }
+  if (scanning) return;
+  scanning = true;
+  stopRequested = false;
+
+  const btn = document.getElementById('btn-run');
+  const stopBtn = document.getElementById('btn-stop');
+  btn.disabled = true;
+  stopBtn.classList.add('visible');
+  document.getElementById('status-text').textContent = 'Scanning...';
+  document.getElementById('progress-wrap').classList.add('visible');
+
+  const universeKey = document.getElementById('universe-select').value;
+  const maxSymbols = parseInt(document.getElementById('max-symbols').value) || 60;
+  const full = UNIVERSES[universeKey].tickers;
+  const list = full.slice(0, maxSymbols);
+
+  if (!list.length) {
+    toast('Selected universe has no tickers yet.');
+    finishScan();
+    return;
+  }
+
+  if (getAlpacaId() && getAlpacaSecret() && ALPACA_FRACTIONABLE === null) {
+    document.getElementById('status-text').textContent = 'Loading Alpaca asset list...';
+    await loadAlpacaFractionable();
+  }
+
+  const results = [];
+  for (let i = 0; i < list.length; i++) {
+    if (stopRequested) { toast('Scan stopped.'); break; }
+    const [symbol, name] = list[i];
+    document.getElementById('status-text').textContent = `Scanning ${i + 1}/${list.length}: ${symbol}`;
+    document.getElementById('progress-bar').style.width = `${Math.round(((i + 1) / list.length) * 100)}%`;
+
+    try {
+      const { quote, profile, m } = await fetchSymbolData(symbol);
+      if (!quote || quote.c === 0) { continue; }
+
+      const asset = {
+        symbol, name: profile.name || name,
+        sector: profile.finnhubIndustry || 'Unknown',
+        price: quote.c, priceChangePct: quote.dp || 0,
+        marketCap: profile.marketCapitalization ? profile.marketCapitalization * 1e6 : null,
+        peRatio: m.peBasicExclExtraTTM || m.peTTM || null,
+        dividendYield: m.dividendYieldIndicatedAnnual || m.currentDividendYieldTTM || null,
+        payoutRatio: m.payoutRatioTTM || null,
+        debtToEquity: m['totalDebt/totalEquityQuarterly'] || null,
+        beta: m.beta || null,
+        relativeVolume: (quote.o && quote.o > 0) ? +(quote.h / quote.o).toFixed(2) : null,
+        fractionable: ALPACA_FRACTIONABLE === null ? null : ALPACA_FRACTIONABLE === false ? null : ALPACA_FRACTIONABLE.has(symbol),
+        source: 'finnhub', lastUpdated: new Date().toISOString()
+      };
+      asset.qualityScore = computeQualityScore(asset);
+      results.push(asset);
+    } catch (err) {
+      console.error(symbol, err);
+      if (err.message.includes('rate limit')) { toast(err.message); await sleep(5000); }
+    }
+  }
+
+  assets = applyFilters(results);
+  renderTable();
+  updateStats();
+  document.getElementById('tok-count').textContent = assets.length;
+  document.getElementById('last-scan').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  finishScan();
+}
+
+function stopScan() { stopRequested = true; }
+
+function finishScan() {
+  scanning = false;
+  document.getElementById('btn-run').disabled = false;
+  document.getElementById('btn-stop').classList.remove('visible');
+  document.getElementById('status-text').textContent = 'Ready';
+  document.getElementById('progress-wrap').classList.remove('visible');
+  document.getElementById('progress-bar').style.width = '0%';
+}
+
+function applyFilters(list) {
+  const minScore = parseFloat(document.getElementById('min-score')?.value) || 0;
+  const minYield = parseFloat(document.getElementById('min-yield')?.value) || 0;
+  const maxPe = parseFloat(document.getElementById('max-pe')?.value) || 0;
+  const maxBeta = parseFloat(document.getElementById('max-beta')?.value) || 0;
+  const minChg = parseFloat(document.getElementById('min-chg')?.value) || 0;
+  const divOnly = document.getElementById('dividend-only')?.checked;
+  const fracOnly = document.getElementById('fractionable-only')?.checked;
+
+  let out = list.filter(a => a.qualityScore >= minScore);
+  if (currentMode === 'dividend_growth') out = out.filter(a => (a.dividendYield || 0) >= minYield);
+  if (maxPe > 0) out = out.filter(a => a.peRatio && a.peRatio <= maxPe);
+  if (maxBeta > 0) out = out.filter(a => a.beta !== null && a.beta <= maxBeta);
+  if (minChg > 0) out = out.filter(a => Math.abs(a.priceChangePct || 0) >= minChg);
+  if (divOnly) out = out.filter(a => (a.dividendYield || 0) > 0);
+  if (fracOnly) out = out.filter(a => a.fractionable === true);
+
+  out.sort((a, b) => {
+    const av = a[sortKey], bv = b[sortKey];
+    if (av === null || av === undefined) return 1;
+    if (bv === null || bv === undefined) return -1;
+    return sortDir * (av - bv);
+  });
+  return out;
+}
+
+function sortBy(key) {
+  if (sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = -1; }
+  assets.sort((a, b) => {
+    const av = a[sortKey], bv = b[sortKey];
+    if (av === null || av === undefined) return 1;
+    if (bv === null || bv === undefined) return -1;
+    return sortDir * (av - bv);
+  });
+  renderTable();
+}
+
+// ══════════════════════════════════════════════════════════════
+// Render
+// ══════════════════════════════════════════════════════════════
+function renderTable() {
+  const tbody = document.getElementById('results-body');
+  document.querySelectorAll('#table-head th').forEach(th => th.classList.toggle('sorted', th.dataset.key === sortKey));
+
+  if (!assets.length) {
+    tbody.innerHTML = `<tr><td colspan="11" class="empty-msg">No results. Try lowering filters, widening Max Symbols, or switching universe.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = assets.map(a => {
+    const priceTxt = a.price ? '$' + a.price.toFixed(2) : '—';
+    const chgCls = a.priceChangePct >= 2 ? 'chg-pos-high' : a.priceChangePct > 0 ? 'chg-pos-low' : a.priceChangePct < 0 ? 'chg-neg' : 'chg-zero';
+    const chgTxt = a.priceChangePct != null ? `${a.priceChangePct > 0 ? '+' : ''}${a.priceChangePct.toFixed(2)}%` : '—';
+    const peTxt = a.peRatio ? a.peRatio.toFixed(1) : '—';
+    const divTxt = a.dividendYield ? `${a.dividendYield.toFixed(2)}%` : '—';
+    const betaTxt = (a.beta !== null && a.beta !== undefined) ? a.beta.toFixed(2) : '—';
+    const relVolTxt = a.relativeVolume ? a.relativeVolume.toFixed(2) : '—';
+    const fracTxt = a.fractionable === true ? '<span class="frac-yes">✓</span>' : a.fractionable === false ? '<span class="frac-no">✗</span>' : '<span class="frac-unknown">?</span>';
+    const scoreClass = a.qualityScore >= 70 ? 'score-high' : a.qualityScore >= 40 ? 'score-med' : 'score-low';
+
+    return `<tr>
+      <td><strong>${a.symbol}</strong></td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;">${a.name}</td>
+      <td><span class="sector-col">${a.sector}</span></td>
+      <td>${priceTxt}</td>
+      <td class="${chgCls}">${chgTxt}</td>
+      <td>${peTxt}</td>
+      <td>${divTxt}</td>
+      <td>${betaTxt}</td>
+      <td>${relVolTxt}</td>
+      <td>${fracTxt}</td>
+      <td class="${scoreClass}">${a.qualityScore}</td>
+    </tr>`;
+  }).join('');
+}
+
+function updateStats() {
+  const row = document.getElementById('stats-row');
+  if (!assets.length) { row.classList.remove('visible'); return; }
+  row.classList.add('visible');
+  const avgScore = Math.round(assets.reduce((s, a) => s + a.qualityScore, 0) / assets.length);
+  const avgChg = assets.reduce((s, a) => s + (a.priceChangePct || 0), 0) / assets.length;
+  const divCount = assets.filter(a => (a.dividendYield || 0) > 0).length;
+  document.getElementById('stat-count').textContent = assets.length;
+  document.getElementById('stat-score').textContent = avgScore;
+  document.getElementById('stat-chg').textContent = (avgChg > 0 ? '+' : '') + avgChg.toFixed(2) + '%';
+  document.getElementById('stat-div').textContent = `${divCount}/${assets.length}`;
+}
+
+// ── Toast ──────────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// ══════════════════════════════════════════════════════════════
+// Init
+// ══════════════════════════════════════════════════════════════
+document.querySelectorAll('#table-head th').forEach(th => {
+  th.addEventListener('click', () => sortBy(th.dataset.key));
+});
+
+loadWatchlist();
+updateKeyBadges();
+updateUniverseCount();
+setFamily('preservation');
+const fk = getFinnhubKey();
+if (fk) document.getElementById('finnhub-key-input').value = fk;
+</script>
+</body>
+</html>
