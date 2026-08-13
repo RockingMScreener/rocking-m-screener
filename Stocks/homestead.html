@@ -902,6 +902,7 @@ function renderStats() {
   const equity = accountEquity(a);
   const totalReturn = ((equity - a.startingBalance) / a.startingBalance) * 100;
   const unrealizedPnl = a.positions.reduce((s, p) => s + (p.quantity * ((p.currentPrice || p.entryPrice) - p.entryPrice)), 0);
+  const positionsValue = a.positions.reduce((s, p) => s + (p.quantity * (p.currentPrice || p.entryPrice)), 0);
   const realizedTrades = a.closed.filter(c => !c.isTransfer);
   const realizedPnl = realizedTrades.reduce((s, c) => s + c.pnl, 0);
 
@@ -918,6 +919,7 @@ function renderStats() {
       <div class="scard ${avgPnl >= 0 ? 'pos' : 'neg'}"><div class="scard-label">Avg P&amp;L / Trade</div><div class="scard-val ${avgPnl >= 0 ? 'pos' : 'neg'}">${fUsd(avgPnl)}</div></div>
       <div class="scard ${dayTradesInWindow >= 4 ? 'neg' : ''}"><div class="scard-label">Day Trades (5-day)</div><div class="scard-val ${dayTradesInWindow >= 4 ? 'neg' : ''}">${dayTradesInWindow}/4</div></div>
       <div class="scard"><div class="scard-label">Open Positions</div><div class="scard-val">${a.positions.length}</div></div>
+      <div class="scard"><div class="scard-label">Positions Value</div><div class="scard-val">${fUsd(positionsValue)}</div></div>
     `;
   } else {
     row.innerHTML = `
@@ -926,6 +928,7 @@ function renderStats() {
       <div class="scard ${unrealizedPnl >= 0 ? 'pos' : 'neg'}"><div class="scard-label">Unrealized P&amp;L</div><div class="scard-val ${unrealizedPnl >= 0 ? 'pos' : 'neg'}">${fUsd(unrealizedPnl)}</div></div>
       <div class="scard ${realizedPnl >= 0 ? 'pos' : 'neg'}"><div class="scard-label">Realized P&amp;L</div><div class="scard-val ${realizedPnl >= 0 ? 'pos' : 'neg'}">${fUsd(realizedPnl)}</div></div>
       <div class="scard"><div class="scard-label">Open Positions</div><div class="scard-val">${a.positions.length}</div></div>
+      <div class="scard"><div class="scard-label">Positions Value</div><div class="scard-val">${fUsd(positionsValue)}</div></div>
     `;
   }
 }
