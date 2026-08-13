@@ -766,6 +766,63 @@ async function openPosition() {
 // ══════════════════════════════════════════════════════════════
 // Close Position (full or partial) + PDT logging + sweep rule
 // ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+// Core close logic — shared by manual closePosition() and the
+// auto-close-on-refresh stop-loss/take-profit trigger below.
+// ══════════════════════════════════════════════════════════════
+function executeClose(a, pos, pct, price, autoReason = null) {
+  const sellQty = +(pos.quantity * (pct / 100)).toFixed(6);
+  const exitValue = sellQty * price;
+  const costBasis = sellQty * pos.entryPrice;
+  const pnl = exitValue - costBasis;
+  const closeDateStr = todayStr();
+
+  a.balance += exitValue;
+
+  const closedRecord = {
+    id: Date.now() + Math.random(), // avoids id collisions if multiple auto-closes land in the same refresh
+    symbol: pos.symbol,
+    horizon: pos.horizon,
+    quantity: sellQty,
+    entryPrice: pos.entryPrice,
+    exitPrice: price,
+    pnl,
+    entryDate: pos.entryDate,
+    exitDate: new Date().toISOString(),
+    notes: autoReason ? `${autoReason} triggered${pos.notes ? ' — ' + pos.notes : ''}` : pos.notes,
+    isTransfer: false
+  };
+  a.closed.unshift(closedRecord);
+
+  recordDayTradeIfApplicable(pos, closeDateStr);
+
+  if (pct >= 99.99) {
+    a.positions = a.positions.filter(p => p.id !== pos.id);
+  } else {
+    pos.quantity = +(pos.quantity - sellQty).toFixed(6);
+  }
+
+  // Sweep rule — Lottery only, profit above threshold moves to Long-Term
+  if (currentAccount === 'lottery' && a.sweepEnabled && pnl >= a.sweepThreshold) {
+    a.balance -= pnl;
+    STATE.longterm.balance += pnl;
+    a.closed.unshift({
+      id: Date.now() + Math.random(),
+      symbol: pos.symbol,
+      horizon: '—',
+      quantity: null,
+      entryPrice: null, exitPrice: null,
+      pnl: pnl,
+      entryDate: null,
+      exitDate: new Date().toISOString(),
+      notes: `Swept $${pnl.toFixed(2)} profit to Long-Term`,
+      isTransfer: true
+    });
+    return { pnl, swept: true, sellQty };
+  }
+  return { pnl, swept: false, sellQty };
+}
+
 async function closePosition(posId) {
   const a = acct();
   const pos = a.positions.find(p => p.id === posId);
@@ -781,56 +838,13 @@ async function closePosition(posId) {
     if (quote && quote.c) price = quote.c;
   } catch (e) { /* fall back to last known price */ }
 
-  const sellQty = +(pos.quantity * (pct / 100)).toFixed(6);
-  const exitValue = sellQty * price;
-  const costBasis = sellQty * pos.entryPrice;
-  const pnl = exitValue - costBasis;
-  const closeDateStr = todayStr();
+  const symbol = pos.symbol;
+  const result = executeClose(a, pos, pct, price);
 
-  a.balance += exitValue;
-
-  const closedRecord = {
-    id: Date.now(),
-    symbol: pos.symbol,
-    horizon: pos.horizon,
-    quantity: sellQty,
-    entryPrice: pos.entryPrice,
-    exitPrice: price,
-    pnl,
-    entryDate: pos.entryDate,
-    exitDate: new Date().toISOString(),
-    notes: pos.notes,
-    isTransfer: false
-  };
-  a.closed.unshift(closedRecord);
-
-  recordDayTradeIfApplicable(pos, closeDateStr);
-
-  if (pct >= 99.99) {
-    a.positions = a.positions.filter(p => p.id !== posId);
+  if (result.swept) {
+    toast(`Closed ${symbol} — $${result.pnl.toFixed(2)} profit swept to Long-Term`);
   } else {
-    pos.quantity = +(pos.quantity - sellQty).toFixed(6);
-  }
-
-  // Sweep rule — Lottery only, profit above threshold moves to Long-Term
-  if (currentAccount === 'lottery' && a.sweepEnabled && pnl >= a.sweepThreshold) {
-    a.balance -= pnl;
-    STATE.longterm.balance += pnl;
-    a.closed.unshift({
-      id: Date.now() + 1,
-      symbol: pos.symbol,
-      horizon: '—',
-      quantity: null,
-      entryPrice: null, exitPrice: null,
-      pnl: pnl,
-      entryDate: null,
-      exitDate: new Date().toISOString(),
-      notes: `Swept $${pnl.toFixed(2)} profit to Long-Term`,
-      isTransfer: true
-    });
-    toast(`Closed ${pos.symbol} — $${pnl.toFixed(2)} profit swept to Long-Term`);
-  } else {
-    toast(`Closed ${sellQty} ${pos.symbol} — ${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}`);
+    toast(`Closed ${result.sellQty} ${symbol} — ${result.pnl >= 0 ? '+' : ''}$${result.pnl.toFixed(2)}`);
   }
 
   save();
@@ -838,21 +852,43 @@ async function closePosition(posId) {
 }
 
 // ══════════════════════════════════════════════════════════════
-// Price Refresh
+// Price Refresh — also checks each open position's stop-loss /
+// take-profit against the fresh price and auto-closes on a hit.
 // ══════════════════════════════════════════════════════════════
 async function refreshAllPrices() {
   const a = acct();
   if (!a.positions.length) { toast('No open positions to refresh'); return; }
   toast('Refreshing prices...');
+
+  const toAutoClose = [];
   for (const pos of a.positions) {
     try {
       const quote = await getQuote(pos.symbol);
       if (quote && quote.c) pos.currentPrice = quote.c;
     } catch (e) { /* leave last known price on failure */ }
+
+    if (pos.stopLoss && pos.currentPrice <= pos.stopLoss) {
+      toAutoClose.push({ pos, reason: 'Stop Loss' });
+    } else if (pos.takeProfit && pos.currentPrice >= pos.takeProfit) {
+      toAutoClose.push({ pos, reason: 'Take Profit' });
+    }
   }
+
+  // Closed after the refresh loop finishes, not during it — avoids mutating
+  // a.positions (via the filter inside executeClose) while still iterating over it.
+  for (const { pos, reason } of toAutoClose) {
+    executeClose(a, pos, 100, pos.currentPrice, reason);
+  }
+
   save();
   renderAll();
-  toast('Prices updated');
+
+  if (toAutoClose.length) {
+    const summary = toAutoClose.map(x => `${x.pos.symbol} (${x.reason})`).join(', ');
+    toast(`Auto-closed: ${summary}`);
+  } else {
+    toast('Prices updated');
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
