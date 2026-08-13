@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Homestead — Build Steady. Chase Bold. · Rocking M</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Barlow+Condensed:wght@300;400;600;700;800&display=swap');
+  :root {
+    --bg:#e8eaed;--bg2:#f2f4f6;--bg3:#ffffff;--bg-header:#1a2330;
+    --border:#c4cad2;--border2:#a8b2bc;
+    --amber:#b8860b;--amber-lt:#d4a017;--amber-bg:#faf3e0;--amber-hi:#ffc72c;
+    --teal:#00707a;--teal-lt:#00a5b0;
+    --green:#007a3d;--green-lt:#00a651;--green-bg:#e6f4ec;--green-hi:#00cc66;
+    --red:#cc2200;--red-bg:#fdecea;
+    --text:#1a1f26;--text-mid:#3d4a57;--text-dim:#6b7a8a;
+    --mono:'IBM Plex Mono',monospace;--sans:'Barlow Condensed',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;}
+
+  /* ── Header ── */
+  .top-bar{background:var(--bg-header);border-bottom:3px solid var(--amber-lt);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+  .logo-badge{display:flex;align-items:center;gap:16px;}
+  .badge-mark{width:72px;height:82px;background:#111a24;border:1.5px solid var(--amber-lt);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex-shrink:0;position:relative;padding:6px 0;}
+  .badge-rocking{font-family:var(--sans);font-size:8px;font-weight:800;letter-spacing:3px;color:var(--amber-hi);text-transform:uppercase;line-height:1.1;}
+  .badge-m{font-family:'Georgia',serif;font-size:52px;font-weight:700;color:#fff;line-height:1;}
+  .badge-sub{font-family:var(--sans);font-size:7px;font-weight:600;letter-spacing:3px;color:#3d5570;text-transform:uppercase;position:absolute;bottom:6px;}
+  .brand-text{display:flex;flex-direction:column;gap:2px;}
+  .brand-title{font-family:var(--sans);font-size:28px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#fff;line-height:1;}
+  .brand-title span{color:var(--amber-hi);}
+  .brand-tagline{font-family:var(--mono);font-size:9px;color:#4a6070;letter-spacing:1px;margin-top:4px;line-height:1.6;}
+  .header-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .s-item{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+  .s-label{font-family:var(--mono);font-size:9px;color:#4a6070;letter-spacing:2px;text-transform:uppercase;}
+  .s-val{font-family:var(--mono);font-size:13px;color:var(--amber-hi);font-weight:600;}
+  .btn-settings{background:transparent;border:1.5px solid #2a4060;color:#4a6070;padding:6px 12px;font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .15s;letter-spacing:1px;}
+  .btn-settings:hover{border-color:var(--amber-lt);color:var(--amber-hi);}
+  .key-badge{font-family:var(--mono);font-size:9px;padding:3px 8px;letter-spacing:1px;border-radius:2px;white-space:nowrap;}
+  .key-badge.set{background:#0a2a1a;color:var(--green-hi);border:1px solid var(--green);}
+  .key-badge.unset{background:#2a1a0a;color:#cc8844;border:1px solid #cc6622;}
+
+  /* ── Modal ── */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:900;display:none;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--bg-header);border:1px solid var(--border2);border-top:3px solid var(--amber-lt);padding:28px 32px;max-width:560px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.5);max-height:90vh;overflow-y:auto;}
+  .modal-title{font-family:var(--sans);font-size:22px;font-weight:800;letter-spacing:3px;color:#fff;text-transform:uppercase;margin-bottom:4px;}
+  .modal-title span{color:var(--amber-hi);}
+  .modal-sub{font-family:var(--mono);font-size:10px;color:#4a6070;letter-spacing:1px;margin-bottom:20px;line-height:1.7;}
+  .modal-section{margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid #2a3a4a;}
+  .modal-section:last-of-type{border-bottom:none;}
+  .modal-section-title{font-family:var(--sans);font-size:14px;font-weight:700;letter-spacing:2px;color:#fff;text-transform:uppercase;margin-bottom:4px;}
+  .modal-section-title .opt{font-family:var(--mono);font-size:9px;color:#4a6070;letter-spacing:1px;text-transform:none;margin-left:8px;}
+  .key-input-row{display:flex;gap:8px;margin:10px 0 8px;flex-wrap:wrap;}
+  .key-input{font-family:var(--mono);font-size:12px;background:#0d1a24;border:1px solid var(--border2);color:#fff;padding:8px 12px;flex:1;min-width:180px;outline:none;letter-spacing:1px;}
+  .key-input:focus{border-color:var(--amber-lt);}
+  .btn-save-key{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:2px;padding:8px 18px;background:var(--amber);color:#fff;border:none;cursor:pointer;text-transform:uppercase;}
+  .btn-save-key:hover{background:var(--amber-lt);}
+  .btn-clear-key{font-family:var(--mono);font-size:10px;padding:8px 12px;background:transparent;color:#cc4422;border:1px solid #cc4422;cursor:pointer;}
+  .btn-clear-key:hover{background:#cc4422;color:#fff;}
+  .key-note{font-family:var(--mono);font-size:9px;color:#4a6070;line-height:1.7;}
+  .inherited-note{font-family:var(--mono);font-size:10px;color:var(--green-hi);line-height:1.7;background:#0a2a1a;border:1px solid var(--green);padding:8px 12px;margin-bottom:10px;}
+  .btn-close-modal{font-family:var(--mono);font-size:10px;padding:8px 16px;background:transparent;color:#6b7a8a;border:1px solid #2a3a4a;cursor:pointer;margin-top:20px;letter-spacing:1px;}
+  .btn-close-modal:hover{color:#fff;border-color:#fff;}
+  .settings-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:10px;}
+  .settings-row .fgroup{display:flex;flex-direction:column;gap:4px;}
+  .settings-row label{font-family:var(--mono);font-size:9px;color:#8aacbc;letter-spacing:1px;text-transform:uppercase;}
+  .settings-row input, .settings-row select{font-family:var(--mono);font-size:12px;background:#0d1a24;border:1px solid var(--border2);color:#fff;padding:6px 10px;outline:none;}
+
+  /* ── Shell ── */
+  .shell{max-width:1500px;margin:0 auto;padding:20px 24px 40px;}
+  .sec-label{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;}
+
+  /* ── Account Tabs ── */
+  .account-tabs{display:flex;gap:0;margin-bottom:0;}
+  .account-tab{font-family:var(--sans);font-size:16px;font-weight:700;letter-spacing:2px;padding:14px 28px;border:1.5px solid var(--border2);border-bottom:none;background:var(--bg2);color:var(--text-mid);cursor:pointer;transition:all .15s;text-transform:uppercase;display:flex;align-items:center;gap:8px;}
+  .account-tab.active{background:var(--bg3);position:relative;z-index:2;}
+  .account-tab[data-acct="lottery"].active{color:var(--amber);border-color:var(--amber);}
+  .account-tab[data-acct="lottery"].active::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:3px;background:var(--amber);}
+  .account-tab[data-acct="longterm"].active{color:var(--green);border-color:var(--green);}
+  .account-tab[data-acct="longterm"].active::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:3px;background:var(--green);}
+  .account-tab:not(.active):hover{color:var(--text);}
+  .pdt-flag-pill{font-family:var(--mono);font-size:9px;padding:2px 8px;background:var(--red-bg);color:var(--red);border:1px solid var(--red);letter-spacing:1px;display:none;}
+  .pdt-flag-pill.visible{display:inline-block;}
+
+  /* ── Panel (generic bordered card) ── */
+  .panel{background:var(--bg3);border:1px solid var(--border);padding:16px 18px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .panel.acc-amber{border-top:3px solid var(--amber);}
+  .panel.acc-green{border-top:3px solid var(--green);}
+
+  /* ── Summary cards ── */
+  .stats-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .scard{background:var(--bg3);border:1px solid var(--border);border-left:4px solid var(--text-dim);padding:10px 16px;flex:1;min-width:120px;}
+  .scard.pos{border-left-color:var(--green-lt);}
+  .scard.neg{border-left-color:var(--red);}
+  .scard-label{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}
+  .scard-val{font-family:var(--mono);font-size:20px;color:var(--text);font-weight:600;}
+  .scard-val.pos{color:#00aa00;}
+  .scard-val.neg{color:var(--red);}
+
+  /* ── Entry form ── */
+  .entry-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px;}
+  .fgroup{display:flex;flex-direction:column;gap:4px;}
+  .flabel{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;}
+  .finput{font-family:var(--mono);font-size:12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:7px 10px;outline:none;width:100%;}
+  .finput:focus{background:#fff;}
+  select.finput{cursor:pointer;}
+  .price-preview{font-family:var(--mono);font-size:12px;padding:7px 10px;background:var(--bg2);border:1px solid var(--border);color:var(--text-dim);min-height:32px;display:flex;align-items:center;}
+  .price-preview.loaded{color:var(--text);font-weight:600;}
+  .frac-flag{font-size:10px;margin-left:6px;}
+  .btn-primary{font-family:var(--sans);font-size:14px;font-weight:800;letter-spacing:2px;padding:9px 22px;border:2px solid var(--amber);background:var(--amber);color:#fff;cursor:pointer;transition:all .15s;text-transform:uppercase;}
+  .btn-primary:hover{background:var(--amber-lt);border-color:var(--amber-lt);}
+  .btn-primary.green{border-color:var(--green);background:var(--green);}
+  .btn-primary.green:hover{background:var(--green-lt);border-color:var(--green-lt);}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-sm{font-family:var(--mono);font-size:10px;padding:5px 12px;border:1px solid var(--border2);background:var(--bg2);color:var(--text-mid);cursor:pointer;letter-spacing:1px;}
+  .btn-sm:hover{border-color:var(--text);color:var(--text);}
+  .btn-sm.danger{border-color:var(--red);color:var(--red);}
+  .btn-sm.danger:hover{background:var(--red);color:#fff;}
+
+  /* ── Table ── */
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--border);background:var(--bg3);box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:16px;}
+  table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;}
+  thead tr{background:var(--bg-header);}
+  th{padding:9px 10px;text-align:left;font-size:9px;letter-spacing:2px;color:#a0b4c4;text-transform:uppercase;white-space:nowrap;}
+  tbody tr{border-bottom:1px solid var(--border);}
+  tbody tr:nth-child(even){background:#f7f9fb;}
+  tbody tr:hover{background:var(--amber-bg)!important;}
+  td{padding:8px 10px;white-space:nowrap;color:var(--text);}
+  .horizon-badge{font-size:9px;padding:2px 7px;border-radius:2px;letter-spacing:1px;color:#fff;text-transform:uppercase;}
+  .horizon-day_trade{background:#cc2200;}
+  .horizon-swing{background:#cc7a00;}
+  .horizon-long_term{background:var(--green);}
+  .pnl-pos{color:#00aa00;font-weight:600;}
+  .pnl-neg{color:var(--red);font-weight:600;}
+  .pnl-zero{color:var(--text-dim);}
+  .empty-msg{text-align:center;padding:40px;color:var(--text-dim);font-family:var(--mono);font-size:12px;}
+  .transfer-row td{background:var(--green-bg)!important;font-style:italic;}
+
+  /* ── Toast ── */
+  .toast{position:fixed;bottom:20px;right:20px;background:var(--amber);color:#fff;padding:12px 20px;border-radius:3px;font-family:var(--mono);font-size:11px;box-shadow:0 4px 12px rgba(184,134,11,.35);z-index:1000;animation:slide-up .3s ease;}
+  @keyframes slide-up{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+  footer{text-align:center;padding:24px;color:var(--text-dim);font-size:11px;font-family:var(--mono);border-top:1px solid var(--border);margin-top:20px;}
+  footer a{color:var(--amber-lt);text-decoration:none;}
+  footer a:hover{text-decoration:underline;}
+
+  @media(max-width:768px){
+    .brand-title{font-size:20px;}
+    .shell{padding:12px 16px 30px;}
+    .modal{padding:20px;}
+    .account-tab{padding:11px 16px;font-size:14px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Settings / Data Source Modal ── -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-title">DATA <span>&amp; SETTINGS</span></div>
+    <div class="modal-sub">Homestead reuses the same Finnhub/Alpaca keys as Lighthouse if you've already set them up there — no need to re-enter.</div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Finnhub <span class="opt">required for live prices</span></div>
+      <div id="finnhub-inherited-note" class="inherited-note" style="display:none;">✓ Using the Finnhub key already saved from Lighthouse.</div>
+      <div class="key-input-row">
+        <input type="password" class="key-input" id="finnhub-key-input" placeholder="Paste your Finnhub API key...">
+        <button class="btn-save-key" onclick="saveFinnhubKey()">Save</button>
+        <button class="btn-clear-key" onclick="clearFinnhubKey()">Clear</button>
+      </div>
+      <div class="key-note">Free key at <a href="https://finnhub.io/register" target="_blank" style="color:var(--amber-hi);">finnhub.io/register</a>.</div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Alpaca <span class="opt">optional · fractional-share check</span></div>
+      <div id="alpaca-inherited-note" class="inherited-note" style="display:none;">✓ Using the Alpaca keys already saved from Lighthouse.</div>
+      <div class="key-input-row">
+        <input type="password" class="key-input" id="alpaca-id-input" placeholder="Alpaca Key ID...">
+        <input type="password" class="key-input" id="alpaca-secret-input" placeholder="Alpaca Secret Key...">
+      </div>
+      <div class="key-input-row">
+        <button class="btn-save-key" onclick="saveAlpacaKey()">Save</button>
+        <button class="btn-clear-key" onclick="clearAlpacaKey()">Clear</button>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Lottery Account Settings</div>
+      <div class="settings-row">
+        <div class="fgroup">
+          <label for="set-lottery-start">Starting Balance</label>
+          <input type="number" id="set-lottery-start" value="1000" min="100" step="100">
+        </div>
+        <div class="fgroup">
+          <label for="set-sweep-threshold">Sweep Threshold ($ profit)</label>
+          <input type="number" id="set-sweep-threshold" value="5" min="0" step="1">
+        </div>
+        <div class="fgroup">
+          <label for="set-sweep-enabled">Auto-Sweep to Long-Term</label>
+          <select id="set-sweep-enabled">
+            <option value="1">Enabled</option>
+            <option value="0">Disabled</option>
+          </select>
+        </div>
+        <div class="fgroup">
+          <label for="set-pdt-mode">PDT Rule Enforcement</label>
+          <select id="set-pdt-mode">
+            <option value="block">Block trade</option>
+            <option value="warn">Warn only</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Long-Term Account Settings</div>
+      <div class="settings-row">
+        <div class="fgroup">
+          <label for="set-longterm-start">Starting Balance</label>
+          <input type="number" id="set-longterm-start" value="1000" min="100" step="100">
+        </div>
+      </div>
+    </div>
+
+    <div class="key-input-row">
+      <button class="btn-save-key" onclick="saveSettings()">Save Settings</button>
+    </div>
+    <div><button class="btn-close-modal" onclick="closeModal()">Close</button></div>
+  </div>
+</div>
+
+<!-- ── Header ── -->
+<div class="top-bar">
+  <div class="logo-badge">
+    <div class="badge-mark">
+      <div class="badge-rocking">Rocking</div>
+      <svg width="72" height="14" viewBox="0 0 72 14" fill="none" style="display:block;margin:2px 0 -4px">
+        <path d="M 2 12 Q 36 2 70 12" stroke="#ffc72c" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </svg>
+      <div class="badge-m">M</div>
+      <div class="badge-sub">stocks</div>
+    </div>
+    <div class="brand-text">
+      <div class="brand-title">ROCKING <span>M</span> STOCKS</div>
+      <div class="brand-tagline">Homestead — Build Steady. Chase Bold.</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="s-item">
+      <div class="s-label">Lottery</div>
+      <div class="s-val" id="hdr-lottery-bal">&#8212;</div>
+    </div>
+    <div class="s-item">
+      <div class="s-label">Long-Term</div>
+      <div class="s-val" id="hdr-longterm-bal">&#8212;</div>
+    </div>
+    <div class="key-badge unset" id="finnhub-badge">Finnhub: NO KEY</div>
+    <div class="key-badge unset" id="alpaca-badge">Alpaca: OPTIONAL</div>
+    <button class="btn-settings" onclick="openModal()">⚙ SETTINGS</button>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- Account Tabs -->
+  <div class="account-tabs">
+    <button class="account-tab active" data-acct="lottery" onclick="setAccount('lottery')">
+      Lottery <span class="pdt-flag-pill" id="pdt-flag-pill">PDT FLAGGED</span>
+    </button>
+    <button class="account-tab" data-acct="longterm" onclick="setAccount('longterm')">Long-Term</button>
+  </div>
+
+  <div class="panel" id="account-panel-top" style="border-top:3px solid var(--amber);">
+
+    <!-- Summary Cards -->
+    <div class="stats-row" id="stats-row"></div>
+
+    <!-- Entry Form -->
+    <div class="sec-label">⚙ Open New Position</div>
+    <div class="entry-grid">
+      <div class="fgroup">
+        <label class="flabel" for="entry-symbol">Symbol</label>
+        <input type="text" class="finput" id="entry-symbol" placeholder="e.g. AAPL" style="text-transform:uppercase;">
+      </div>
+      <div class="fgroup">
+        <label class="flabel" for="entry-price-preview">Current Price</label>
+        <div class="price-preview" id="entry-price-preview">Enter symbol, click Fetch</div>
+      </div>
+      <div class="fgroup">
+        <label class="flabel">&nbsp;</label>
+        <button class="btn-sm" onclick="fetchEntryPrice()" id="btn-fetch-price">Fetch Price</button>
+      </div>
+      <div class="fgroup">
+        <label class="flabel" for="entry-qty">Quantity <span id="entry-frac-flag" class="frac-flag"></span></label>
+        <input type="number" class="finput" id="entry-qty" placeholder="e.g. 2.5" min="0" step="0.0001">
+      </div>
+      <div class="fgroup">
+        <label class="flabel" for="entry-horizon">Horizon</label>
+        <select class="finput" id="entry-horizon">
+          <option value="day_trade">Day Trade</option>
+          <option value="swing">Swing</option>
+          <option value="long_term">Long-Term</option>
+        </select>
+      </div>
+      <div class="fgroup">
+        <label class="flabel" for="entry-stop">Stop Loss ($, optional)</label>
+        <input type="number" class="finput" id="entry-stop" placeholder="e.g. 210.00" min="0" step="0.01">
+      </div>
+      <div class="fgroup">
+        <label class="flabel" for="entry-target">Take Profit ($, optional)</label>
+        <input type="number" class="finput" id="entry-target" placeholder="e.g. 250.00" min="0" step="0.01">
+      </div>
+      <div class="fgroup" style="grid-column:span 2;">
+        <label class="flabel" for="entry-notes">Notes (optional)</label>
+        <input type="text" class="finput" id="entry-notes" placeholder="Why this trade?">
+      </div>
+    </div>
+    <button class="btn-primary" id="btn-open-position" onclick="openPosition()">Open Position</button>
+    <button class="btn-sm" onclick="refreshAllPrices()" style="margin-left:8px;">↻ Refresh Prices</button>
+  </div>
+
+  <!-- Open Positions -->
+  <div class="sec-label">Open Positions</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Symbol</th><th>Horizon</th><th>Qty</th><th>Entry</th><th>Current</th>
+          <th>Value</th><th>Unrl. P&amp;L</th><th>Stop / Target</th><th>Opened</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="open-positions-body">
+        <tr><td colspan="10" class="empty-msg">No open positions.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Closed Positions -->
+  <div class="sec-label">Closed Positions &amp; Transfers</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Symbol</th><th>Horizon</th><th>Qty</th><th>Entry</th><th>Exit</th>
+          <th>Realized P&amp;L</th><th>Opened</th><th>Closed</th><th>Note</th>
+        </tr>
+      </thead>
+      <tbody id="closed-positions-body">
+        <tr><td colspan="9" class="empty-msg">No closed positions yet.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-bottom:20px;">
+    <button class="btn-sm" onclick="exportCSV()">Export CSV</button>
+    <button class="btn-sm" onclick="exportJSON()">Export JSON</button>
+    <button class="btn-sm" onclick="importJSON()">Import JSON</button>
+    <button class="btn-sm danger" onclick="resetAccount()">Reset This Account</button>
+  </div>
+
+</div>
+
+<footer>
+  Homestead v1.0 &nbsp;·&nbsp;
+  <a href="https://finnhub.io" target="_blank">Finnhub API</a> &nbsp;·&nbsp;
+  <a href="https://alpaca.markets" target="_blank">Alpaca API</a> &nbsp;·&nbsp;
+  Rocking M &nbsp;·&nbsp;
+  <a href="/trailguide.html">Trail Guide</a> &nbsp;·&nbsp;
+  <a href="/cipher.html">Cipher</a>
+  <a href="/craftsman.html">Craftsman</a>
+  <a href="/stormchaser.html">Stormchaser</a>
+  <a href="/forge.html">Forge</a>
+  <a href="/lighthouse.html">Lighthouse</a>
+  <a href="/homestead.html">Homestead</a>
+</footer>
+
+<input type="file" id="import-file-input" accept=".json" style="display:none;">
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// Homestead — Config & State
+// ══════════════════════════════════════════════════════════════
+const FINNHUB_BASE = 'https://finnhub.io/api/v1';
+const ALPACA_ASSETS_BASE = 'https://paper-api.alpaca.markets/v2/assets';
+const FINNHUB_PACE_MS = 1050; // same serialized-gate pattern as Lighthouse
+const STORAGE_KEY = 'rm_homestead_v1';
+const SCHEMA_VERSION = 1;
+
+let finnhubGateChain = Promise.resolve();
+let finnhubLastCallAt = 0;
+let ALPACA_FRACTIONABLE = null; // Set<symbol> | null (not loaded) | false (load failed)
+let currentAccount = 'lottery';
+let refreshTimer = null;
+
+// ── Default account shape ────────────────────────────────────
+function freshAccount(kind) {
+  const isLottery = kind === 'lottery';
+  return {
+    label: isLottery ? 'Lottery' : 'Long-Term Holdings',
+    startingBalance: 1000,
+    balance: 1000,
+    positions: [],      // open positions
+    closed: [],          // closed positions + transfer log entries
+    dayTradeLog: [],     // { symbol, date: 'YYYY-MM-DD' } — one per completed day trade
+    pdtFlagged: false,
+    pdtEquityFloor: 25000,
+    sweepEnabled: isLottery,
+    sweepThreshold: 5,
+    pdtMode: 'block'      // 'block' | 'warn'
+  };
+}
+
+let STATE = {
+  schemaVersion: SCHEMA_VERSION,
+  lottery: freshAccount('lottery'),
+  longterm: freshAccount('longterm')
+};
+
+// ══════════════════════════════════════════════════════════════
+// Persistence — mirrors Craftsman's save()/load() pattern
+// ══════════════════════════════════════════════════════════════
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
+}
+
+function load() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed.schemaVersion !== SCHEMA_VERSION) {
+      // Placeholder migration point — bump SCHEMA_VERSION and add
+      // translation logic here if the account/position shape changes.
+      console.warn('Homestead: stored schema version mismatch, using defaults where fields are missing.');
+    }
+    STATE.lottery = Object.assign(freshAccount('lottery'), parsed.lottery || {});
+    STATE.longterm = Object.assign(freshAccount('longterm'), parsed.longterm || {});
+  } catch (e) {
+    console.error('Homestead: failed to parse saved state', e);
+  }
+}
+
+function acct() { return STATE[currentAccount]; }
+
+// ══════════════════════════════════════════════════════════════
+// Key Management — inherits Finnhub/Alpaca keys from Lighthouse
+// (same localStorage key names: rm_finnhub_key, rm_alpaca_id, rm_alpaca_secret)
+// ══════════════════════════════════════════════════════════════
+function getFinnhubKey() { return localStorage.getItem('rm_finnhub_key') || ''; }
+function getAlpacaId()   { return localStorage.getItem('rm_alpaca_id')   || ''; }
+function getAlpacaSecret(){ return localStorage.getItem('rm_alpaca_secret') || ''; }
+
+function saveFinnhubKey() {
+  const val = document.getElementById('finnhub-key-input').value.trim();
+  if (!val) { toast('Please paste your Finnhub API key first'); return; }
+  localStorage.setItem('rm_finnhub_key', val);
+  updateKeyBadges();
+  toast('Finnhub API key saved!');
+}
+function clearFinnhubKey() {
+  localStorage.removeItem('rm_finnhub_key');
+  document.getElementById('finnhub-key-input').value = '';
+  updateKeyBadges();
+  toast('Finnhub key cleared');
+}
+function saveAlpacaKey() {
+  const id = document.getElementById('alpaca-id-input').value.trim();
+  const secret = document.getElementById('alpaca-secret-input').value.trim();
+  if (!id || !secret) { toast('Please paste both Alpaca Key ID and Secret'); return; }
+  localStorage.setItem('rm_alpaca_id', id);
+  localStorage.setItem('rm_alpaca_secret', secret);
+  ALPACA_FRACTIONABLE = null;
+  updateKeyBadges();
+  toast('Alpaca keys saved!');
+}
+function clearAlpacaKey() {
+  localStorage.removeItem('rm_alpaca_id');
+  localStorage.removeItem('rm_alpaca_secret');
+  document.getElementById('alpaca-id-input').value = '';
+  document.getElementById('alpaca-secret-input').value = '';
+  ALPACA_FRACTIONABLE = null;
+  updateKeyBadges();
+  toast('Alpaca keys cleared');
+}
+function updateKeyBadges() {
+  const fEl = document.getElementById('finnhub-badge');
+  const aEl = document.getElementById('alpaca-badge');
+  const fNote = document.getElementById('finnhub-inherited-note');
+  const aNote = document.getElementById('alpaca-inherited-note');
+  if (getFinnhubKey()) {
+    fEl.textContent = 'Finnhub: SET'; fEl.className = 'key-badge set';
+    fNote.style.display = 'block';
+  } else {
+    fEl.textContent = 'Finnhub: NO KEY'; fEl.className = 'key-badge unset';
+    fNote.style.display = 'none';
+  }
+  if (getAlpacaId() && getAlpacaSecret()) {
+    aEl.textContent = 'Alpaca: SET'; aEl.className = 'key-badge set';
+    aNote.style.display = 'block';
+  } else {
+    aEl.textContent = 'Alpaca: OPTIONAL'; aEl.className = 'key-badge unset';
+    aNote.style.display = 'none';
+  }
+}
+
+// ── Modal ──────────────────────────────────────────────────────
+function openModal() {
+  const fk = getFinnhubKey(); if (fk) document.getElementById('finnhub-key-input').value = fk;
+  const aid = getAlpacaId(); if (aid) document.getElementById('alpaca-id-input').value = aid;
+  const asec = getAlpacaSecret(); if (asec) document.getElementById('alpaca-secret-input').value = asec;
+  document.getElementById('set-lottery-start').value = STATE.lottery.startingBalance;
+  document.getElementById('set-sweep-threshold').value = STATE.lottery.sweepThreshold;
+  document.getElementById('set-sweep-enabled').value = STATE.lottery.sweepEnabled ? '1' : '0';
+  document.getElementById('set-pdt-mode').value = STATE.lottery.pdtMode;
+  document.getElementById('set-longterm-start').value = STATE.longterm.startingBalance;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+function handleOverlayClick(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+
+function saveSettings() {
+  const newLotteryStart = parseFloat(document.getElementById('set-lottery-start').value) || 1000;
+  const newLongtermStart = parseFloat(document.getElementById('set-longterm-start').value) || 1000;
+
+  // Only reset balance-to-starting-balance if the account has no history yet —
+  // otherwise changing "starting balance" mid-stream would silently wipe P&L.
+  if (STATE.lottery.positions.length === 0 && STATE.lottery.closed.length === 0) {
+    STATE.lottery.balance = newLotteryStart;
+  }
+  STATE.lottery.startingBalance = newLotteryStart;
+  STATE.lottery.sweepThreshold = parseFloat(document.getElementById('set-sweep-threshold').value) || 5;
+  STATE.lottery.sweepEnabled = document.getElementById('set-sweep-enabled').value === '1';
+  STATE.lottery.pdtMode = document.getElementById('set-pdt-mode').value;
+
+  if (STATE.longterm.positions.length === 0 && STATE.longterm.closed.length === 0) {
+    STATE.longterm.balance = newLongtermStart;
+  }
+  STATE.longterm.startingBalance = newLongtermStart;
+
+  save();
+  renderAll();
+  toast('Settings saved');
+  closeModal();
+}
+
+// ══════════════════════════════════════════════════════════════
+// Account Tabs
+// ══════════════════════════════════════════════════════════════
+function setAccount(kind) {
+  currentAccount = kind;
+  document.querySelectorAll('.account-tab').forEach(t => t.classList.toggle('active', t.dataset.acct === kind));
+  document.getElementById('account-panel-top').style.borderTopColor = kind === 'lottery' ? 'var(--amber)' : 'var(--green)';
+  document.getElementById('entry-horizon').value = kind === 'lottery' ? 'day_trade' : 'long_term';
+  document.getElementById('btn-open-position').className = kind === 'lottery' ? 'btn-primary' : 'btn-primary green';
+  renderAll();
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ══════════════════════════════════════════════════════════════
+// Finnhub Fetch — same serialized rate gate as Lighthouse, so bursts
+// of concurrent calls can't exceed the free-tier cap.
+// ══════════════════════════════════════════════════════════════
+function finnhubGate() {
+  const wait = async () => {
+    const remaining = finnhubLastCallAt + FINNHUB_PACE_MS - Date.now();
+    if (remaining > 0) await sleep(remaining);
+    finnhubLastCallAt = Date.now();
+  };
+  finnhubGateChain = finnhubGateChain.then(wait, wait);
+  return finnhubGateChain;
+}
+
+async function finnhubFetch(path) {
+  const key = getFinnhubKey();
+  if (!key) { openModal(); throw new Error('Finnhub API key required.'); }
+  const url = `${FINNHUB_BASE}${path}${path.includes('?') ? '&' : '?'}token=${key}`;
+  await finnhubGate();
+  const res = await fetch(url);
+  if (res.status === 401) { openModal(); throw new Error('Invalid Finnhub API key.'); }
+  if (res.status === 429) throw new Error('Finnhub rate limit hit — try again in a moment.');
+  if (!res.ok) throw new Error(`Finnhub error ${res.status}`);
+  return res.json();
+}
+
+async function getQuote(symbol) {
+  return finnhubFetch(`/quote?symbol=${encodeURIComponent(symbol)}`);
+}
+
+// ── Alpaca fractionable lookup (same pattern as Lighthouse) ────
+async function loadAlpacaFractionable() {
+  const id = getAlpacaId(), secret = getAlpacaSecret();
+  if (!id || !secret) { ALPACA_FRACTIONABLE = null; return; }
+  try {
+    const res = await fetch(`${ALPACA_ASSETS_BASE}?status=active&asset_class=us_equity`, {
+      headers: { 'APCA-API-KEY-ID': id, 'APCA-API-SECRET-KEY': secret }
+    });
+    if (!res.ok) { ALPACA_FRACTIONABLE = false; return; }
+    const json = await res.json();
+    ALPACA_FRACTIONABLE = new Set(json.filter(a => a.fractionable).map(a => a.symbol));
+  } catch {
+    ALPACA_FRACTIONABLE = false;
+  }
+}
+
+async function checkFractionable(symbol) {
+  if (ALPACA_FRACTIONABLE === null && getAlpacaId() && getAlpacaSecret()) {
+    await loadAlpacaFractionable();
+  }
+  if (!ALPACA_FRACTIONABLE || ALPACA_FRACTIONABLE === false) return null; // unknown
+  return ALPACA_FRACTIONABLE.has(symbol);
+}
+
+// ══════════════════════════════════════════════════════════════
+// Entry price fetch (feeds the entry form's price preview)
+// ══════════════════════════════════════════════════════════════
+let lastFetchedPrice = null;
+let lastFetchedSymbol = null;
+
+async function fetchEntryPrice() {
+  const symbol = document.getElementById('entry-symbol').value.trim().toUpperCase();
+  const preview = document.getElementById('entry-price-preview');
+  const fracFlag = document.getElementById('entry-frac-flag');
+  if (!symbol) { toast('Enter a symbol first'); return; }
+
+  preview.textContent = 'Fetching...';
+  preview.classList.remove('loaded');
+  fracFlag.textContent = '';
+
+  try {
+    const quote = await getQuote(symbol);
+    if (!quote || quote.c === 0) { preview.textContent = 'No price found for ' + symbol; return; }
+    lastFetchedPrice = quote.c;
+    lastFetchedSymbol = symbol;
+    preview.textContent = '$' + quote.c.toFixed(2);
+    preview.classList.add('loaded');
+
+    const frac = await checkFractionable(symbol);
+    if (frac === true) fracFlag.innerHTML = '<span class="frac-yes" style="color:var(--green);">✓ fractionable</span>';
+    else if (frac === false) fracFlag.innerHTML = '<span class="frac-no" style="color:var(--red);">✗ whole shares only</span>';
+    else fracFlag.innerHTML = '';
+  } catch (err) {
+    preview.textContent = err.message;
+    if (!err.message.includes('rate limit')) toast(err.message);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// PDT (Pattern Day Trader) Tracking — Lottery account only
+// ══════════════════════════════════════════════════════════════
+// Simplified vs. the real FINRA rule: we block/warn on OPENING a new
+// position once flagged & under the equity floor, rather than modeling
+// the full nuance of which specific trade type gets restricted. Good
+// enough to teach the real-world constraint without full regulatory
+// precision — documented here so it's not mistaken for exact compliance logic.
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+
+function businessDaysAgoStr(n) {
+  let d = new Date();
+  let counted = 0;
+  while (counted < n) {
+    d.setDate(d.getDate() - 1);
+    const day = d.getDay();
+    if (day !== 0 && day !== 6) counted++;
+  }
+  return d.toISOString().slice(0, 10);
+}
+
+function recalcPdtFlag() {
+  const lot = STATE.lottery;
+  const windowStart = businessDaysAgoStr(5);
+  const recent = lot.dayTradeLog.filter(t => t.date >= windowStart);
+  lot.pdtFlagged = recent.length >= 4;
+}
+
+function recordDayTradeIfApplicable(pos, closeDateStr) {
+  if (currentAccount !== 'lottery') return;
+  const openedDateStr = pos.entryDate.slice(0, 10);
+  if (openedDateStr === closeDateStr) {
+    STATE.lottery.dayTradeLog.push({ symbol: pos.symbol, date: closeDateStr });
+    recalcPdtFlag();
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// Open Position
+// ══════════════════════════════════════════════════════════════
+async function openPosition() {
+  const symbol = document.getElementById('entry-symbol').value.trim().toUpperCase();
+  const qtyInput = parseFloat(document.getElementById('entry-qty').value);
+  const horizon = document.getElementById('entry-horizon').value;
+  const stop = parseFloat(document.getElementById('entry-stop').value) || null;
+  const target = parseFloat(document.getElementById('entry-target').value) || null;
+  const notes = document.getElementById('entry-notes').value.trim();
+
+  if (!symbol) { toast('Enter a symbol'); return; }
+  if (!qtyInput || qtyInput <= 0) { toast('Enter a valid quantity'); return; }
+  if (lastFetchedSymbol !== symbol || lastFetchedPrice === null) {
+    toast('Click "Fetch Price" for this symbol first'); return;
+  }
+
+  const a = acct();
+
+  // PDT gate — only meaningful for the Lottery account
+  if (currentAccount === 'lottery') {
+    recalcPdtFlag();
+    if (a.pdtFlagged && a.balance < a.pdtEquityFloor) {
+      if (a.pdtMode === 'block') {
+        toast(`Blocked: PDT rule active (4+ day trades in 5 business days, balance under $${a.pdtEquityFloor.toLocaleString()})`);
+        return;
+      } else {
+        toast(`⚠ PDT rule active — this account would be restricted with real money`);
+      }
+    }
+  }
+
+  // Fractional-share check
+  let qty = qtyInput;
+  const frac = await checkFractionable(symbol);
+  if (frac === false && qty % 1 !== 0) {
+    qty = Math.floor(qty);
+    if (qty <= 0) { toast(`${symbol} doesn't support fractional shares — enter a whole number`); return; }
+    toast(`${symbol} isn't fractionable — rounded down to ${qty} share${qty === 1 ? '' : 's'}`);
+  }
+
+  const cost = qty * lastFetchedPrice;
+  if (cost > a.balance) { toast(`Insufficient balance — need $${cost.toFixed(2)}, have $${a.balance.toFixed(2)}`); return; }
+
+  const position = {
+    id: Date.now(),
+    symbol,
+    side: 'long',
+    horizon,
+    entryPrice: lastFetchedPrice,
+    currentPrice: lastFetchedPrice,
+    entryDate: new Date().toISOString(),
+    quantity: qty,
+    exitPrice: null,
+    exitDate: null,
+    status: 'open',
+    stopLoss: stop,
+    takeProfit: target,
+    notes,
+    costModel: { commission: 0, slippageEstimate: 0.02 },
+    source: 'homestead_sim'
+  };
+
+  a.balance -= cost;
+  a.positions.push(position);
+  save();
+  renderAll();
+  toast(`Opened ${qty} ${symbol} @ $${lastFetchedPrice.toFixed(2)}`);
+
+  document.getElementById('entry-symbol').value = '';
+  document.getElementById('entry-qty').value = '';
+  document.getElementById('entry-stop').value = '';
+  document.getElementById('entry-target').value = '';
+  document.getElementById('entry-notes').value = '';
+  document.getElementById('entry-price-preview').textContent = 'Enter symbol, click Fetch';
+  document.getElementById('entry-price-preview').classList.remove('loaded');
+  document.getElementById('entry-frac-flag').textContent = '';
+  lastFetchedSymbol = null; lastFetchedPrice = null;
+}
+
+// ══════════════════════════════════════════════════════════════
+// Close Position (full or partial) + PDT logging + sweep rule
+// ══════════════════════════════════════════════════════════════
+async function closePosition(posId) {
+  const a = acct();
+  const pos = a.positions.find(p => p.id === posId);
+  if (!pos) return;
+
+  const pctStr = window.prompt(`Close what percent of this ${pos.symbol} position?`, '100');
+  if (pctStr === null) return;
+  const pct = Math.min(100, Math.max(0.01, parseFloat(pctStr) || 100));
+
+  let price = pos.currentPrice;
+  try {
+    const quote = await getQuote(pos.symbol);
+    if (quote && quote.c) price = quote.c;
+  } catch (e) { /* fall back to last known price */ }
+
+  const sellQty = +(pos.quantity * (pct / 100)).toFixed(6);
+  const exitValue = sellQty * price;
+  const costBasis = sellQty * pos.entryPrice;
+  const pnl = exitValue - costBasis;
+  const closeDateStr = todayStr();
+
+  a.balance += exitValue;
+
+  const closedRecord = {
+    id: Date.now(),
+    symbol: pos.symbol,
+    horizon: pos.horizon,
+    quantity: sellQty,
+    entryPrice: pos.entryPrice,
+    exitPrice: price,
+    pnl,
+    entryDate: pos.entryDate,
+    exitDate: new Date().toISOString(),
+    notes: pos.notes,
+    isTransfer: false
+  };
+  a.closed.unshift(closedRecord);
+
+  recordDayTradeIfApplicable(pos, closeDateStr);
+
+  if (pct >= 99.99) {
+    a.positions = a.positions.filter(p => p.id !== posId);
+  } else {
+    pos.quantity = +(pos.quantity - sellQty).toFixed(6);
+  }
+
+  // Sweep rule — Lottery only, profit above threshold moves to Long-Term
+  if (currentAccount === 'lottery' && a.sweepEnabled && pnl >= a.sweepThreshold) {
+    a.balance -= pnl;
+    STATE.longterm.balance += pnl;
+    a.closed.unshift({
+      id: Date.now() + 1,
+      symbol: pos.symbol,
+      horizon: '—',
+      quantity: null,
+      entryPrice: null, exitPrice: null,
+      pnl: pnl,
+      entryDate: null,
+      exitDate: new Date().toISOString(),
+      notes: `Swept $${pnl.toFixed(2)} profit to Long-Term`,
+      isTransfer: true
+    });
+    toast(`Closed ${pos.symbol} — $${pnl.toFixed(2)} profit swept to Long-Term`);
+  } else {
+    toast(`Closed ${sellQty} ${pos.symbol} — ${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}`);
+  }
+
+  save();
+  renderAll();
+}
+
+// ══════════════════════════════════════════════════════════════
+// Price Refresh
+// ══════════════════════════════════════════════════════════════
+async function refreshAllPrices() {
+  const a = acct();
+  if (!a.positions.length) { toast('No open positions to refresh'); return; }
+  toast('Refreshing prices...');
+  for (const pos of a.positions) {
+    try {
+      const quote = await getQuote(pos.symbol);
+      if (quote && quote.c) pos.currentPrice = quote.c;
+    } catch (e) { /* leave last known price on failure */ }
+  }
+  save();
+  renderAll();
+  toast('Prices updated');
+}
+
+// ══════════════════════════════════════════════════════════════
+// Reset
+// ══════════════════════════════════════════════════════════════
+function resetAccount() {
+  const kind = currentAccount;
+  if (!confirm(`Reset the ${STATE[kind].label} account? All positions, trades, and history for this account will be cleared. The other account is not affected.`)) return;
+  STATE[kind] = freshAccount(kind);
+  save();
+  renderAll();
+  toast(`${kind === 'lottery' ? 'Lottery' : 'Long-Term'} account reset`);
+}
+
+// ══════════════════════════════════════════════════════════════
+// Render
+// ══════════════════════════════════════════════════════════════
+function fUsd(n) { return (n < 0 ? '-$' : '$') + Math.abs(n).toFixed(2); }
+function fDate(iso) { return iso ? new Date(iso).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '—'; }
+
+function renderAll() {
+  updateHeaderBalances();
+  updatePdtPill();
+  renderStats();
+  renderOpenPositions();
+  renderClosedPositions();
+}
+
+function updateHeaderBalances() {
+  document.getElementById('hdr-lottery-bal').textContent = fUsd(STATE.lottery.balance);
+  document.getElementById('hdr-longterm-bal').textContent = fUsd(STATE.longterm.balance);
+}
+
+function updatePdtPill() {
+  recalcPdtFlag();
+  document.getElementById('pdt-flag-pill').classList.toggle('visible', STATE.lottery.pdtFlagged);
+}
+
+function accountEquity(a) {
+  const openValue = a.positions.reduce((s, p) => s + p.quantity * (p.currentPrice || p.entryPrice), 0);
+  return a.balance + openValue;
+}
+
+function renderStats() {
+  const a = acct();
+  const row = document.getElementById('stats-row');
+  const equity = accountEquity(a);
+  const totalReturn = ((equity - a.startingBalance) / a.startingBalance) * 100;
+  const unrealizedPnl = a.positions.reduce((s, p) => s + (p.quantity * ((p.currentPrice || p.entryPrice) - p.entryPrice)), 0);
+  const realizedTrades = a.closed.filter(c => !c.isTransfer);
+  const realizedPnl = realizedTrades.reduce((s, c) => s + c.pnl, 0);
+
+  if (currentAccount === 'lottery') {
+    const wins = realizedTrades.filter(c => c.pnl > 0).length;
+    const winRate = realizedTrades.length ? Math.round((wins / realizedTrades.length) * 100) : 0;
+    const avgPnl = realizedTrades.length ? realizedPnl / realizedTrades.length : 0;
+    const windowStart = businessDaysAgoStr(5);
+    const dayTradesInWindow = a.dayTradeLog.filter(t => t.date >= windowStart).length;
+    row.innerHTML = `
+      <div class="scard"><div class="scard-label">Balance</div><div class="scard-val">${fUsd(a.balance)}</div></div>
+      <div class="scard ${equity >= a.startingBalance ? 'pos' : 'neg'}"><div class="scard-label">Total Return</div><div class="scard-val ${equity >= a.startingBalance ? 'pos' : 'neg'}">${totalReturn >= 0 ? '+' : ''}${totalReturn.toFixed(1)}%</div></div>
+      <div class="scard"><div class="scard-label">Win Rate</div><div class="scard-val">${winRate}%</div></div>
+      <div class="scard ${avgPnl >= 0 ? 'pos' : 'neg'}"><div class="scard-label">Avg P&amp;L / Trade</div><div class="scard-val ${avgPnl >= 0 ? 'pos' : 'neg'}">${fUsd(avgPnl)}</div></div>
+      <div class="scard ${dayTradesInWindow >= 4 ? 'neg' : ''}"><div class="scard-label">Day Trades (5-day)</div><div class="scard-val ${dayTradesInWindow >= 4 ? 'neg' : ''}">${dayTradesInWindow}/4</div></div>
+      <div class="scard"><div class="scard-label">Open Positions</div><div class="scard-val">${a.positions.length}</div></div>
+    `;
+  } else {
+    row.innerHTML = `
+      <div class="scard"><div class="scard-label">Balance</div><div class="scard-val">${fUsd(a.balance)}</div></div>
+      <div class="scard ${equity >= a.startingBalance ? 'pos' : 'neg'}"><div class="scard-label">Total Return</div><div class="scard-val ${equity >= a.startingBalance ? 'pos' : 'neg'}">${totalReturn >= 0 ? '+' : ''}${totalReturn.toFixed(1)}%</div></div>
+      <div class="scard ${unrealizedPnl >= 0 ? 'pos' : 'neg'}"><div class="scard-label">Unrealized P&amp;L</div><div class="scard-val ${unrealizedPnl >= 0 ? 'pos' : 'neg'}">${fUsd(unrealizedPnl)}</div></div>
+      <div class="scard ${realizedPnl >= 0 ? 'pos' : 'neg'}"><div class="scard-label">Realized P&amp;L</div><div class="scard-val ${realizedPnl >= 0 ? 'pos' : 'neg'}">${fUsd(realizedPnl)}</div></div>
+      <div class="scard"><div class="scard-label">Open Positions</div><div class="scard-val">${a.positions.length}</div></div>
+    `;
+  }
+}
+
+function renderOpenPositions() {
+  const a = acct();
+  const tbody = document.getElementById('open-positions-body');
+  if (!a.positions.length) {
+    tbody.innerHTML = `<tr><td colspan="10" class="empty-msg">No open positions.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = a.positions.map(p => {
+    const curPrice = p.currentPrice || p.entryPrice;
+    const value = p.quantity * curPrice;
+    const pnl = p.quantity * (curPrice - p.entryPrice);
+    const pnlCls = pnl > 0 ? 'pnl-pos' : pnl < 0 ? 'pnl-neg' : 'pnl-zero';
+    const stopTarget = [
+      p.stopLoss ? `SL $${p.stopLoss.toFixed(2)}` : null,
+      p.takeProfit ? `TP $${p.takeProfit.toFixed(2)}` : null
+    ].filter(Boolean).join(' / ') || '—';
+    return `<tr>
+      <td><strong>${p.symbol}</strong></td>
+      <td><span class="horizon-badge horizon-${p.horizon}">${p.horizon.replace('_', ' ')}</span></td>
+      <td>${p.quantity}</td>
+      <td>$${p.entryPrice.toFixed(2)}</td>
+      <td>$${curPrice.toFixed(2)}</td>
+      <td>${fUsd(value)}</td>
+      <td class="${pnlCls}">${pnl >= 0 ? '+' : ''}${fUsd(pnl)}</td>
+      <td>${stopTarget}</td>
+      <td>${fDate(p.entryDate)}</td>
+      <td><button class="btn-sm" onclick="closePosition(${p.id})">Close</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderClosedPositions() {
+  const a = acct();
+  const tbody = document.getElementById('closed-positions-body');
+  if (!a.closed.length) {
+    tbody.innerHTML = `<tr><td colspan="9" class="empty-msg">No closed positions yet.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = a.closed.map(c => {
+    if (c.isTransfer) {
+      return `<tr class="transfer-row">
+        <td colspan="5">↳ Transfer</td>
+        <td class="pnl-pos">+${fUsd(c.pnl)}</td>
+        <td>—</td>
+        <td>${fDate(c.exitDate)}</td>
+        <td>${c.notes}</td>
+      </tr>`;
+    }
+    const pnlCls = c.pnl > 0 ? 'pnl-pos' : c.pnl < 0 ? 'pnl-neg' : 'pnl-zero';
+    return `<tr>
+      <td><strong>${c.symbol}</strong></td>
+      <td><span class="horizon-badge horizon-${c.horizon}">${c.horizon.replace('_', ' ')}</span></td>
+      <td>${c.quantity}</td>
+      <td>$${c.entryPrice.toFixed(2)}</td>
+      <td>$${c.exitPrice.toFixed(2)}</td>
+      <td class="${pnlCls}">${c.pnl >= 0 ? '+' : ''}${fUsd(c.pnl)}</td>
+      <td>${fDate(c.entryDate)}</td>
+      <td>${fDate(c.exitDate)}</td>
+      <td>${c.notes || '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// Export / Import
+// ══════════════════════════════════════════════════════════════
+function dl(name, content, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function exportCSV() {
+  const a = acct();
+  const rows = [['Symbol', 'Horizon', 'Quantity', 'Entry Price', 'Exit Price', 'Realized P&L', 'Entry Date', 'Exit Date', 'Notes']];
+  a.closed.filter(c => !c.isTransfer).forEach(c => {
+    rows.push([c.symbol, c.horizon, c.quantity, c.entryPrice, c.exitPrice, c.pnl.toFixed(2), c.entryDate, c.exitDate, c.notes || '']);
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+  dl(`homestead_${currentAccount}_${todayStr()}.csv`, csv, 'text/csv');
+  toast('CSV exported');
+}
+
+function exportJSON() {
+  dl(`homestead_backup_${todayStr()}.json`, JSON.stringify(STATE, null, 2), 'application/json');
+  toast('Full backup exported (both accounts)');
+}
+
+function importJSON() {
+  document.getElementById('import-file-input').click();
+}
+
+document.getElementById('import-file-input')?.addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    try {
+      const parsed = JSON.parse(evt.target.result);
+      if (!parsed.lottery || !parsed.longterm) throw new Error('File does not look like a Homestead backup');
+      if (!confirm('Import will replace BOTH accounts with the contents of this file. Continue?')) return;
+      STATE.lottery = Object.assign(freshAccount('lottery'), parsed.lottery);
+      STATE.longterm = Object.assign(freshAccount('longterm'), parsed.longterm);
+      STATE.schemaVersion = parsed.schemaVersion || SCHEMA_VERSION;
+      save();
+      renderAll();
+      toast('Backup imported');
+    } catch (err) {
+      toast('Import failed: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+// ── Toast ──────────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// ══════════════════════════════════════════════════════════════
+// Init
+// ══════════════════════════════════════════════════════════════
+load();
+updateKeyBadges();
+setAccount('lottery');
+</script>
+</body>
+</html>
