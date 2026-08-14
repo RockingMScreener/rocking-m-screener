@@ -4,7 +4,7 @@ Long-term capital preservation and active trading, screened and paper-traded
 in one place — same free, open-source, no-BS philosophy as the rest of the
 Rocking M suite, applied to equities and ETFs instead of crypto.
 
-🔦 [Launch Lighthouse](https://rockingmscreener.com/lighthouse.html) · 🏡 Homestead *(in development)*
+🔦 [Launch Lighthouse](rockingmsuite.com/Stocks/lighthouse.html) · 🏡 Homestead *(in development)*
 
 ---
 
