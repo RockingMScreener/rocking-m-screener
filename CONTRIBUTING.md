@@ -119,8 +119,8 @@ The entire suite is 100% client-side — vanilla HTML, CSS, and JavaScript. No b
 
 **Fork & clone the repo:**
 ```bash
-git clone https://github.com/YOUR-USERNAME/rocking-m-screener.git
-cd rocking-m-screener
+git clone https://github.com/YOUR-USERNAME/rocking-m-suite.git
+cd rocking-m-suite
 ```
 
 **Open in your browser:**
@@ -189,8 +189,8 @@ git push origin feature/your-feature-name
 
 ## Questions?
 
-- **How do I...?** → Start a [Discussion](https://github.com/RockingMScreener/rocking-m-screener/discussions)
-- **Found a bug?** → Open an [Issue](https://github.com/RockingMScreener/rocking-m-screener/issues)
+- **How do I...?** → Start a [Discussion](https://github.com/RockingMScreener/rocking-m-suite/discussions)
+- **Found a bug?** → Open an [Issue](https://github.com/RockingMScreener/rocking-m-suite/issues)
 - **Follow updates** → [@Rocking M Suite llc](https://x.com/rockingmscreener) on X
 
 ---
