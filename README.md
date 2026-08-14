@@ -144,7 +144,7 @@ JSON export includes entry score, entry reasons, hold time, and TP hit flags for
 
 No installation required. Open in any modern browser.
 
-1. Visit [rockingsuite.com](https://rockingsuite.com) or open `cipher.html`
+1. Visit [rockingsuite.com](https://rockingmsuite.com) or open `cipher.html`
 2. Enter your CoinGecko Demo API key when prompted (stored locally, never transmitted elsewhere)
 3. Select a scan mode — Trending, Top Volume, or New Tokens
 4. Choose a chain
