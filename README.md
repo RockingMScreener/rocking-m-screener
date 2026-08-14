@@ -262,7 +262,7 @@ This project grows through honest community input. You are welcome to:
 - Share filter presets that have worked for you
 - Contribute trade journal insights — help us understand what works
 - Suggest new chains or features — open an Issue
-- Report bugs — [GitHub Issues](https://github.com/RockingMScreener/rocking-m-screener/issues) (no coding required)
+- Report bugs — [GitHub Issues](https://github.com/RockingMScreener/rocking-m-suite/issues) (no coding required)
 - Spread the word — to traders who would benefit from honest tools
 
 See `CONTRIBUTING.md` for details.
@@ -279,8 +279,8 @@ MIT License — free to use, modify, and share. See `LICENSE` for details.
 
 ## Support
 
-- Questions? [Start a Discussion](https://github.com/RockingMScreener/rocking-m-screener/discussions)
-- Found a bug? [Open an Issue](https://github.com/RockingMScreener/rocking-m-screener/issues)
+- Questions? [Start a Discussion](https://github.com/RockingMScreener/rocking-m-suite/discussions)
+- Found a bug? [Open an Issue](https://github.com/RockingMScreener/rocking-m-suite/issues)
 - Want to chat? [Join us on Discord](#) or follow [@Rocking M Suite LLC on X](https://x.com/Rockingmscreen)
 
 ---
