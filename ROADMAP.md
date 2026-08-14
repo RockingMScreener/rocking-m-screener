@@ -233,4 +233,4 @@ Trade documentation (entry reason, exit reason, result) collected in both Crafts
 
 *Last updated: May 2026*  
 *Maintained by Edward — Rocking M Leather Works, Montana*  
-*[rockingmscreener.com](https://rockingmscreener.com) · [@Rockingmscreen](https://x.com/Rockingmscreen) · [Discord](https://discord.gg/aumVpSavB)*
+*[rockingmsuite.com](https://rockingmsuite.com) · [@Rocking M Suite LLC](https://x.com/Rockingmscreen) · [Discord](https://discord.gg/aumVpSavB)*
