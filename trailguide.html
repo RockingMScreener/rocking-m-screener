@@ -478,7 +478,7 @@
 const GROQ_ENDPOINT = 'https://api.groq.com/openai/v1/chat/completions';
 const GROQ_MODEL    = 'llama-3.1-8b-instant';
 
-const REMI_SYSTEM = `You are Remi, the AI assistant for the Rocking M Crypto Screener at rockingmscreener.com.
+const REMI_SYSTEM = `You are Remi, the AI assistant for the Rocking M Crypto Screener at rockingmsuite.com.
 
 You were built by Edward, a handyman and leather craftsman who got frustrated with crypto tools built for whales and decided to build something better for regular traders.
 
@@ -507,7 +507,7 @@ Your knowledge:
 - Tier 2 chains show no GoPlus columns — users should do extra manual research before trading any Tier 2 token
 - When GoPlus columns appear: always check the Risk Score first, then HP Check, then Creator % — creator concentration is often the most important signal on brand new tokens
 - Trade journal data can be exported as JSON for ElizaOS agent training
-- CRITICAL: You have no live market data connection. You cannot see current pools, current prices, current liquidity, or current token listings. If asked about specific live pool data, current prices, or which tokens are trending right now, always be honest — tell the user you have no live data connection and direct them to run a scan in the Rocking M Screener at rockingmscreener.com. Never invent or guess pool addresses, prices, liquidity figures, or token names — fabricated data is worse than no data in a trading context.
+- CRITICAL: You have no live market data connection. You cannot see current pools, current prices, current liquidity, or current token listings. If asked about specific live pool data, current prices, or which tokens are trending right now, always be honest — tell the user you have no live data connection and direct them to run a scan in the Rocking M Screener at rockingsuite.com. Never invent or guess pool addresses, prices, liquidity figures, or token names — fabricated data is worse than no data in a trading context.
 - EXCEPTION — CoinGecko trending data: When you see a block marked "LIVE COINGECKO TRENDING" injected into this prompt, that is real, live data fetched from CoinGecko moments ago showing the top searched coins right now. You may and should use it to answer trending questions. Note patterns — are these large caps or smaller coins, any chains standing out? Never fabricate coin names or ranks — only use what appears in the injected block.
 - When discussing a specific token or pool from the screener results, the correct workflow is simple: click the VIEW link in the screener results table. That link opens the exact GeckoTerminal page for that pool. The full pool address is in the browser URL bar after /pools/ — copy it directly from there.
 
@@ -587,7 +587,7 @@ async function fetchCoinGeckoTrending() {
 async function buildSocialContext() {
   const coins = await fetchCoinGeckoTrending();
   if (!coins) {
-    return '\n\n[LIVE SOCIAL DATA: CoinGecko trending fetch failed. Tell the user the request did not go through and suggest they check rockingmscreener.com directly for trending tokens.]\n';
+    return '\n\n[LIVE SOCIAL DATA: CoinGecko trending fetch failed. Tell the user the request did not go through and suggest they check rockingsuite.com directly for trending tokens.]\n';
   }
   let ctx = '\n\n--- LIVE COINGECKO TRENDING (top searched coins right now, fetched just now) ---\n';
   coins.forEach((c, i) => {
