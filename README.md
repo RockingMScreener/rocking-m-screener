@@ -4,7 +4,7 @@ Open source autonomous investment suite built by a leather craftsman from Montan
 You don't have to be a master trader. You just need to know how to use the tools.
 No paywalls. No signups. No influencer noise. Just honest, filterable on-chain data you control.
 
-🚀 [Launch Cipher](https://rockingmscreener.com) · 📊 [Craftsman](https://rockingmscreener.com/craftsman.html) · 🤖 [Trail Guide](https://rockingmscreener.com/trailguide.html) · ⚡ [Stormchaser](https://rockingmscreener.com/stormchaser.html) · [Forge](https://rockingmscreener.com/forge.html) · [@Rockingmscreen on X](https://x.com/Rockingmscreen) · [Discord](https://discord.gg/Z2VWxUcpy)
+🚀 [Launch Cipher](https://rockingmsuite.com) · 📊 [Craftsman](https://rockingsuite.com/craftsman.html) · 🤖 [Trail Guide](https://rockingsuite.com/trailguide.html) · ⚡ [Stormchaser](https://rockingsuite.com/stormchaser.html) · [Forge](https://rockingsuite.com/forge.html) · [@Rockingmscreen on X](https://x.com/Rockingmscreen) · [Discord](https://discord.gg/Z2VWxUcpy)
 
 ---
 
@@ -144,7 +144,7 @@ JSON export includes entry score, entry reasons, hold time, and TP hit flags for
 
 No installation required. Open in any modern browser.
 
-1. Visit [rockingmscreener.com](https://rockingmscreener.com) or open `cipher.html`
+1. Visit [rockingsuite.com](https://rockingsuite.com) or open `cipher.html`
 2. Enter your CoinGecko Demo API key when prompted (stored locally, never transmitted elsewhere)
 3. Select a scan mode — Trending, Top Volume, or New Tokens
 4. Choose a chain
@@ -281,7 +281,7 @@ MIT License — free to use, modify, and share. See `LICENSE` for details.
 
 - Questions? [Start a Discussion](https://github.com/RockingMScreener/rocking-m-screener/discussions)
 - Found a bug? [Open an Issue](https://github.com/RockingMScreener/rocking-m-screener/issues)
-- Want to chat? [Join us on Discord](#) or follow [@Rockingmscreen on X](https://x.com/Rockingmscreen)
+- Want to chat? [Join us on Discord](#) or follow [@Rocking M Suite LLC on X](https://x.com/Rockingmscreen)
 
 ---
 
