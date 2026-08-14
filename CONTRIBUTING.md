@@ -191,7 +191,7 @@ git push origin feature/your-feature-name
 
 - **How do I...?** → Start a [Discussion](https://github.com/RockingMScreener/rocking-m-screener/discussions)
 - **Found a bug?** → Open an [Issue](https://github.com/RockingMScreener/rocking-m-screener/issues)
-- **Follow updates** → [@rockingmscreener](https://x.com/rockingmscreener) on X
+- **Follow updates** → [@Rocking M Suite llc](https://x.com/rockingmscreener) on X
 
 ---
 
