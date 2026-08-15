@@ -417,7 +417,10 @@
     <button class="btn-sm" onclick="exportCSV()">&#8595; Export CSV</button>
     <button class="btn-sm" onclick="exportJSON()">&#8595; Export JSON (ElizaOS)</button>
     <button class="btn-sm" onclick="exportLog()">&#8595; Export Event Log</button>
+    <button class="btn-sm" onclick="exportBackupJSON()">&#8595; Backup JSON</button>
+    <button class="btn-sm" onclick="importBackupJSON()">&#8593; Restore JSON</button>
   </div>
+  <input type="file" id="import-file-input" accept=".json" style="display:none;">
 
   <footer>
     <span>Craftsman &middot; Rocking M &middot; Simulated only &middot; No real funds</span>
@@ -495,10 +498,13 @@ let refreshTimer = null;
 let refreshCountdown = 60;
 
 const STORAGE_KEY = 'rm_papertrader_v1';
+const SCHEMA_VERSION = 1;
 
 // ── Persistence ────────────────────────────────────────────────
+// Mirrors Homestead's save()/load() + schemaVersion pattern, applied
+// to Craftsman's single-account shape (no Lottery/Long-Term split).
 function save() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ account, positions, closed, remiLog }));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ schemaVersion: SCHEMA_VERSION, account, positions, closed, remiLog }));
 }
 
 function load() {
@@ -506,6 +512,11 @@ function load() {
   if (d) {
     try {
       const p = JSON.parse(d);
+      if (p.schemaVersion !== SCHEMA_VERSION) {
+        // Placeholder migration point — bump SCHEMA_VERSION and add
+        // translation logic here if the account/position shape changes.
+        console.warn('Craftsman: stored schema version mismatch, using defaults where fields are missing.');
+      }
       account   = p.account   || null;
       positions = p.positions || [];
       closed    = p.closed    || [];
@@ -1114,6 +1125,50 @@ function exportLog() {
   const data = remiLog.map(e => `[${e.time}] ${e.msg}`).join('\n');
   dl('craftsman_eventlog.txt', data, 'text/plain');
 }
+
+// ── Full-state backup / restore (mirrors Homestead's exportJSON/importJSON) ──
+function exportBackupJSON() {
+  const data = { schemaVersion: SCHEMA_VERSION, account, positions, closed, remiLog };
+  dl(`craftsman_backup_${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(data, null, 2), 'application/json');
+  toast('Full backup exported');
+}
+
+function importBackupJSON() {
+  document.getElementById('import-file-input').click();
+}
+
+document.getElementById('import-file-input')?.addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    try {
+      const parsed = JSON.parse(evt.target.result);
+      if (!('account' in parsed) || !('positions' in parsed)) throw new Error('File does not look like a Craftsman backup');
+      if (!confirm('Import will replace your current account, positions, closed trades, and log. Continue?')) return;
+      account   = parsed.account   || null;
+      positions = parsed.positions || [];
+      closed    = parsed.closed    || [];
+      remiLog   = parsed.remiLog   || [];
+      save();
+      renderAll();
+      if (account) {
+        document.getElementById('start-balance').value = account.startBalance;
+        document.getElementById('max-positions').value = account.maxPositions;
+        document.getElementById('reserve-pct').value   = account.reservePct;
+        document.getElementById('max-hold').value       = account.maxHoldHours || 0;
+        startRefresh();
+      } else {
+        stopRefresh();
+      }
+      toast('Backup imported');
+    } catch (err) {
+      toast('Import failed: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
 
 function dl(name, content, type) {
   const a = document.createElement('a');
