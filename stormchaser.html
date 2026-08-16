@@ -52,6 +52,12 @@ td {padding:10px; border-bottom:1px solid #c4cad2; font-family:'IBM Plex Mono',m
 .last-updated {font-size:11px; color:#666; font-family:'IBM Plex Mono',monospace;}
 
 .section-label {font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin:16px 0 8px; color:#1a1f26; border-bottom:2px solid var(--green); padding-bottom:4px;}
+
+/* ── Footer ── */
+footer {margin-top:20px; padding-top:14px; border-top:2px solid #c4cad2; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;}
+footer span {font-family:'IBM Plex Mono',monospace; font-size:9px; color:#6b7a8a; letter-spacing:1px;}
+footer a {color:var(--green); text-decoration:none;}
+footer a:hover {text-decoration:underline;}
 </style>
 </head>
 <body>
@@ -64,16 +70,20 @@ td {padding:10px; border-bottom:1px solid #c4cad2; font-family:'IBM Plex Mono',m
       <path d="M 2 12 Q 29 2 56 12" stroke="#00cc66" stroke-width="2.5" stroke-linecap="round" fill="none"/>
     </svg>
     <span class="badge-m">M</span>
-    <span class="badge-sub">Crypto</span>
+    <span class="badge-sub">Suite</span>
   </div>
   <div>
     <h1 style="margin:0; font-size:28px; letter-spacing:2px;">STORMCHASER</h1>
     <p style="margin:0; font-size:12px; color:var(--green); letter-spacing:1px;">ROCKING M &middot; HIGH RISK. HIGH REWARD. &middot; Multi-Chain ERC20 Scanner &middot; 45s Refresh</p>
   </div>
   <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-left:auto;">
-    <a href="../cipher.html" class="nav-btn">&#9672; Cipher</a>
-    <a href="../craftsman.html" class="nav-btn">&#9672; Craftsman</a>
-    <a href="../trailguide.html" class="nav-btn">&#9672; Trail Guide</a>
+    <a href="cipher.html" class="nav-btn">&#9672; Cipher</a>
+    <a href="stock/lighthouse.html" class="nav-btn">&#9672; Lighthouse</a>
+    <a href="stock/homestead.html" class="nav-btn">&#9672; Homestead</a>
+    <a href="craftsman.html" class="nav-btn">&#9672; Craftsman</a>
+    <a href="forge.html" class="nav-btn">&#9672; Forge</a>
+    <a href="trailguide.html" class="nav-btn">&#9672; Trail Guide</a>
+    <a href="index.html" class="nav-btn">&#9672; Home</a>
   </div>
 </div>
 
@@ -157,6 +167,11 @@ td {padding:10px; border-bottom:1px solid #c4cad2; font-family:'IBM Plex Mono',m
     <button class="btn btn-small" onclick="exportJSON()">&#8595; Export JSON (ElizaOS)</button>
     <button class="btn btn-small" onclick="exportLog()">&#8595; Export Event Log</button>
   </div>
+
+  <footer>
+    <span>Stormchaser &middot; Rocking M Suite &middot; Simulated only &middot; No real funds</span>
+    <span><a href="cipher.html">Cipher</a> &middot; <a href="stock/lighthouse.html">Lighthouse</a> &middot; <a href="stock/homestead.html">Homestead</a> &middot; <a href="craftsman.html">Craftsman</a> &middot; <a href="forge.html">Forge</a> &middot; <a href="trailguide.html">Trail Guide</a> &middot; <a href="https://github.com/RockingMScreener/rocking-m-suite">GitHub</a> &middot; <a href="https://x.com/Rockingmscreen" target="_blank" rel="noopener noreferrer">X</a> &middot; <a href="https://discord.gg/Z2VWxUcpy" target="_blank" rel="noopener noreferrer">Discord</a></span>
+  </footer>
 
 </div>
 
