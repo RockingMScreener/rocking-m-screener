@@ -298,6 +298,19 @@
           <option value="sector_materials">Materials (25 tickers)</option>
           <option value="sector_communication">Communication Services (23 tickers)</option>
         </optgroup>
+        <optgroup label="Nasdaq 100 by Sector (GICS)">
+          <option value="nasdaq_sector_tech">Nasdaq — Information Technology (39 tickers)</option>
+          <option value="nasdaq_sector_industrials">Nasdaq — Industrials (13 tickers)</option>
+          <option value="nasdaq_sector_consumer_disc">Nasdaq — Consumer Discretionary (11 tickers)</option>
+          <option value="nasdaq_sector_communication">Nasdaq — Communication Services (11 tickers)</option>
+          <option value="nasdaq_sector_healthcare">Nasdaq — Health Care (10 tickers)</option>
+          <option value="nasdaq_sector_consumer_staples">Nasdaq — Consumer Staples (8 tickers)</option>
+          <option value="nasdaq_sector_utilities">Nasdaq — Utilities (4 tickers)</option>
+          <option value="nasdaq_sector_energy">Nasdaq — Energy (2 tickers)</option>
+          <option value="nasdaq_sector_real_estate">Nasdaq — Real Estate (1 ticker)</option>
+          <option value="nasdaq_sector_materials">Nasdaq — Materials (1 ticker)</option>
+          <option value="nasdaq_sector_financials">Nasdaq — Financials (1 ticker)</option>
+        </optgroup>
         <option value="russell2000" disabled>Russell 2000 — Coming Soon</option>
         <option value="watchlist">My Watchlist</option>
       </select>
@@ -1527,6 +1540,129 @@ const UNIVERSES = {
     ['TTD','Trade Desk (The)'],
     ['VZ','Verizon'],
     ['DIS','Walt Disney Company (The)'],
+    ['WBD','Warner Bros. Discovery']
+  ]},
+  nasdaq_sector_tech: { label: 'Nasdaq 100 — Information Technology', tickers: [
+    ['ADBE','Adobe Inc.'],
+    ['AMD','Advanced Micro Devices'],
+    ['ADI','Analog Devices'],
+    ['AAPL','Apple Inc.'],
+    ['AMAT','Applied Materials'],
+    ['ARM','Arm Holdings'],
+    ['ASML','ASML Holding'],
+    ['TEAM','Atlassian'],
+    ['ADSK','Autodesk'],
+    ['AVGO','Broadcom'],
+    ['CDNS','Cadence Design Systems'],
+    ['CSCO','Cisco'],
+    ['CTSH','Cognizant'],
+    ['CRWD','CrowdStrike'],
+    ['DDOG','Datadog'],
+    ['FTNT','Fortinet'],
+    ['INTC','Intel'],
+    ['INTU','Intuit'],
+    ['KLAC','KLA Corporation'],
+    ['LRCX','Lam Research'],
+    ['MRVL','Marvell Technology'],
+    ['MCHP','Microchip Technology'],
+    ['MU','Micron Technology'],
+    ['MSFT','Microsoft'],
+    ['MSTR','MicroStrategy'],
+    ['MPWR','Monolithic Power Systems'],
+    ['NVDA','Nvidia'],
+    ['NXPI','NXP Semiconductors'],
+    ['PLTR','Palantir Technologies'],
+    ['PANW','Palo Alto Networks'],
+    ['QCOM','Qualcomm'],
+    ['ROP','Roper Technologies'],
+    ['STX','Seagate Technology'],
+    ['SHOP','Shopify'],
+    ['SNPS','Synopsys'],
+    ['TXN','Texas Instruments'],
+    ['WDC','Western Digital'],
+    ['WDAY','Workday, Inc.'],
+    ['ZS','Zscaler']
+  ]},
+  nasdaq_sector_healthcare: { label: 'Nasdaq 100 — Health Care', tickers: [
+    ['ALNY','Alnylam Pharmaceuticals'],
+    ['AMGN','Amgen'],
+    ['DXCM','DexCom'],
+    ['GEHC','GE HealthCare'],
+    ['GILD','Gilead Sciences'],
+    ['IDXX','Idexx Laboratories'],
+    ['INSM','Insmed Incorporated'],
+    ['ISRG','Intuitive Surgical'],
+    ['REGN','Regeneron Pharmaceuticals'],
+    ['VRTX','Vertex Pharmaceuticals']
+  ]},
+  nasdaq_sector_financials: { label: 'Nasdaq 100 — Financials', tickers: [
+    ['PYPL','PayPal']
+  ]},
+  nasdaq_sector_consumer_disc: { label: 'Nasdaq 100 — Consumer Discretionary', tickers: [
+    ['ABNB','Airbnb'],
+    ['AMZN','Amazon'],
+    ['BKNG','Booking Holdings'],
+    ['DASH','DoorDash'],
+    ['MAR','Marriott International'],
+    ['MELI','Mercado Libre'],
+    ['ORLY','O\'Reilly Automotive'],
+    ['PDD','PDD Holdings'],
+    ['ROST','Ross Stores'],
+    ['SBUX','Starbucks'],
+    ['TSLA','Tesla, Inc.']
+  ]},
+  nasdaq_sector_consumer_staples: { label: 'Nasdaq 100 — Consumer Staples', tickers: [
+    ['CCEP','Coca-Cola Europacific Partners'],
+    ['COST','Costco'],
+    ['KDP','Keurig Dr Pepper'],
+    ['KHC','Kraft Heinz'],
+    ['MDLZ','Mondelez International'],
+    ['MNST','Monster Beverage'],
+    ['PEP','PepsiCo'],
+    ['WMT','Walmart']
+  ]},
+  nasdaq_sector_industrials: { label: 'Nasdaq 100 — Industrials', tickers: [
+    ['ADP','Automatic Data Processing'],
+    ['AXON','Axon Enterprise'],
+    ['CTAS','Cintas'],
+    ['CPRT','Copart'],
+    ['CSX','CSX Corporation'],
+    ['FAST','Fastenal'],
+    ['FER','Ferrovial'],
+    ['HON','Honeywell'],
+    ['ODFL','Old Dominion Freight Line'],
+    ['PCAR','Paccar'],
+    ['PAYX','Paychex'],
+    ['TRI','Thomson Reuters'],
+    ['VRSK','Verisk Analytics']
+  ]},
+  nasdaq_sector_energy: { label: 'Nasdaq 100 — Energy', tickers: [
+    ['BKR','Baker Hughes'],
+    ['FANG','Diamondback Energy']
+  ]},
+  nasdaq_sector_utilities: { label: 'Nasdaq 100 — Utilities', tickers: [
+    ['AEP','American Electric Power'],
+    ['CEG','Constellation Energy'],
+    ['EXC','Exelon'],
+    ['XEL','Xcel Energy']
+  ]},
+  nasdaq_sector_real_estate: { label: 'Nasdaq 100 — Real Estate', tickers: [
+    ['CSGP','CoStar Group']
+  ]},
+  nasdaq_sector_materials: { label: 'Nasdaq 100 — Materials', tickers: [
+    ['LIN','Linde plc']
+  ]},
+  nasdaq_sector_communication: { label: 'Nasdaq 100 — Communication Services', tickers: [
+    ['GOOGL','Alphabet Inc. (Class A)'],
+    ['GOOG','Alphabet Inc. (Class C)'],
+    ['APP','AppLovin'],
+    ['CHTR','Charter Communications'],
+    ['CMCSA','Comcast'],
+    ['EA','Electronic Arts'],
+    ['META','Meta Platforms'],
+    ['NFLX','Netflix, Inc.'],
+    ['TMUS','T-Mobile US'],
+    ['TTWO','Take-Two Interactive'],
     ['WBD','Warner Bros. Discovery']
   ]},
   russell2000: { label: 'Russell 2000', tickers: [] },
