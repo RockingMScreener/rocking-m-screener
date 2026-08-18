@@ -131,6 +131,10 @@
   .horizon-day_trade{background:#cc2200;}
   .horizon-swing{background:#cc7a00;}
   .horizon-long_term{background:var(--green);}
+  .cat-badge{font-size:9px;padding:2px 7px;border-radius:2px;letter-spacing:1px;color:#fff;text-transform:uppercase;margin-left:5px;}
+  .cat-badge.cat-growth{background:var(--teal);}
+  .cat-badge.cat-income{background:var(--amber);}
+  .cat-badge.cat-both{background:var(--text-mid);}
   .pnl-pos{color:#00aa00;font-weight:600;}
   .pnl-neg{color:var(--red);font-weight:600;}
   .pnl-zero{color:var(--text-dim);}
@@ -304,12 +308,32 @@
         </select>
       </div>
       <div class="fgroup">
-        <label class="flabel" for="entry-stop">Stop Loss ($, optional)</label>
-        <input type="number" class="finput" id="entry-stop" placeholder="e.g. 210.00" min="0" step="0.01">
+        <label class="flabel" for="entry-trail-pct">Trailing Stop (%, from open)</label>
+        <input type="number" class="finput" id="entry-trail-pct" placeholder="e.g. 8" min="0" step="0.1">
       </div>
       <div class="fgroup">
-        <label class="flabel" for="entry-target">Take Profit ($, optional)</label>
+        <label class="flabel" for="entry-override-toggle">Manual Override</label>
+        <select class="finput" id="entry-override-toggle" onchange="toggleManualOverride()">
+          <option value="0">Off — use trailing %</option>
+          <option value="1">On — fixed $ stop/target</option>
+        </select>
+      </div>
+      <div class="fgroup" id="entry-manual-stop-group" style="display:none;">
+        <label class="flabel" for="entry-stop">Stop Loss ($)</label>
+        <input type="number" class="finput" id="entry-stop" placeholder="e.g. 210.00" min="0" step="0.01">
+      </div>
+      <div class="fgroup" id="entry-manual-target-group" style="display:none;">
+        <label class="flabel" for="entry-target">Take Profit ($)</label>
         <input type="number" class="finput" id="entry-target" placeholder="e.g. 250.00" min="0" step="0.01">
+      </div>
+      <div class="fgroup" id="entry-category-group" style="display:none;">
+        <label class="flabel" for="entry-category">ETF Category</label>
+        <select class="finput" id="entry-category">
+          <option value="">— unset —</option>
+          <option value="growth">Growth</option>
+          <option value="income">Income</option>
+          <option value="both">Both</option>
+        </select>
       </div>
       <div class="fgroup" style="grid-column:span 2;">
         <label class="flabel" for="entry-notes">Notes (optional)</label>
@@ -321,7 +345,19 @@
   </div>
 
   <!-- Open Positions -->
-  <div class="sec-label">Open Positions</div>
+  <div class="sec-label" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+    <span>Open Positions</span>
+    <div class="fgroup" id="category-filter-group" style="display:none;flex-direction:row;align-items:center;gap:6px;">
+      <label class="flabel" for="category-filter" style="margin-bottom:0;">Filter</label>
+      <select class="finput" id="category-filter" style="width:auto;" onchange="renderOpenPositions()">
+        <option value="all">All</option>
+        <option value="growth">Growth</option>
+        <option value="income">Income</option>
+        <option value="both">Both</option>
+        <option value="unset">Unset</option>
+      </select>
+    </div>
+  </div>
   <div class="tbl-wrap">
     <table>
       <thead>
@@ -371,8 +407,9 @@
   <a href="/craftsman.html">Craftsman</a>
   <a href="/stormchaser.html">Stormchaser</a>
   <a href="/forge.html">Forge</a>
-  <a href="/stock/lighthouse.html">Lighthouse</a>
-  </footer>
+  <a href="/lighthouse.html">Lighthouse</a>
+  <a href="/homestead.html">Homestead</a>
+</footer>
 
 <input type="file" id="import-file-input" accept=".json" style="display:none;">
 
@@ -552,10 +589,21 @@ function setAccount(kind) {
   document.getElementById('account-panel-top').style.borderTopColor = kind === 'lottery' ? 'var(--amber)' : 'var(--green)';
   document.getElementById('entry-horizon').value = kind === 'lottery' ? 'day_trade' : 'long_term';
   document.getElementById('btn-open-position').className = kind === 'lottery' ? 'btn-primary' : 'btn-primary green';
+  document.getElementById('entry-category-group').style.display = kind === 'longterm' ? 'flex' : 'none';
+  document.getElementById('category-filter-group').style.display = kind === 'longterm' ? 'flex' : 'none';
   renderAll();
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── Manual override toggle — swaps trailing % field for fixed $ stop/target ──
+function toggleManualOverride() {
+  const on = document.getElementById('entry-override-toggle').value === '1';
+  document.getElementById('entry-manual-stop-group').style.display = on ? 'flex' : 'none';
+  document.getElementById('entry-manual-target-group').style.display = on ? 'flex' : 'none';
+  document.getElementById('entry-trail-pct').disabled = on;
+  document.getElementById('entry-trail-pct').closest('.fgroup').style.opacity = on ? '.4' : '1';
+}
 
 // ══════════════════════════════════════════════════════════════
 // Finnhub Fetch — same serialized rate gate as Lighthouse, so bursts
@@ -689,14 +737,20 @@ async function openPosition() {
   const symbol = document.getElementById('entry-symbol').value.trim().toUpperCase();
   const qtyInput = parseFloat(document.getElementById('entry-qty').value);
   const horizon = document.getElementById('entry-horizon').value;
+  const overrideOn = document.getElementById('entry-override-toggle').value === '1';
+  const trailPct = parseFloat(document.getElementById('entry-trail-pct').value) || null;
   const stop = parseFloat(document.getElementById('entry-stop').value) || null;
   const target = parseFloat(document.getElementById('entry-target').value) || null;
+  const category = currentAccount === 'longterm' ? (document.getElementById('entry-category').value || null) : null;
   const notes = document.getElementById('entry-notes').value.trim();
 
   if (!symbol) { toast('Enter a symbol'); return; }
   if (!qtyInput || qtyInput <= 0) { toast('Enter a valid quantity'); return; }
   if (lastFetchedSymbol !== symbol || lastFetchedPrice === null) {
     toast('Click "Fetch Price" for this symbol first'); return;
+  }
+  if (!overrideOn && !trailPct) {
+    toast('Enter a trailing stop % or switch on Manual Override'); return;
   }
 
   const a = acct();
@@ -738,8 +792,11 @@ async function openPosition() {
     exitPrice: null,
     exitDate: null,
     status: 'open',
-    stopLoss: stop,
-    takeProfit: target,
+    trailingStopPct: overrideOn ? null : trailPct,
+    highWaterMark: lastFetchedPrice,
+    stopLoss: overrideOn ? stop : null,
+    takeProfit: overrideOn ? target : null,
+    category,
     notes,
     costModel: { commission: 0, slippageEstimate: 0.02 },
     source: 'homestead_sim'
@@ -753,8 +810,12 @@ async function openPosition() {
 
   document.getElementById('entry-symbol').value = '';
   document.getElementById('entry-qty').value = '';
+  document.getElementById('entry-trail-pct').value = '';
   document.getElementById('entry-stop').value = '';
   document.getElementById('entry-target').value = '';
+  document.getElementById('entry-override-toggle').value = '0';
+  toggleManualOverride();
+  document.getElementById('entry-category').value = '';
   document.getElementById('entry-notes').value = '';
   document.getElementById('entry-price-preview').textContent = 'Enter symbol, click Fetch';
   document.getElementById('entry-price-preview').classList.remove('loaded');
@@ -866,7 +927,13 @@ async function refreshAllPrices() {
       if (quote && quote.c) pos.currentPrice = quote.c;
     } catch (e) { /* leave last known price on failure */ }
 
-    if (pos.stopLoss && pos.currentPrice <= pos.stopLoss) {
+    if (pos.trailingStopPct) {
+      pos.highWaterMark = Math.max(pos.highWaterMark || pos.entryPrice, pos.currentPrice);
+      const trailStopPrice = pos.highWaterMark * (1 - pos.trailingStopPct / 100);
+      if (pos.currentPrice <= trailStopPrice) {
+        toAutoClose.push({ pos, reason: 'Trailing Stop' });
+      }
+    } else if (pos.stopLoss && pos.currentPrice <= pos.stopLoss) {
       toAutoClose.push({ pos, reason: 'Stop Loss' });
     } else if (pos.takeProfit && pos.currentPrice >= pos.takeProfit) {
       toAutoClose.push({ pos, reason: 'Take Profit' });
@@ -971,21 +1038,34 @@ function renderStats() {
 function renderOpenPositions() {
   const a = acct();
   const tbody = document.getElementById('open-positions-body');
-  if (!a.positions.length) {
+
+  let positions = a.positions;
+  if (currentAccount === 'longterm') {
+    const filterEl = document.getElementById('category-filter');
+    const filter = filterEl ? filterEl.value : 'all';
+    if (filter !== 'all') {
+      positions = positions.filter(p => filter === 'unset' ? !p.category : p.category === filter);
+    }
+  }
+
+  if (!positions.length) {
     tbody.innerHTML = `<tr><td colspan="10" class="empty-msg">No open positions.</td></tr>`;
     return;
   }
-  tbody.innerHTML = a.positions.map(p => {
+  tbody.innerHTML = positions.map(p => {
     const curPrice = p.currentPrice || p.entryPrice;
     const value = p.quantity * curPrice;
     const pnl = p.quantity * (curPrice - p.entryPrice);
     const pnlCls = pnl > 0 ? 'pnl-pos' : pnl < 0 ? 'pnl-neg' : 'pnl-zero';
-    const stopTarget = [
-      p.stopLoss ? `SL $${p.stopLoss.toFixed(2)}` : null,
-      p.takeProfit ? `TP $${p.takeProfit.toFixed(2)}` : null
-    ].filter(Boolean).join(' / ') || '—';
+    const stopTarget = p.trailingStopPct
+      ? `Trail ${p.trailingStopPct}% (stop $${((p.highWaterMark || p.entryPrice) * (1 - p.trailingStopPct / 100)).toFixed(2)})`
+      : [
+          p.stopLoss ? `SL $${p.stopLoss.toFixed(2)}` : null,
+          p.takeProfit ? `TP $${p.takeProfit.toFixed(2)}` : null
+        ].filter(Boolean).join(' / ') || '—';
+    const catBadge = p.category ? `<span class="cat-badge cat-${p.category}">${p.category}</span>` : '';
     return `<tr>
-      <td><strong>${p.symbol}</strong></td>
+      <td><strong>${p.symbol}</strong>${catBadge}</td>
       <td><span class="horizon-badge horizon-${p.horizon}">${p.horizon.replace('_', ' ')}</span></td>
       <td>${p.quantity}</td>
       <td>$${p.entryPrice.toFixed(2)}</td>
