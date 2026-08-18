@@ -170,7 +170,7 @@ footer a:hover {text-decoration:underline;}
 
   <footer>
     <span>Stormchaser &middot; Rocking M Suite &middot; Simulated only &middot; No real funds</span>
-    <span><a href="cipher.html">Cipher</a> &middot; <a href="stock/lighthouse.html">Lighthouse</a> &middot; <a href="stock/homestead.html">Homestead</a> &middot; <a href="craftsman.html">Craftsman</a> &middot; <a href="forge.html">Forge</a> &middot; <a href="trailguide.html">Trail Guide</a> &middot; <a href="https://github.com/RockingMScreener/rocking-m-suite">GitHub</a> &middot; <a href="https://x.com/Rockingmscreen" target="_blank" rel="noopener noreferrer">X</a> &middot; <a href="https://discord.gg/7WNd8JBqFK" target="_blank" rel="noopener noreferrer">Discord</a></span>
+    <span><a href="cipher.html">Cipher</a> &middot; <a href="stock/lighthouse.html">Lighthouse</a> &middot; <a href="stock/homestead.html">Homestead</a> &middot; <a href="craftsman.html">Craftsman</a> &middot; <a href="forge.html">Forge</a> &middot; <a href="trailguide.html">Trail Guide</a> &middot; <a href="https://github.com/RockingMScreener/rocking-m-suite">GitHub</a> &middot; <a href="https://x.com/Rockingmscreen" target="_blank" rel="noopener noreferrer">X</a> &middot; <a href="https://discord.gg/Z2VWxUcpy" target="_blank" rel="noopener noreferrer">Discord</a></span>
   </footer>
 
 </div>
@@ -493,6 +493,32 @@ async function updateAllPrices() {
 // ── Scanner ────────────────────────────────────────────────────
 // GeckoTerminal for discovery (newer pools, better signal)
 // DexScreener for position monitoring (stable price feed)
+//
+// NOTE on rate limiting: when GeckoTerminal's public API rate-limits a
+// request, it returns 429 WITHOUT an Access-Control-Allow-Origin header.
+// The browser can't read a CORS-less response at all, so fetch() rejects
+// with an opaque "Failed to fetch" TypeError instead of resolving with a
+// readable res.status — the 429 is real, it's just invisible to JS. That
+// means a plain `if (res.status === 429)` check (the old approach) never
+// fires under real rate limiting; the failure shows up in the catch block
+// instead, indistinguishable from a genuine network error. We treat any
+// thrown error here as a possible rate limit and back off, with a retry
+// cap so a persistent outage doesn't spin a chain forever.
+const GECKO_RETRY_CAP = 3;
+
+async function fetchGeckoPools(geckoNet) {
+  const res = await fetch(
+    `https://api.geckoterminal.com/api/v2/networks/${geckoNet}/new_pools?limit=10`,
+    { headers: { Accept: 'application/json;version=20230302' } }
+  );
+  if (!res.ok) {
+    const err = new Error(`HTTP ${res.status}`);
+    err.status = res.status;
+    throw err;
+  }
+  return res.json();
+}
+
 async function scanCycle() {
   if (!scannerRunning || !account) return;
 
@@ -505,6 +531,7 @@ async function scanCycle() {
 
   // Track addresses seen this scan to prevent same-scan duplicates
   const seenThisScan = new Set(positions.map(p => p.pairAddress));
+  const retryCounts = {};
 
   for (let i = 0; i < SUPPORTED_CHAINS.length; i++) {
     if (!scannerRunning) break;
@@ -514,21 +541,7 @@ async function scanCycle() {
     const geckoNet = GECKO_CHAINS[chain];
 
     try {
-      const res = await fetch(
-        `https://api.geckoterminal.com/api/v2/networks/${geckoNet}/new_pools?limit=10`,
-        { headers: { Accept: 'application/json;version=20230302' } }
-      );
-
-      if (res.status === 429) {
-        addLog(`⚠️ GeckoTerminal rate limit on ${chain} — waiting 15s`, 'warn');
-        await sleep(15000);
-        i--; // retry this chain
-        continue;
-      }
-
-      if (!res.ok) continue;
-
-      const data = await res.json();
+      const data = await fetchGeckoPools(geckoNet);
       const pools = data.data || [];
 
       for (const pool of pools) {
@@ -556,11 +569,22 @@ async function scanCycle() {
       }
 
     } catch(e) {
-      addLog(`⚠️ Scan error on ${chain} — ${e.message}`, 'warn');
+      // A CORS-masked 429 and a real network hiccup look identical here
+      // (both throw "Failed to fetch"), so we back off on any failure —
+      // explicit 429s included, since res.status IS readable for those.
+      const count = retryCounts[chain] || 0;
+      if (count < GECKO_RETRY_CAP) {
+        retryCounts[chain] = count + 1;
+        addLog(`⚠️ GeckoTerminal error on ${chain} (${e.status || 'network'}) — backing off 20s [retry ${count + 1}/${GECKO_RETRY_CAP}]`, 'warn');
+        await sleep(20000);
+        i--; // retry this chain
+        continue;
+      }
+      addLog(`⚠️ Giving up on ${chain} for this cycle after ${GECKO_RETRY_CAP} retries`, 'warn');
     }
 
-    // Delay between chains to avoid rate limits on startup
-    if (i < SUPPORTED_CHAINS.length - 1) await sleep(3000);
+    // Delay between chains to avoid rate limits
+    if (i < SUPPORTED_CHAINS.length - 1) await sleep(5000);
   }
 }
 
