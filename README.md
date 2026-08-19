@@ -1,4 +1,4 @@
-# 🏔️ Rocking M Crypto Screener
+# 🏔️ Rocking M Suite
 
 Open source autonomous investment suite built by a leather craftsman from Montana.
 You don't have to be a master trader. You just need to know how to use the tools.
