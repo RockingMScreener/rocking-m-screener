@@ -878,6 +878,21 @@ function executeClose(a, pos, pct, price, autoReason = null) {
       notes: `Swept $${pnl.toFixed(2)} profit to Long-Term`,
       isTransfer: true
     });
+    // Mirror the transfer on the receiving side too — previously this only
+    // showed up in Lottery's history, so Long-Term's balance grew with no
+    // visible record of why. Same event, same amount, opposite direction.
+    STATE.longterm.closed.unshift({
+      id: Date.now() + Math.random(),
+      symbol: pos.symbol,
+      horizon: '—',
+      quantity: null,
+      entryPrice: null, exitPrice: null,
+      pnl: pnl,
+      entryDate: null,
+      exitDate: new Date().toISOString(),
+      notes: `Received $${pnl.toFixed(2)} sweep from Lottery (${pos.symbol})`,
+      isTransfer: true
+    });
     return { pnl, swept: true, sellQty };
   }
   return { pnl, swept: false, sellQty };
