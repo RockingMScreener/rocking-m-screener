@@ -80,8 +80,8 @@
   .account-tab[data-acct="longterm"].active{color:var(--green);border-color:var(--green);}
   .account-tab[data-acct="longterm"].active::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:3px;background:var(--green);}
   .account-tab:not(.active):hover{color:var(--text);}
-  .pdt-flag-pill{font-family:var(--mono);font-size:9px;padding:2px 8px;background:var(--red-bg);color:var(--red);border:1px solid var(--red);letter-spacing:1px;display:none;}
-  .pdt-flag-pill.visible{display:inline-block;}
+  .margin-flag-pill{font-family:var(--mono);font-size:9px;padding:2px 8px;background:var(--red-bg);color:var(--red);border:1px solid var(--red);letter-spacing:1px;display:none;}
+  .margin-flag-pill.visible{display:inline-block;}
 
   /* ── Panel (generic bordered card) ── */
   .panel{background:var(--bg3);border:1px solid var(--border);padding:16px 18px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
@@ -208,11 +208,25 @@
           </select>
         </div>
         <div class="fgroup">
-          <label for="set-pdt-mode">PDT Rule Enforcement</label>
-          <select id="set-pdt-mode">
+          <label for="set-margin-mode">Intraday Margin Enforcement</label>
+          <select id="set-margin-mode">
             <option value="block">Block trade</option>
             <option value="warn">Warn only</option>
           </select>
+        </div>
+        <div class="fgroup">
+          <label for="set-intraday-multiplier">Intraday Buying-Power Multiplier</label>
+          <input type="number" id="set-intraday-multiplier" value="4" min="1" step="0.5">
+        </div>
+      </div>
+      <div class="settings-row">
+        <div class="fgroup" style="flex-basis:100%;">
+          <span style="font-size:11px;color:var(--fg-dim);">
+            Reflects FINRA's June 4, 2026 elimination of the Pattern Day Trader rule (SR-FINRA-2025-017).
+            The old $25,000 PDT floor and 4-trades-in-5-days flag are gone — margin accounts now just need
+            $2,000 minimum equity, with same-day exposure checked in real time against equity × multiplier.
+            Repeated breaches within 5 business days trigger a simulated 90-day freeze.
+          </span>
         </div>
       </div>
     </div>
@@ -270,7 +284,7 @@
   <!-- Account Tabs -->
   <div class="account-tabs">
     <button class="account-tab active" data-acct="lottery" onclick="setAccount('lottery')">
-      Lottery <span class="pdt-flag-pill" id="pdt-flag-pill">PDT FLAGGED</span>
+      Lottery <span class="margin-flag-pill" id="margin-flag-pill">MARGIN FROZEN</span>
     </button>
     <button class="account-tab" data-acct="longterm" onclick="setAccount('longterm')">Long-Term</button>
   </div>
@@ -421,7 +435,8 @@ const FINNHUB_BASE = 'https://finnhub.io/api/v1';
 const ALPACA_ASSETS_BASE = 'https://paper-api.alpaca.markets/v2/assets';
 const FINNHUB_PACE_MS = 1050; // same serialized-gate pattern as Lighthouse
 const STORAGE_KEY = 'rm_homestead_v1';
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2; // v2: FINRA's PDT rule was eliminated June 4, 2026, replaced by
+                           // an intraday margin framework (SR-FINRA-2025-017) — see MARGIN_MIN_EQUITY below
 
 let finnhubGateChain = Promise.resolve();
 let finnhubLastCallAt = 0;
@@ -438,12 +453,14 @@ function freshAccount(kind) {
     balance: 1000,
     positions: [],      // open positions
     closed: [],          // closed positions + transfer log entries
-    dayTradeLog: [],     // { symbol, date: 'YYYY-MM-DD' } — one per completed day trade
-    pdtFlagged: false,
-    pdtEquityFloor: 25000,
+    intradayExposureLog: [],  // { date: 'YYYY-MM-DD', exposure } — same-day round-trip $ opened, by date
+    marginBreachLog: [], // { date: 'YYYY-MM-DD' } — one per day exposure exceeded equity * multiplier
+    marginFrozenUntil: null,  // ISO date string; trading blocked until this date, or null
+    marginMinEquity: 2000,    // flat FINRA margin-account minimum (replaces old $25k PDT floor)
+    intradayMultiplier: 4,    // simulated intraday buying-power multiplier against equity
     sweepEnabled: isLottery,
     sweepThreshold: 5,
-    pdtMode: 'block'      // 'block' | 'warn'
+    marginMode: 'block'   // 'block' | 'warn' — how exposure breaches are enforced
   };
 }
 
@@ -548,7 +565,8 @@ function openModal() {
   document.getElementById('set-lottery-start').value = STATE.lottery.startingBalance;
   document.getElementById('set-sweep-threshold').value = STATE.lottery.sweepThreshold;
   document.getElementById('set-sweep-enabled').value = STATE.lottery.sweepEnabled ? '1' : '0';
-  document.getElementById('set-pdt-mode').value = STATE.lottery.pdtMode;
+  document.getElementById('set-margin-mode').value = STATE.lottery.marginMode;
+  document.getElementById('set-intraday-multiplier').value = STATE.lottery.intradayMultiplier;
   document.getElementById('set-longterm-start').value = STATE.longterm.startingBalance;
   document.getElementById('modal-overlay').classList.add('open');
 }
@@ -567,7 +585,8 @@ function saveSettings() {
   STATE.lottery.startingBalance = newLotteryStart;
   STATE.lottery.sweepThreshold = parseFloat(document.getElementById('set-sweep-threshold').value) || 5;
   STATE.lottery.sweepEnabled = document.getElementById('set-sweep-enabled').value === '1';
-  STATE.lottery.pdtMode = document.getElementById('set-pdt-mode').value;
+  STATE.lottery.marginMode = document.getElementById('set-margin-mode').value;
+  STATE.lottery.intradayMultiplier = parseFloat(document.getElementById('set-intraday-multiplier').value) || 4;
 
   if (STATE.longterm.positions.length === 0 && STATE.longterm.closed.length === 0) {
     STATE.longterm.balance = newLongtermStart;
@@ -694,13 +713,18 @@ async function fetchEntryPrice() {
 }
 
 // ══════════════════════════════════════════════════════════════
-// PDT (Pattern Day Trader) Tracking — Lottery account only
+// Intraday Margin Tracking — Lottery account only
 // ══════════════════════════════════════════════════════════════
-// Simplified vs. the real FINRA rule: we block/warn on OPENING a new
-// position once flagged & under the equity floor, rather than modeling
-// the full nuance of which specific trade type gets restricted. Good
-// enough to teach the real-world constraint without full regulatory
-// precision — documented here so it's not mistaken for exact compliance logic.
+// Reflects FINRA's June 4, 2026 replacement of the old Pattern Day Trader
+// rule (SR-FINRA-2025-017, SEC-approved April 14, 2026): the $25k floor and
+// 4-day-trades-in-5-days flag are gone. Simplified vs. the real rule: we
+// check same-day opening exposure against equity × multiplier at OPEN time
+// (real brokers may check continuously intraday or at end-of-day), and a
+// simulated 90-day freeze follows 3 breaches in a rolling 5-business-day
+// window (real accounts face a freeze after repeated failures, exact count
+// left to broker discretion). Good enough to teach the real-world
+// constraint without full regulatory precision — documented here so it's
+// not mistaken for exact compliance logic.
 function todayStr() { return new Date().toISOString().slice(0, 10); }
 
 function businessDaysAgoStr(n) {
@@ -714,20 +738,36 @@ function businessDaysAgoStr(n) {
   return d.toISOString().slice(0, 10);
 }
 
-function recalcPdtFlag() {
+// Same-day opening exposure so far today (sum of entry $ for positions opened today)
+function todaysIntradayExposure() {
   const lot = STATE.lottery;
-  const windowStart = businessDaysAgoStr(5);
-  const recent = lot.dayTradeLog.filter(t => t.date >= windowStart);
-  lot.pdtFlagged = recent.length >= 4;
+  const today = todayStr();
+  return lot.positions
+    .filter(p => p.entryDate.slice(0, 10) === today)
+    .reduce((s, p) => s + p.quantity * p.entryPrice, 0);
 }
 
-function recordDayTradeIfApplicable(pos, closeDateStr) {
-  if (currentAccount !== 'lottery') return;
-  const openedDateStr = pos.entryDate.slice(0, 10);
-  if (openedDateStr === closeDateStr) {
-    STATE.lottery.dayTradeLog.push({ symbol: pos.symbol, date: closeDateStr });
-    recalcPdtFlag();
+function recalcMarginFreeze() {
+  const lot = STATE.lottery;
+  const windowStart = businessDaysAgoStr(5);
+  const recent = lot.marginBreachLog.filter(b => b.date >= windowStart);
+  if (recent.length >= 3 && !lot.marginFrozenUntil) {
+    const until = new Date();
+    until.setDate(until.getDate() + 90);
+    lot.marginFrozenUntil = until.toISOString().slice(0, 10);
   }
+  if (lot.marginFrozenUntil && lot.marginFrozenUntil <= todayStr()) {
+    lot.marginFrozenUntil = null;
+  }
+}
+
+function recordMarginBreachIfApplicable() {
+  const lot = STATE.lottery;
+  const today = todayStr();
+  if (!lot.marginBreachLog.some(b => b.date === today)) {
+    lot.marginBreachLog.push({ date: today });
+  }
+  recalcMarginFreeze();
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -755,15 +795,33 @@ async function openPosition() {
 
   const a = acct();
 
-  // PDT gate — only meaningful for the Lottery account
+  // Intraday margin gate — only meaningful for the Lottery account
   if (currentAccount === 'lottery') {
-    recalcPdtFlag();
-    if (a.pdtFlagged && a.balance < a.pdtEquityFloor) {
-      if (a.pdtMode === 'block') {
-        toast(`Blocked: PDT rule active (4+ day trades in 5 business days, balance under $${a.pdtEquityFloor.toLocaleString()})`);
+    recalcMarginFreeze();
+
+    if (a.marginFrozenUntil) {
+      toast(`Blocked: account frozen under simulated intraday margin rules until ${a.marginFrozenUntil}`);
+      return;
+    }
+
+    const equity = accountEquity(a);
+    if (equity < a.marginMinEquity) {
+      const msg = `margin equity ($${equity.toFixed(0)}) below the $${a.marginMinEquity.toLocaleString()} minimum`;
+      if (a.marginMode === 'block') { toast(`Blocked: ${msg}`); return; }
+      toast(`⚠ ${msg} — this account would be restricted with real money`);
+    }
+
+    const prospectiveExposure = todaysIntradayExposure() + qtyInput * lastFetchedPrice;
+    const exposureLimit = equity * a.intradayMultiplier;
+    if (prospectiveExposure > exposureLimit) {
+      const msg = `same-day exposure ($${prospectiveExposure.toFixed(0)}) would exceed equity × ${a.intradayMultiplier} ($${exposureLimit.toFixed(0)})`;
+      if (a.marginMode === 'block') {
+        toast(`Blocked: ${msg}`);
+        recordMarginBreachIfApplicable();
         return;
       } else {
-        toast(`⚠ PDT rule active — this account would be restricted with real money`);
+        toast(`⚠ ${msg} — this account would be restricted with real money`);
+        recordMarginBreachIfApplicable();
       }
     }
   }
@@ -824,7 +882,7 @@ async function openPosition() {
 }
 
 // ══════════════════════════════════════════════════════════════
-// Close Position (full or partial) + PDT logging + sweep rule
+// Close Position (full or partial) + sweep rule
 // ══════════════════════════════════════════════════════════════
 // ══════════════════════════════════════════════════════════════
 // Core close logic — shared by manual closePosition() and the
@@ -835,7 +893,6 @@ function executeClose(a, pos, pct, price, autoReason = null) {
   const exitValue = sellQty * price;
   const costBasis = sellQty * pos.entryPrice;
   const pnl = exitValue - costBasis;
-  const closeDateStr = todayStr();
 
   a.balance += exitValue;
 
@@ -853,8 +910,6 @@ function executeClose(a, pos, pct, price, autoReason = null) {
     isTransfer: false
   };
   a.closed.unshift(closedRecord);
-
-  recordDayTradeIfApplicable(pos, closeDateStr);
 
   if (pct >= 99.99) {
     a.positions = a.positions.filter(p => p.id !== pos.id);
@@ -992,7 +1047,7 @@ function fDate(iso) { return iso ? new Date(iso).toLocaleDateString([], { month:
 
 function renderAll() {
   updateHeaderBalances();
-  updatePdtPill();
+  updateMarginPill();
   renderStats();
   renderOpenPositions();
   renderClosedPositions();
@@ -1003,9 +1058,9 @@ function updateHeaderBalances() {
   document.getElementById('hdr-longterm-bal').textContent = fUsd(STATE.longterm.balance);
 }
 
-function updatePdtPill() {
-  recalcPdtFlag();
-  document.getElementById('pdt-flag-pill').classList.toggle('visible', STATE.lottery.pdtFlagged);
+function updateMarginPill() {
+  recalcMarginFreeze();
+  document.getElementById('margin-flag-pill').classList.toggle('visible', !!STATE.lottery.marginFrozenUntil);
 }
 
 function accountEquity(a) {
@@ -1027,14 +1082,14 @@ function renderStats() {
     const wins = realizedTrades.filter(c => c.pnl > 0).length;
     const winRate = realizedTrades.length ? Math.round((wins / realizedTrades.length) * 100) : 0;
     const avgPnl = realizedTrades.length ? realizedPnl / realizedTrades.length : 0;
-    const windowStart = businessDaysAgoStr(5);
-    const dayTradesInWindow = a.dayTradeLog.filter(t => t.date >= windowStart).length;
+    const todaysExposure = todaysIntradayExposure();
+    const exposureLimit = equity * a.intradayMultiplier;
     row.innerHTML = `
       <div class="scard"><div class="scard-label">Balance</div><div class="scard-val">${fUsd(a.balance)}</div></div>
       <div class="scard ${equity >= a.startingBalance ? 'pos' : 'neg'}"><div class="scard-label">Total Return</div><div class="scard-val ${equity >= a.startingBalance ? 'pos' : 'neg'}">${totalReturn >= 0 ? '+' : ''}${totalReturn.toFixed(1)}%</div></div>
       <div class="scard"><div class="scard-label">Win Rate</div><div class="scard-val">${winRate}%</div></div>
       <div class="scard ${avgPnl >= 0 ? 'pos' : 'neg'}"><div class="scard-label">Avg P&amp;L / Trade</div><div class="scard-val ${avgPnl >= 0 ? 'pos' : 'neg'}">${fUsd(avgPnl)}</div></div>
-      <div class="scard ${dayTradesInWindow >= 4 ? 'neg' : ''}"><div class="scard-label">Day Trades (5-day)</div><div class="scard-val ${dayTradesInWindow >= 4 ? 'neg' : ''}">${dayTradesInWindow}/4</div></div>
+      <div class="scard ${todaysExposure > exposureLimit ? 'neg' : ''}"><div class="scard-label">Intraday Exposure</div><div class="scard-val ${todaysExposure > exposureLimit ? 'neg' : ''}">${fUsd(todaysExposure)} / ${fUsd(exposureLimit)}</div></div>
       <div class="scard"><div class="scard-label">Open Positions</div><div class="scard-val">${a.positions.length}</div></div>
       <div class="scard"><div class="scard-label">Positions Value</div><div class="scard-val">${fUsd(positionsValue)}</div></div>
     `;
