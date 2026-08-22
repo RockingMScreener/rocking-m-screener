@@ -197,6 +197,13 @@
           <input type="number" id="set-lottery-start" value="1000" min="100" step="100">
         </div>
         <div class="fgroup">
+          <label for="set-account-type">Account Type</label>
+          <select id="set-account-type" onchange="onAccountTypeSettingChange()">
+            <option value="margin">Margin</option>
+            <option value="cash">Cash</option>
+          </select>
+        </div>
+        <div class="fgroup">
           <label for="set-sweep-threshold">Sweep Threshold ($ profit)</label>
           <input type="number" id="set-sweep-threshold" value="5" min="0" step="1">
         </div>
@@ -207,25 +214,34 @@
             <option value="0">Disabled</option>
           </select>
         </div>
-        <div class="fgroup">
+        <div class="fgroup margin-only-setting">
           <label for="set-margin-mode">Intraday Margin Enforcement</label>
           <select id="set-margin-mode">
             <option value="block">Block trade</option>
             <option value="warn">Warn only</option>
           </select>
         </div>
-        <div class="fgroup">
+        <div class="fgroup margin-only-setting">
           <label for="set-intraday-multiplier">Intraday Buying-Power Multiplier</label>
           <input type="number" id="set-intraday-multiplier" value="4" min="1" step="0.5">
         </div>
       </div>
-      <div class="settings-row">
+      <div class="settings-row margin-only-setting">
         <div class="fgroup" style="flex-basis:100%;">
           <span style="font-size:11px;color:var(--fg-dim);">
             Reflects FINRA's June 4, 2026 elimination of the Pattern Day Trader rule (SR-FINRA-2025-017).
             The old $25,000 PDT floor and 4-trades-in-5-days flag are gone — margin accounts now just need
             $2,000 minimum equity, with same-day exposure checked in real time against equity × multiplier.
             Repeated breaches within 5 business days trigger a simulated 90-day freeze.
+          </span>
+        </div>
+      </div>
+      <div class="settings-row cash-only-setting" style="display:none;">
+        <div class="fgroup" style="flex-basis:100%;">
+          <span style="font-size:11px;color:var(--fg-dim);">
+            Cash accounts aren't subject to margin rules at all — no minimum equity, no exposure limit,
+            no freeze. Instead, proceeds from a closed position take one business day (T+1) to settle
+            before they can fund a new buy. No configuration needed for this — it's tracked automatically.
           </span>
         </div>
       </div>
@@ -451,6 +467,8 @@ function freshAccount(kind) {
     label: isLottery ? 'Lottery' : 'Long-Term Holdings',
     startingBalance: 1000,
     balance: 1000,
+    accountType: 'margin',   // 'margin' | 'cash' — only meaningful/enforced on the Lottery account
+    pendingSettlement: [],   // { amount, settleDate: 'YYYY-MM-DD' } — cash-account T+1 unsettled proceeds
     positions: [],      // open positions
     closed: [],          // closed positions + transfer log entries
     intradayExposureLog: [],  // { date: 'YYYY-MM-DD', exposure } — same-day round-trip $ opened, by date
@@ -563,15 +581,23 @@ function openModal() {
   const aid = getAlpacaId(); if (aid) document.getElementById('alpaca-id-input').value = aid;
   const asec = getAlpacaSecret(); if (asec) document.getElementById('alpaca-secret-input').value = asec;
   document.getElementById('set-lottery-start').value = STATE.lottery.startingBalance;
+  document.getElementById('set-account-type').value = STATE.lottery.accountType || 'margin';
   document.getElementById('set-sweep-threshold').value = STATE.lottery.sweepThreshold;
   document.getElementById('set-sweep-enabled').value = STATE.lottery.sweepEnabled ? '1' : '0';
   document.getElementById('set-margin-mode').value = STATE.lottery.marginMode;
   document.getElementById('set-intraday-multiplier').value = STATE.lottery.intradayMultiplier;
   document.getElementById('set-longterm-start').value = STATE.longterm.startingBalance;
+  onAccountTypeSettingChange();
   document.getElementById('modal-overlay').classList.add('open');
 }
 function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
 function handleOverlayClick(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+
+function onAccountTypeSettingChange() {
+  const isCash = document.getElementById('set-account-type').value === 'cash';
+  document.querySelectorAll('.margin-only-setting').forEach(el => el.style.display = isCash ? 'none' : '');
+  document.querySelectorAll('.cash-only-setting').forEach(el => el.style.display = isCash ? '' : 'none');
+}
 
 function saveSettings() {
   const newLotteryStart = parseFloat(document.getElementById('set-lottery-start').value) || 1000;
@@ -583,6 +609,19 @@ function saveSettings() {
     STATE.lottery.balance = newLotteryStart;
   }
   STATE.lottery.startingBalance = newLotteryStart;
+  const newAccountType = document.getElementById('set-account-type').value;
+  if (newAccountType !== STATE.lottery.accountType) {
+    // Switching type mid-stream: clear whichever mechanic doesn't apply to the new
+    // type, rather than leaving stale margin-breach or settlement data lying around.
+    if (newAccountType === 'cash') {
+      STATE.lottery.marginFrozenUntil = null;
+      STATE.lottery.marginBreachLog = [];
+      STATE.lottery.intradayExposureLog = [];
+    } else {
+      STATE.lottery.pendingSettlement = [];
+    }
+  }
+  STATE.lottery.accountType = newAccountType;
   STATE.lottery.sweepThreshold = parseFloat(document.getElementById('set-sweep-threshold').value) || 5;
   STATE.lottery.sweepEnabled = document.getElementById('set-sweep-enabled').value === '1';
   STATE.lottery.marginMode = document.getElementById('set-margin-mode').value;
@@ -771,6 +810,30 @@ function recordMarginBreachIfApplicable() {
 }
 
 // ══════════════════════════════════════════════════════════════
+// Cash-account settlement (T+1) — the alternative to margin's
+// intraday-exposure rule. A cash account isn't subject to margin
+// restrictions at all, but proceeds from a sale aren't usable for a
+// new buy until they settle (currently T+1 — one business day).
+// Simplified vs. real settlement: we track total pending proceeds and
+// treat the FULL sale amount as unsettled for one business day, rather
+// than modeling partial same-day-vs-prior-day settlement buckets.
+// ══════════════════════════════════════════════════════════════
+function nextBusinessDayStr(fromDateStr) {
+  let d = new Date(fromDateStr + 'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate() + 1);
+  while (d.getUTCDay() === 0 || d.getUTCDay() === 6) d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
+
+function settledCashBalance(a) {
+  const today = todayStr();
+  // Clear anything that has already settled, then sum what's still pending
+  a.pendingSettlement = a.pendingSettlement.filter(p => p.settleDate > today);
+  const unsettled = a.pendingSettlement.reduce((s, p) => s + p.amount, 0);
+  return a.balance - unsettled;
+}
+
+// ══════════════════════════════════════════════════════════════
 // Open Position
 // ══════════════════════════════════════════════════════════════
 async function openPosition() {
@@ -795,8 +858,8 @@ async function openPosition() {
 
   const a = acct();
 
-  // Intraday margin gate — only meaningful for the Lottery account
-  if (currentAccount === 'lottery') {
+  // Lottery-only gate — behavior branches entirely on account type
+  if (currentAccount === 'lottery' && a.accountType === 'margin') {
     recalcMarginFreeze();
 
     if (a.marginFrozenUntil) {
@@ -836,7 +899,15 @@ async function openPosition() {
   }
 
   const cost = qty * lastFetchedPrice;
-  if (cost > a.balance) { toast(`Insufficient balance — need $${cost.toFixed(2)}, have $${a.balance.toFixed(2)}`); return; }
+  const availableCash = (currentAccount === 'lottery' && a.accountType === 'cash') ? settledCashBalance(a) : a.balance;
+  if (cost > availableCash) {
+    if (currentAccount === 'lottery' && a.accountType === 'cash' && cost <= a.balance) {
+      toast(`Blocked: $${(a.balance - availableCash).toFixed(2)} of your $${a.balance.toFixed(2)} balance hasn't settled yet (T+1) — need $${cost.toFixed(2)}, have $${availableCash.toFixed(2)} settled`);
+    } else {
+      toast(`Insufficient balance — need $${cost.toFixed(2)}, have $${a.balance.toFixed(2)}`);
+    }
+    return;
+  }
 
   const position = {
     id: Date.now(),
@@ -895,6 +966,9 @@ function executeClose(a, pos, pct, price, autoReason = null) {
   const pnl = exitValue - costBasis;
 
   a.balance += exitValue;
+  if (currentAccount === 'lottery' && a.accountType === 'cash') {
+    a.pendingSettlement.push({ amount: exitValue, settleDate: nextBusinessDayStr(todayStr()) });
+  }
 
   const closedRecord = {
     id: Date.now() + Math.random(), // avoids id collisions if multiple auto-closes land in the same refresh
@@ -1059,6 +1133,10 @@ function updateHeaderBalances() {
 }
 
 function updateMarginPill() {
+  if (STATE.lottery.accountType === 'cash') {
+    document.getElementById('margin-flag-pill').classList.remove('visible');
+    return;
+  }
   recalcMarginFreeze();
   document.getElementById('margin-flag-pill').classList.toggle('visible', !!STATE.lottery.marginFrozenUntil);
 }
@@ -1082,14 +1160,24 @@ function renderStats() {
     const wins = realizedTrades.filter(c => c.pnl > 0).length;
     const winRate = realizedTrades.length ? Math.round((wins / realizedTrades.length) * 100) : 0;
     const avgPnl = realizedTrades.length ? realizedPnl / realizedTrades.length : 0;
-    const todaysExposure = todaysIntradayExposure();
-    const exposureLimit = equity * a.intradayMultiplier;
+    const isCash = a.accountType === 'cash';
+    const fifthCard = isCash
+      ? (() => {
+          const settled = settledCashBalance(a);
+          const unsettled = a.balance - settled;
+          return `<div class="scard ${unsettled > 0 ? '' : ''}"><div class="scard-label">Settled / Unsettled Cash</div><div class="scard-val">${fUsd(settled)} / ${fUsd(unsettled)}</div></div>`;
+        })()
+      : (() => {
+          const todaysExposure = todaysIntradayExposure();
+          const exposureLimit = equity * a.intradayMultiplier;
+          return `<div class="scard ${todaysExposure > exposureLimit ? 'neg' : ''}"><div class="scard-label">Intraday Exposure</div><div class="scard-val ${todaysExposure > exposureLimit ? 'neg' : ''}">${fUsd(todaysExposure)} / ${fUsd(exposureLimit)}</div></div>`;
+        })();
     row.innerHTML = `
       <div class="scard"><div class="scard-label">Balance</div><div class="scard-val">${fUsd(a.balance)}</div></div>
       <div class="scard ${equity >= a.startingBalance ? 'pos' : 'neg'}"><div class="scard-label">Total Return</div><div class="scard-val ${equity >= a.startingBalance ? 'pos' : 'neg'}">${totalReturn >= 0 ? '+' : ''}${totalReturn.toFixed(1)}%</div></div>
       <div class="scard"><div class="scard-label">Win Rate</div><div class="scard-val">${winRate}%</div></div>
       <div class="scard ${avgPnl >= 0 ? 'pos' : 'neg'}"><div class="scard-label">Avg P&amp;L / Trade</div><div class="scard-val ${avgPnl >= 0 ? 'pos' : 'neg'}">${fUsd(avgPnl)}</div></div>
-      <div class="scard ${todaysExposure > exposureLimit ? 'neg' : ''}"><div class="scard-label">Intraday Exposure</div><div class="scard-val ${todaysExposure > exposureLimit ? 'neg' : ''}">${fUsd(todaysExposure)} / ${fUsd(exposureLimit)}</div></div>
+      ${fifthCard}
       <div class="scard"><div class="scard-label">Open Positions</div><div class="scard-val">${a.positions.length}</div></div>
       <div class="scard"><div class="scard-label">Positions Value</div><div class="scard-val">${fUsd(positionsValue)}</div></div>
     `;
